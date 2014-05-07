@@ -2,16 +2,16 @@
 #include "def.h"
 // TODO
 /* #define YYSTYPE Pnode */
-/* extern char *yytext; */
-/* extern Value lexval; */
-/* extern int line; */
-/* extern FILE *yyin; */
+extern char *yytext;
+extern Value lexval;
+extern int line;
+extern FILE *yyin;
 /* Pnode root = NULL; */
 %}
 
 // TODO
 /* %token DEF INTEGER STRING BOOLEAN ID INTCONST STRCONST BOOLCONST ASSIGN */
-/* %token ERROR */
+%token ERROR
 
 %%
 
@@ -145,6 +145,106 @@ specifier_opt : '[' expr ']'
 expr : expr bool_op bool_term
      | bool_term
      ;
+
+bool_op : AND
+        | OR
+        ;
+
+bool_term : rel_term rel_op rel_term
+          | rel_term
+          ;
+
+rel_op : EQ
+       | NEQ
+       | GT
+       | GEQ
+       | LT
+       | LEQ
+       | IN
+       ;
+
+rel_term : rel_term low_bin_op low_term
+         | low_term
+         ;
+
+low_bin_op : PLUS
+           | MINUS
+           ;
+
+low_term : low_term high_bin_op factor
+         | factor
+         ;
+
+high_bin_op : MUL
+            | DIVIDE
+            ;
+
+factor : unary_op factor
+       | '(' expr ')'
+       | left_hand_side
+       | atomic_const
+       | instance_construction
+       | func_call
+       | con_expr
+       | built_in_call
+       | dynamic_input
+       ;
+
+unary_op : MINUS
+         | NOT
+         | dynamic_output
+         ;
+
+atomic_const : CHAR_CONST
+             | INT_CONST
+             | REAL_CONST
+             | STR_CONST
+             | BOOL_CONST
+             ;
+
+instance_construction : struct_construction
+                      | vector_construction
+                      ;
+
+struct_construction : STRUCT '(' expr_list ')'
+                    ;
+
+expr_list : expr ',' expr_list
+          | expr
+          ;
+
+vector_construction : VECTOR '(' expr_list ')'
+                    ;
+
+func_call : ID '(' expr_list_opt ')'
+          ;
+
+expr_list_opt : expr_list
+              |
+              ;
+
+cond_expr : IF expr THEN expr elsif_expr_list_opt ELSE expr ENDIF
+          ;
+
+elsif_expr_list_opt : ELSIF expr THEN expr elsif_expr_list_opt
+                    |
+                    ;
+
+built_in_call : toint_call
+              | toreal_call
+              ;
+
+toint_call : TOINT '(' expr ')'
+           ;
+
+toreal_call : TOREAL '(' expr ')'
+            ;
+
+dynamic_input : RD specifier_opt domain
+              ;
+
+dynamic_output : WR specifier_opt
+               ;
 
 %%
 

@@ -1,5 +1,6 @@
 %{
 #include "def.h"
+#include "parser.h"
 int line = 1;
 Value lexval;
 %}
@@ -71,11 +72,11 @@ wr				{ printf( "%s ", "WR" ); return( WR ); }
 "-"				{ printf( "%s ", "MINUS" ); return( MINUS ); }
 "*"				{ printf( "%s ", "MUL" ); return( MUL ); }
 "/"				{ printf( "%s ", "DIVIDE" ); return( DIVIDE ); }
-{intconst}		{ printf( "%s ", "INTCONST" ); lexval.i_val = atoi( yytext ); return( INTCONST ); }
-{charconst}		{ printf( "%s ", "CHARCONST" ); lexval.c_val = yytext[ 0 ]; return( CHARCONST ); }
-{realconst}		{ printf( "%s ", "REALCONST" ); lexval.r_val = atof( yytext ); return( REALCONST ); }
-{strconst}		{ printf( "%s ", "STRCONST" ); lexval.s_val = new_string( yytext ); return( STRCONST ); }
-{boolconst}		{ printf( "%s ", "BOOLCONST" ); lexval.b_val = ( yytext[ 0 ] == 'f' ? FALSE : TRUE ); return( BOOLCONST ); }
+{intconst}		{ printf( "%s ", "INT_CONST" ); lexval.i_val = atoi( yytext ); return( INT_CONST ); }
+{charconst}		{ printf( "%s ", "CHAR_CONST" ); lexval.c_val = yytext[ 0 ]; return( CHAR_CONST ); }
+{realconst}		{ printf( "%s ", "REAL_CONST" ); lexval.r_val = atof( yytext ); return( REAL_CONST ); }
+{strconst}		{ printf( "%s ", "STR_CONST" ); lexval.s_val = new_string( yytext ); return( STR_CONST ); }
+{boolconst}		{ printf( "%s ", "BOOL_CONST" ); lexval.b_val = ( yytext[ 0 ] == 'f' ? FALSE : TRUE ); return( BOOL_CONST ); }
 {id}			{ printf( "%s ", "ID" ); lexval.s_val = new_string( yytext ); return( ID ); }
 {sugar}			{ printf( "%c ", yytext[ 0 ] ); return( yytext[ 0 ] ); }
 .				{ printf( "\nError on line %d: %s", line, yytext ); return( ERROR ); }
