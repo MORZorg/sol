@@ -34,7 +34,7 @@ of				{ printf( "%s ", "OF" ); return( OF ); }
 type			{ printf( "%s ", "TYPE" ); return( TYPE ); }
 var				{ printf( "%s ", "VAR" ); return( VAR ); }
 const			{ printf( "%s ", "CONST" ); return( CONST ); }
-begin			{ printf( "%s ", "SOL_BEGIN" ); return( SOL_BEGIN ); }
+begin			{ printf( "%s ", "BEGIN" ); return( BEGIN ); }
 end				{ printf( "%s ", "END" ); return( END ); }
 if				{ printf( "%s ", "IF" ); return( IF ); }
 then			{ printf( "%s ", "THEN" ); return( THEN ); }

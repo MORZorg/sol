@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+// FIXME "BEGIN" could conflict with Flex's BEGIN. Verify.
 #define FUNC		259 
 #define CHAR		260
 #define INT			261
@@ -13,7 +14,7 @@
 #define TYPE		268
 #define VAR			269
 #define CONST		270
-#define SOL_BEGIN	271
+#define BEGIN		271
 #define END			272
 #define IF			273
 #define THEN		274
