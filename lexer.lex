@@ -21,66 +21,66 @@ spacing			([ \t])+
 sugar			[()\[\]{}.,;]
 
 %%
-\n				{ printf( "\n" ); line++; }
+\n				{ fprintf( stderr, "\n" ); line++; }
 {spacing}		;
-func			{ printf( "%s ", "FUNC" ); return( FUNC ); }
-char			{ printf( "%s ", "CHAR" ); return( CHAR ); }
-int				{ printf( "%s ", "INT" ); return( INT ); }
-real			{ printf( "%s ", "REAL" ); return( REAL ); }
-string			{ printf( "%s ", "STRING" ); return( STRING ); }
-bool			{ printf( "%s ", "BOOL" ); return( BOOL ); }
-struct			{ printf( "%s ", "STRUCT" ); return( STRUCT ); }
-vector			{ printf( "%s ", "VECTOR" ); return( VECTOR ); }
-of				{ printf( "%s ", "OF" ); return( OF ); }
-type			{ printf( "%s ", "TYPE" ); return( TYPE ); }
-var				{ printf( "%s ", "VAR" ); return( VAR ); }
-const			{ printf( "%s ", "CONST" ); return( CONST ); }
-begin			{ printf( "%s ", "SOL_BEGIN" ); return( SOL_BEGIN ); }
-end				{ printf( "%s ", "END" ); return( END ); }
-if				{ printf( "%s ", "IF" ); return( IF ); }
-then			{ printf( "%s ", "THEN" ); return( THEN ); }
-endif			{ printf( "%s ", "ENDIF" ); return( ENDIF ); }
-elsif			{ printf( "%s ", "ELSIF" ); return( ELSIF ); }
-else			{ printf( "%s ", "ELSE" ); return( ELSE ); }
-while			{ printf( "%s ", "WHILE" ); return( WHILE ); }
-do				{ printf( "%s ", "DO" ); return( DO ); }
-endwhile		{ printf( "%s ", "ENDWHILE" ); return( ENDWHILE ); }
-for				{ printf( "%s ", "FOR" ); return( FOR ); }
-to				{ printf( "%s ", "TO" ); return( TO ); }
-endfor			{ printf( "%s ", "ENDFOR" ); return( ENDFOR ); }
-foreach			{ printf( "%s ", "FOREACH" ); return( FOREACH ); }
-endforeach		{ printf( "%s ", "ENDFOREACH" ); return( ENDFOREACH ); }
-return			{ printf( "%s ", "RETURN" ); return( RETURN ); }
-read			{ printf( "%s ", "READ" ); return( READ ); }
-write			{ printf( "%s ", "WRITE" ); return( WRITE ); }
-and				{ printf( "%s ", "AND" ); return( AND ); }
-or				{ printf( "%s ", "OR" ); return( OR ); }
-in				{ printf( "%s ", "IN" ); return( IN ); }
-not				{ printf( "%s ", "NOT" ); return( NOT ); }
-toint			{ printf( "%s ", "TOINT" ); return( TOINT ); }
-toreal			{ printf( "%s ", "TOREAL" ); return( TOREAL ); }
-rd				{ printf( "%s ", "RD" ); return( RD ); }
-wr				{ printf( "%s ", "WR" ); return( WR ); }
-":"				{ printf( "%s ", "DEFINE" ); return( DEFINE ); }
-"="				{ printf( "%s ", "ASSIGN" ); return( ASSIGN ); }
-"=="			{ printf( "%s ", "EQ" ); return( EQ ); }
-"!="			{ printf( "%s ", "NEQ" ); return( NEQ ); }
-">"				{ printf( "%s ", "GT" ); return( GT ); }
-">="			{ printf( "%s ", "GEQ" ); return( GEQ ); }
-"<"				{ printf( "%s ", "LT" ); return( LT ); }
-"<="			{ printf( "%s ", "LEQ" ); return( LEQ ); }
-"+"				{ printf( "%s ", "PLUS" ); return( PLUS ); }
-"-"				{ printf( "%s ", "MINUS" ); return( MINUS ); }
-"*"				{ printf( "%s ", "MULTIPLY" ); return( MULTIPLY ); }
-"/"				{ printf( "%s ", "DIVIDE" ); return( DIVIDE ); }
-{intconst}		{ printf( "%s ", "INT_CONST" ); lexval.i_val = atoi( yytext ); return( INT_CONST ); }
-{charconst}		{ printf( "%s ", "CHAR_CONST" ); lexval.c_val = yytext[ 0 ]; return( CHAR_CONST ); }
-{realconst}		{ printf( "%s ", "REAL_CONST" ); lexval.r_val = atof( yytext ); return( REAL_CONST ); }
-{strconst}		{ printf( "%s ", "STR_CONST" ); lexval.s_val = new_string( yytext ); return( STR_CONST ); }
-{boolconst}		{ printf( "%s ", "BOOL_CONST" ); lexval.b_val = ( yytext[ 0 ] == 'f' ? FALSE : TRUE ); return( BOOL_CONST ); }
-{id}			{ printf( "%s ", "ID" ); lexval.s_val = new_string( yytext ); return( ID ); }
-{sugar}			{ printf( "%c ", yytext[ 0 ] ); return( yytext[ 0 ] ); }
-.				{ printf( "\nLine %d: lexical error: unrecognized symbol \"%s\".", line, yytext ); return( ERROR ); }
+func			{ fprintf( stderr, "%s ", "FUNC" ); return( FUNC ); }
+char			{ fprintf( stderr, "%s ", "CHAR" ); return( CHAR ); }
+int				{ fprintf( stderr, "%s ", "INT" ); return( INT ); }
+real			{ fprintf( stderr, "%s ", "REAL" ); return( REAL ); }
+string			{ fprintf( stderr, "%s ", "STRING" ); return( STRING ); }
+bool			{ fprintf( stderr, "%s ", "BOOL" ); return( BOOL ); }
+struct			{ fprintf( stderr, "%s ", "STRUCT" ); return( STRUCT ); }
+vector			{ fprintf( stderr, "%s ", "VECTOR" ); return( VECTOR ); }
+of				{ fprintf( stderr, "%s ", "OF" ); return( OF ); }
+type			{ fprintf( stderr, "%s ", "TYPE" ); return( TYPE ); }
+var				{ fprintf( stderr, "%s ", "VAR" ); return( VAR ); }
+const			{ fprintf( stderr, "%s ", "CONST" ); return( CONST ); }
+begin			{ fprintf( stderr, "%s ", "SOL_BEGIN" ); return( SOL_BEGIN ); }
+end				{ fprintf( stderr, "%s ", "END" ); return( END ); }
+if				{ fprintf( stderr, "%s ", "IF" ); return( IF ); }
+then			{ fprintf( stderr, "%s ", "THEN" ); return( THEN ); }
+endif			{ fprintf( stderr, "%s ", "ENDIF" ); return( ENDIF ); }
+elsif			{ fprintf( stderr, "%s ", "ELSIF" ); return( ELSIF ); }
+else			{ fprintf( stderr, "%s ", "ELSE" ); return( ELSE ); }
+while			{ fprintf( stderr, "%s ", "WHILE" ); return( WHILE ); }
+do				{ fprintf( stderr, "%s ", "DO" ); return( DO ); }
+endwhile		{ fprintf( stderr, "%s ", "ENDWHILE" ); return( ENDWHILE ); }
+for				{ fprintf( stderr, "%s ", "FOR" ); return( FOR ); }
+to				{ fprintf( stderr, "%s ", "TO" ); return( TO ); }
+endfor			{ fprintf( stderr, "%s ", "ENDFOR" ); return( ENDFOR ); }
+foreach			{ fprintf( stderr, "%s ", "FOREACH" ); return( FOREACH ); }
+endforeach		{ fprintf( stderr, "%s ", "ENDFOREACH" ); return( ENDFOREACH ); }
+return			{ fprintf( stderr, "%s ", "RETURN" ); return( RETURN ); }
+read			{ fprintf( stderr, "%s ", "READ" ); return( READ ); }
+write			{ fprintf( stderr, "%s ", "WRITE" ); return( WRITE ); }
+and				{ fprintf( stderr, "%s ", "AND" ); return( AND ); }
+or				{ fprintf( stderr, "%s ", "OR" ); return( OR ); }
+in				{ fprintf( stderr, "%s ", "IN" ); return( IN ); }
+not				{ fprintf( stderr, "%s ", "NOT" ); return( NOT ); }
+toint			{ fprintf( stderr, "%s ", "TOINT" ); return( TOINT ); }
+toreal			{ fprintf( stderr, "%s ", "TOREAL" ); return( TOREAL ); }
+rd				{ fprintf( stderr, "%s ", "RD" ); return( RD ); }
+wr				{ fprintf( stderr, "%s ", "WR" ); return( WR ); }
+":"				{ fprintf( stderr, "%s ", "DEFINE" ); return( DEFINE ); }
+"="				{ fprintf( stderr, "%s ", "ASSIGN" ); return( ASSIGN ); }
+"=="			{ fprintf( stderr, "%s ", "EQ" ); return( EQ ); }
+"!="			{ fprintf( stderr, "%s ", "NEQ" ); return( NEQ ); }
+">"				{ fprintf( stderr, "%s ", "GT" ); return( GT ); }
+">="			{ fprintf( stderr, "%s ", "GEQ" ); return( GEQ ); }
+"<"				{ fprintf( stderr, "%s ", "LT" ); return( LT ); }
+"<="			{ fprintf( stderr, "%s ", "LEQ" ); return( LEQ ); }
+"+"				{ fprintf( stderr, "%s ", "PLUS" ); return( PLUS ); }
+"-"				{ fprintf( stderr, "%s ", "MINUS" ); return( MINUS ); }
+"*"				{ fprintf( stderr, "%s ", "MULTIPLY" ); return( MULTIPLY ); }
+"/"				{ fprintf( stderr, "%s ", "DIVIDE" ); return( DIVIDE ); }
+{intconst}		{ fprintf( stderr, "%s ", "INT_CONST" ); lexval.i_val = atoi( yytext ); return( INT_CONST ); }
+{charconst}		{ fprintf( stderr, "%s ", "CHAR_CONST" ); lexval.c_val = yytext[ 0 ]; return( CHAR_CONST ); }
+{realconst}		{ fprintf( stderr, "%s ", "REAL_CONST" ); lexval.r_val = atof( yytext ); return( REAL_CONST ); }
+{strconst}		{ fprintf( stderr, "%s ", "STR_CONST" ); lexval.s_val = new_string( yytext ); return( STR_CONST ); }
+{boolconst}		{ fprintf( stderr, "%s ", "BOOL_CONST" ); lexval.b_val = ( yytext[ 0 ] == 'f' ? FALSE : TRUE ); return( BOOL_CONST ); }
+{id}			{ fprintf( stderr, "%s ", "ID" ); lexval.s_val = new_string( yytext ); return( ID ); }
+{sugar}			{ fprintf( stderr, "%c ", yytext[ 0 ] ); return( yytext[ 0 ] ); }
+.				{ fprintf( stdout, "\nLine %d: lexical error: unrecognized symbol \"%s\".", line, yytext ); return( ERROR ); }
 %%
 
 char* new_string( char* s )

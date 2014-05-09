@@ -32,7 +32,7 @@ decl_list : decl ';' decl_list
           | decl ';'
           ;
 
-decl : id_list ':' domain
+decl : id_list DEFINE domain
      ;
 
 id_list : ID ',' id_list
@@ -263,7 +263,7 @@ int main()
   /* if ((result = yyparse()) == 0) */
   /*   treeprint(root, 0); */
   if (yyparse() == 0)
-    printf("Success");
+    printf("Success\n");
 
   return result;
 }
