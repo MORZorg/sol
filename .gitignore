@@ -28,3 +28,10 @@
 # Debug executables
 lexer
 lexer.c
+parser
+
+parser.c
+
+parser.h
+
+parser.output

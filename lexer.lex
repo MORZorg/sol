@@ -35,7 +35,7 @@ of				{ printf( "%s ", "OF" ); return( OF ); }
 type			{ printf( "%s ", "TYPE" ); return( TYPE ); }
 var				{ printf( "%s ", "VAR" ); return( VAR ); }
 const			{ printf( "%s ", "CONST" ); return( CONST ); }
-begin			{ printf( "%s ", "BEGIN" ); return( BEGIN ); }
+begin			{ printf( "%s ", "SOL_BEGIN" ); return( SOL_BEGIN ); }
 end				{ printf( "%s ", "END" ); return( END ); }
 if				{ printf( "%s ", "IF" ); return( IF ); }
 then			{ printf( "%s ", "THEN" ); return( THEN ); }
@@ -46,6 +46,7 @@ while			{ printf( "%s ", "WHILE" ); return( WHILE ); }
 do				{ printf( "%s ", "DO" ); return( DO ); }
 endwhile		{ printf( "%s ", "ENDWHILE" ); return( ENDWHILE ); }
 for				{ printf( "%s ", "FOR" ); return( FOR ); }
+to				{ printf( "%s ", "TO" ); return( TO ); }
 endfor			{ printf( "%s ", "ENDFOR" ); return( ENDFOR ); }
 foreach			{ printf( "%s ", "FOREACH" ); return( FOREACH ); }
 endforeach		{ printf( "%s ", "ENDFOREACH" ); return( ENDFOREACH ); }
@@ -70,7 +71,7 @@ wr				{ printf( "%s ", "WR" ); return( WR ); }
 "<="			{ printf( "%s ", "LEQ" ); return( LEQ ); }
 "+"				{ printf( "%s ", "PLUS" ); return( PLUS ); }
 "-"				{ printf( "%s ", "MINUS" ); return( MINUS ); }
-"*"				{ printf( "%s ", "MUL" ); return( MUL ); }
+"*"				{ printf( "%s ", "MULTIPLY" ); return( MULTIPLY ); }
 "/"				{ printf( "%s ", "DIVIDE" ); return( DIVIDE ); }
 {intconst}		{ printf( "%s ", "INT_CONST" ); lexval.i_val = atoi( yytext ); return( INT_CONST ); }
 {charconst}		{ printf( "%s ", "CHAR_CONST" ); lexval.c_val = yytext[ 0 ]; return( CHAR_CONST ); }
@@ -79,7 +80,7 @@ wr				{ printf( "%s ", "WR" ); return( WR ); }
 {boolconst}		{ printf( "%s ", "BOOL_CONST" ); lexval.b_val = ( yytext[ 0 ] == 'f' ? FALSE : TRUE ); return( BOOL_CONST ); }
 {id}			{ printf( "%s ", "ID" ); lexval.s_val = new_string( yytext ); return( ID ); }
 {sugar}			{ printf( "%c ", yytext[ 0 ] ); return( yytext[ 0 ] ); }
-.				{ printf( "\nError on line %d: %s", line, yytext ); return( ERROR ); }
+.				{ printf( "\nLine %d: lexical error: unrecognized symbol \"%s\".", line, yytext ); return( ERROR ); }
 %%
 
 char* new_string( char* s )
@@ -92,11 +93,11 @@ char* new_string( char* s )
 	return p;
 }
 
-int main()
-{
-	int value = 0;
-	do
-	{
-		value = yylex();
-	} while (value != ERROR);
-}
+/* int main() */
+/* { */
+/* 	int value = 0; */
+/* 	do */
+/* 	{ */
+/* 		value = yylex(); */
+/* 	} while (value != ERROR); */
+/* } */

@@ -9,8 +9,11 @@ extern FILE *yyin;
 /* Pnode root = NULL; */
 %}
 
-// TODO
-/* %token DEF INTEGER STRING BOOLEAN ID INTCONST STRCONST BOOLCONST ASSIGN */
+%token FUNC CHAR INT REAL STRING BOOL STRUCT VECTOR OF TYPE VAR CONST
+%token SOL_BEGIN END IF THEN ENDIF ELSIF ELSE WHILE DO ENDWHILE FOR TO ENDFOR FOREACH ENDFOREACH
+%token RETURN READ WRITE RD WR DEFINE ASSIGN
+%token AND OR IN NOT TOINT TOREAL EQ NEQ GT GEQ LT LEQ PLUS MINUS MULTIPLY DIVIDE ID
+%token INT_CONST CHAR_CONST REAL_CONST STR_CONST BOOL_CONST
 %token ERROR
 
 %%
@@ -18,7 +21,7 @@ extern FILE *yyin;
 program : func_decl
         ;
 
-func_decl : FUNC ID '(' decl_list_opt ')' ':' domain type_sect_opt var_sect_opt const_sect_opt func_list_opt func_body
+func_decl : FUNC ID '(' decl_list_opt ')' DEFINE domain type_sect_opt var_sect_opt const_sect_opt func_list_opt func_body
           ;
 
 decl_list_opt : decl_list
@@ -52,7 +55,7 @@ atomic_domain : CHAR
 struct_domain : STRUCT '(' decl_list ')'
               ;
 
-vector_domain : VECTOR '[' INTCONST ']' OF domain
+vector_domain : VECTOR '[' INT_CONST ']' OF domain
               ;
 type_sect_opt : TYPE decl_list
               |
@@ -62,7 +65,7 @@ var_sect_opt : VAR decl_list
              |
              ;
 
-cons_sect_opt : CONST const_list
+const_sect_opt : CONST const_list
               |
               ;
 
@@ -70,7 +73,7 @@ const_list : const_decl const_list
            | const_decl
            ;
 
-const_decl : decl '=' expr ';'
+const_decl : decl ASSIGN expr ';'
            ;
 
 func_list_opt : func_list
@@ -81,7 +84,7 @@ func_list : func_decl func_list
           | func_decl
           ;
 
-func_body : BEGIN ID stat_list END ID
+func_body : SOL_BEGIN ID stat_list END ID
           ;
 
 stat_list : stat ';' stat_list
@@ -98,7 +101,7 @@ stat : assign_stat
      | write_stat
      ;
 
-assign_stat : left_hand_side '=' expr
+assign_stat : left_hand_side ASSIGN expr
             ;
 
 left_hand_side : ID
@@ -126,7 +129,7 @@ else_stat_opt : ELSE stat_list
 while_stat : WHILE expr DO  stat_list ENDWHILE
            ;
 
-for_stat : FOR ID '=' expr TO expr DO stat_list ENDFOR
+for_stat : FOR ID ASSIGN expr TO expr DO stat_list ENDFOR
          ;
 
 foreach_stat : FOREACH ID IN expr DO stat_list ENDFOREACH
@@ -141,6 +144,9 @@ read_stat : READ specifier_opt ID
 specifier_opt : '[' expr ']'
               |
               ;
+
+write_stat : WRITE specifier_opt expr
+           ;
 
 expr : expr bool_op bool_term
      | bool_term
@@ -175,7 +181,7 @@ low_term : low_term high_bin_op factor
          | factor
          ;
 
-high_bin_op : MUL
+high_bin_op : MULTIPLY
             | DIVIDE
             ;
 
@@ -185,7 +191,7 @@ factor : unary_op factor
        | atomic_const
        | instance_construction
        | func_call
-       | con_expr
+       | cond_expr
        | built_in_call
        | dynamic_input
        ;
@@ -248,7 +254,7 @@ dynamic_output : WR specifier_opt
 
 %%
 
-main()
+int main()
 {
   int result;
 
@@ -262,9 +268,9 @@ main()
   return result;
 }
 
-yyerror()
+int yyerror()
 {
-  fprintf(stderr, "Line %d: syntax error on symbol \"%s\"\n", line, yytext);
+  fprintf(stderr, "Line %d: syntax error: unexpected symbol \"%s\".\n", line, yytext);
   exit(-1);
 }
 

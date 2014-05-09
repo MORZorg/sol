@@ -17,8 +17,8 @@ parser.h: parser.y def.h
 	bison -vd -o parser.c parser.y
 
 lexer: lexer.c
-	cc -o lexer lexer.c
+	cc -g -o lexer lexer.c
 
-parser: parser.c
-	cc -o parser parser.c
+parser: parser.o lexer.o
+	cc -g -o parser parser.o lexer.o
 
