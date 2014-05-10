@@ -2,10 +2,14 @@
 #include "def.h"
 // TODO
 /* #define YYSTYPE Pnode */
-extern char *yytext;
+extern FILE *yyin;
+extern char* yytext;
 extern Value lexval;
 extern int line;
-extern FILE *yyin;
+
+extern int yylex();
+extern int yyerror(char*);
+
 /* Pnode root = NULL; */
 %}
 
@@ -14,7 +18,6 @@ extern FILE *yyin;
 %token RETURN READ WRITE RD WR DEFINE ASSIGN
 %token AND OR IN NOT TOINT TOREAL EQ NEQ GT GEQ LT LEQ PLUS MINUS MULTIPLY DIVIDE ID
 %token INT_CONST CHAR_CONST REAL_CONST STR_CONST BOOL_CONST
-%token ERROR
 
 %%
 
@@ -253,24 +256,3 @@ dynamic_output : WR specifier_opt
                ;
 
 %%
-
-int main()
-{
-  int result;
-
-  yyin = stdin;
-  // TODO
-  /* if ((result = yyparse()) == 0) */
-  /*   treeprint(root, 0); */
-  if (yyparse() == 0)
-    printf("Success\n");
-
-  return result;
-}
-
-int yyerror()
-{
-  fprintf(stderr, "Line %d: syntax error: unexpected symbol \"%s\".\n", line, yytext);
-  exit(-1);
-}
-

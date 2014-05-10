@@ -3,6 +3,8 @@
 #include "parser.h"
 int line = 1;
 Value lexval;
+
+int yyerror(char * type);
 %}
 %option noyywrap
 
@@ -80,7 +82,7 @@ wr				{ fprintf( stderr, "%s ", "WR" ); return( WR ); }
 {boolconst}		{ fprintf( stderr, "%s ", "BOOL_CONST" ); lexval.b_val = ( yytext[ 0 ] == 'f' ? FALSE : TRUE ); return( BOOL_CONST ); }
 {id}			{ fprintf( stderr, "%s ", "ID" ); lexval.s_val = new_string( yytext ); return( ID ); }
 {sugar}			{ fprintf( stderr, "%c ", yytext[ 0 ] ); return( yytext[ 0 ] ); }
-.				{ fprintf( stdout, "\nLine %d: lexical error: unrecognized symbol \"%s\".", line, yytext ); return( ERROR ); }
+.				{ yyerror("lexical error"); }
 %%
 
 char* new_string( char* s )
@@ -93,11 +95,8 @@ char* new_string( char* s )
 	return p;
 }
 
-/* int main() */
-/* { */
-/* 	int value = 0; */
-/* 	do */
-/* 	{ */
-/* 		value = yylex(); */
-/* 	} while (value != ERROR); */
-/* } */
+int yyerror(char * type)
+{
+  fprintf(stderr, "Line %d: %s on symbol \"%s\".\n", line, type, yytext);
+  exit(2);
+}

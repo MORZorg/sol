@@ -16,13 +16,14 @@ lexer.c: lexer.lex parser.y parser.h parser.c def.h
 parser.h: parser.y def.h
 	bison -vd -o parser.c $<
 
-lexer: lexer.c
-	$(CC) -g -o $@ $<
+lexer: main.c lexer.c
+	$(CC) -g -o $@ $^ -DLEXER
 
-parser: lexer.o parser.o
-	$(CC) -g -o $@ $^
+parser: main.c lexer.o parser.o
+	$(CC) -g -o $@ $^ -DPARSER
 
 .PHONY : clean
 clean:
-	# TODO
-	rm lexer lexer.c lexer.o parser parser.c parser.h parser.o parser.output
+	rm -f lexer lexer.c lexer.o \
+	  parser parser.c parser.h parser.o parser.output
+	rm -rf lexer.dSYM parser.dSYM
