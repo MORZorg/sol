@@ -95,7 +95,7 @@ char* new_string( char* s )
 	return p;
 }
 
-int yyerror(char * type)
+int yyerror(char* type)
 {
   fprintf(stderr, "Line %d: %s on symbol \"%s\".\n", line, type, yytext);
   exit(2);

@@ -21,14 +21,28 @@ extern int yyerror(char*);
 
 %%
 
-program : func_decl
+program : func_decl { root = $1 }
         ;
 
-func_decl : FUNC ID '(' decl_list_opt ')' DEFINE domain type_sect_opt var_sect_opt const_sect_opt func_list_opt func_body
+func_decl : FUNC ID { $$ = new_terminal_node( T_ID, lexval); }
+            '(' decl_list_opt ')' DEFINE domain
+            type_sect_opt var_sect_opt const_sect_opt func_list_opt func_body
+            {
+                $$ = new_nonterminal_node( T_FUNC_DECL );
+                $$->child = $3;
+                Node** current = &($$->child->brother);
+                current = assign_brother( current, $5 );
+                current = assign_brother( current, $8 );
+                current = assign_brother( current, $9 );
+                current = assign_brother( current, $10 );
+                current = assign_brother( current, $11 );
+                current = assign_brother( current, $12 );
+                current = assign_brother( current, $13 );
+            }
           ;
 
-decl_list_opt : decl_list
-              |
+decl_list_opt : decl_list { $$ = new_nonterminal_node( T_DECL_LIST ); $$->child = $1; }
+              | { $$ = NULL }
               ;
 
 decl_list : decl ';' decl_list
@@ -60,6 +74,7 @@ struct_domain : STRUCT '(' decl_list ')'
 
 vector_domain : VECTOR '[' INT_CONST ']' OF domain
               ;
+
 type_sect_opt : TYPE decl_list
               |
               ;
@@ -256,3 +271,54 @@ dynamic_output : WR specifier_opt
                ;
 
 %%
+
+Node* new_node( TypeNode type )
+{
+	Node* result = malloc( sizeof( Node ) );
+	result->type = type;
+	result->child = result->brother = NULL;
+
+	return result;
+}
+
+Node* new_nonterminal_node( Nonterminal value )
+{
+	Node* result = new_node( T_NONTERMINAL );
+	result->value.n_val = value;
+
+	return result;
+}
+
+Node* new_terminal_node( TypeNode type, Value value )
+{
+	Node* result = new_node( type );
+	
+	switch( type )
+	{
+		case T_ID:
+			result->value.s_val = value.s_val;
+			break;
+
+	}
+}
+
+/**
+ * @brief Assigns to the given pointer to a tree node (Node*) the given tree node.
+ * @note Can be optimized if brother can't be NULL.
+ *
+ * @param initial
+ * @param brother
+ *
+ * @return A pointer to the given tree node's brother in case of success,
+ *	the given pointer to a tree node otherwise.
+ */
+Node** assign_brother( Node** initial, Node* brother )
+{
+	if( brother != NULL )
+	{
+		*initial = brother;
+		return &( brother->brother );
+	}
+
+	return initial;
+}
