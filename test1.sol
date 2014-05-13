@@ -10,7 +10,7 @@ func prog( a: int; b: string; ): int
 			a: vector [ 100 ] of int;
 			
 	const 	MAX: int = 100;
-			name: T2 = "alpha";
+			NAME: T2 = "alpha";
 			VECT: vector [ 5 ] of real = vector( 2.0, 3.12, 4.67, 1.1, 23.0 );
 			MAT: vector [ 2 ] of vector [ 5 ] of real = vector( VECT, vector( x, y, z, 10,0, x + y + z ) );
 

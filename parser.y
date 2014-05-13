@@ -1,7 +1,7 @@
 %{
 #include "def.h"
 // TODO
-/* #define YYSTYPE Pnode */
+#define YYSTYPE Node*
 extern FILE *yyin;
 extern char* yytext;
 extern Value lexval;
@@ -10,7 +10,7 @@ extern int line;
 extern int yylex();
 extern int yyerror(char*);
 
-/* Pnode root = NULL; */
+Node* root = NULL;
 %}
 
 %token FUNC CHAR INT REAL STRING BOOL STRUCT VECTOR OF TYPE VAR CONST
@@ -24,11 +24,11 @@ extern int yyerror(char*);
 program : func_decl { root = $1 }
         ;
 
-func_decl : FUNC ID { $$ = new_terminal_node( T_ID, lexval); }
+func_decl : FUNC ID { $$ = new_terminal_node( T_ID, lexval ); }
             '(' decl_list_opt ')' DEFINE domain
             type_sect_opt var_sect_opt const_sect_opt func_list_opt func_body
             {
-                $$ = new_nonterminal_node( T_FUNC_DECL );
+                $$ = new_nonterminal_node( N_FUNC_DECL );
                 $$->child = $3;
                 Node** current = &($$->child->brother);
                 current = assign_brother( current, $5 );
@@ -41,19 +41,27 @@ func_decl : FUNC ID { $$ = new_terminal_node( T_ID, lexval); }
             }
           ;
 
-decl_list_opt : decl_list { $$ = new_nonterminal_node( T_DECL_LIST ); $$->child = $1; }
+decl_list_opt : decl_list { $$ = new_nonterminal_node( N_DECL_LIST ); $$->child = $1; }
               | { $$ = NULL }
               ;
 
-decl_list : decl ';' decl_list
-          | decl ';'
+decl_list : decl ';' decl_list { $$ = new_nonterminal_node( N_DECL ); $$->child = $1; $$->brother = $3 }
+          | decl ';' { $$ = new_nonterminal_node( N_DECL ); $$->child = $1 }
           ;
 
-decl : id_list DEFINE domain
+decl : id_list DEFINE domain {
+                                  $$ = $1;
+                                  Node** brother = &($1->brother);
+                                  while (*brother != NULL)
+                                  {
+                                     brother = &( (*brother)->brother );
+                                  }
+                                  *brother = $3;
+                             }
      ;
 
-id_list : ID ',' id_list
-        | ID
+id_list : ID { $$ = new_terminal_node( T_ID, lexval ); } ',' id_list { $$ = $2; $2->brother = $4; }
+        | ID { $$ = new_terminal_node( T_ID, lexval ); }
         ;
 
 domain : atomic_domain
@@ -298,8 +306,9 @@ Node* new_terminal_node( TypeNode type, Value value )
 		case T_ID:
 			result->value.s_val = value.s_val;
 			break;
-
 	}
+
+	return result;
 }
 
 /**

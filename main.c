@@ -2,18 +2,26 @@
 
 #ifdef PARSER
 
+#include "def.h"
+#include "tree_print.h"
+
 extern FILE *yyin;
 extern int yyparse();
+extern Node* root;
 
 int main()
 {
-  yyin = stdin;
+	yyin = stdin;
 
-  // TODO
-  /* if ((result = yyparse()) == 0) */
-  /*   treeprint(root, 0); */
+	int result;
 
-  return yyparse();
+	if ( (result = yyparse()) == 0 )
+	{
+		printf( "*** Abstract Tree ***\n" );
+		tree_print( root, 0 );
+	}
+
+	return result;
 }
 
 #else
@@ -26,12 +34,12 @@ extern char* yytext;
 
 int main()
 {
-  do
-  {
-    yylex();
-  } while (1);
+	do
+	{
+		yylex();
+	} while (1);
 
-  return 0;
+	return 0;
 }
 
 #else
@@ -40,8 +48,8 @@ int main()
 
 int main()
 {
-  fprintf(stderr, "No body supplied. Exiting.");
-  exit(1);
+	fprintf(stderr, "No body supplied. Exiting.");
+	exit(1);
 }
 
 #endif

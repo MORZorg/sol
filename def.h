@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#ifndef __DEF_H__
+#define __DEF_H__
+
 typedef enum
 {
 	FALSE,
@@ -70,11 +73,15 @@ typedef enum
 typedef enum
 {
 	// TODO
-%token FUNC CHAR INT REAL STRING BOOL STRUCT VECTOR OF TYPE VAR CONST
-%token SOL_BEGIN END IF THEN ENDIF ELSIF ELSE WHILE DO ENDWHILE FOR TO ENDFOR FOREACH ENDFOREACH
-%token RETURN READ WRITE RD WR DEFINE ASSIGN
-%token AND OR IN NOT TOINT TOREAL EQ NEQ GT GEQ LT LEQ PLUS MINUS MULTIPLY DIVIDE ID
-%token INT_CONST CHAR_CONST REAL_CONST STR_CONST BOOL_CONST
+/* %token FUNC CHAR INT REAL STRING BOOL STRUCT VECTOR OF TYPE VAR CONST */
+/* %token SOL_BEGIN END IF THEN ENDIF ELSIF ELSE WHILE DO ENDWHILE FOR TO ENDFOR FOREACH ENDFOREACH */
+/* %token RETURN READ WRITE RD WR DEFINE ASSIGN */
+/* %token AND OR IN NOT TOINT TOREAL EQ NEQ GT GEQ LT LEQ PLUS MINUS MULTIPLY DIVIDE ID */
+	T_INT_CONST,
+	T_CHAR_CONST,
+	T_REAL_CONST,
+	T_STR_CONST,
+	T_BOOL_CONST,
     T_ID,
     T_NONTERMINAL
 } TypeNode;
@@ -84,7 +91,7 @@ typedef union
 	int i_val;
     char c_val;
 	char* s_val;
-	float r_val;
+	double r_val;
 	Boolean b_val;
 	Nonterminal n_val;
 } Value;
@@ -98,8 +105,10 @@ typedef struct snode
 
 char* new_string( char* );
 
-Node* new_node( TypeNode, Value );
-Node* new_nonterminal_node( Nonterminal value );
-Node* new_terminal_node( TypeNode type, Value value );
+Node* new_node( TypeNode );
+Node* new_nonterminal_node( Nonterminal );
+Node* new_terminal_node( TypeNode, Value );
 
 Node** assign_brother( Node**, Node* );
+
+#endif

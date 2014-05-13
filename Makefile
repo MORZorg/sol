@@ -7,7 +7,7 @@ lexer.o: lexer.c parser.h def.h
 parser.o: parser.c def.h
 	$(CC) -g -c $<
 
-tree.o: tree.c def.h
+tree_print.o: tree_print.c tree_print.h def.h
 	$(CC) -g -c $<
 
 lexer.c: lexer.lex parser.y parser.h parser.c def.h
@@ -19,7 +19,7 @@ parser.h: parser.y def.h
 lexer: main.c lexer.c
 	$(CC) -g -o $@ $^ -DLEXER
 
-parser: main.c lexer.o parser.o
+parser: main.c tree_print.o lexer.o parser.o
 	$(CC) -g -o $@ $^ -DPARSER
 
 .PHONY : clean
