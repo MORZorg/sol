@@ -115,15 +115,10 @@ func_body : SOL_BEGIN ID stat_list END ID
 
 stat_list : stat ';' stat_list
 		    {
-				$$ = new_nonterminal_node( N_STAT_LIST );
-				$$ -> child = $1;
-				$$ -> child -> brother = $3;
+				$$ = $1;
+				$$ -> brother = $3;
 			}
-          | stat ';'
-		    {
-				$$ = new_nonterminal_node( N_STAT_LIST );
-				$$ -> child = $1;
-			}
+          | stat ';' { $$ = $1; }
           ;
 
 stat : assign_stat { $$ = $1; }
@@ -166,6 +161,14 @@ indexing : left_hand_side '[' expr ']'
          ;
 
 if_stat : IF expr THEN stat_list elsif_stat_list_opt else_stat_opt ENDIF
+		  {
+				$$ = new_nonterminal_node( N_IF_STAT );
+				$$ -> child = $2;
+				Node** current = &( $$ -> child -> brother );
+				current = assign_brother( current, $4 );
+				current = assign_brother( current, $5 );
+				current = assign_brother( current, $6 );
+		  }
         ;
 
 elsif_stat_list_opt : ELSIF expr THEN stat_list elsif_stat_list_opt
@@ -356,15 +359,10 @@ struct_construction : STRUCT '(' expr_list ')'
 
 expr_list : expr ',' expr_list
 			{
-				$$ = new_nonterminal_node( N_EXPR_LIST );
-				$$ -> child = $1;
-				$$ -> child -> brother = $3;
+				$$ = $1;
+				$$ -> brother = $3;
 			}
-          | expr
-			{
-				$$ = new_nonterminal_node( N_EXPR_LIST ); 
-				$$ -> child = $1; 
-			}
+          | expr { $$ = $1; }
           ;
 
 vector_construction : VECTOR '(' expr_list ')'
@@ -439,7 +437,7 @@ dynamic_output : WR specifier_opt
 					$$ = new_nonterminal_node( N_DYNAMIC_OUTPUT );
 					$$ -> child = $2;
 					$$ -> child -> brother = $3;
-			 	 }
+				}
                ;
 
 %%
