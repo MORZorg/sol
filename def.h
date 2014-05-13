@@ -15,17 +15,12 @@ typedef enum
 	N_FUNC_DECL,
 	N_DECL_LIST,
 	N_DECL,
-	N_ID_LIST,
-	N_DOMAIN,
-	N_ATOMIC_DOMAIN,
 	N_STRUCT_DOMAIN,
 	N_VECTOR_DOMAIN,
-	N_TYPE_SECT_OPT,
-	N_VAR_SECT_OPT,
-	N_CONST_SECT_OPT,
-	N_CONST_LIST,
+	N_TYPE_SECT,
+	N_VAR_SECT,
+	N_CONST_SECT,
 	N_CONST_DECL,
-	N_FUNC_LIST_OPT,
 	N_FUNC_LIST,
 	N_FUNC_BODY,
 	N_STAT_LIST,
@@ -72,11 +67,52 @@ typedef enum
 
 typedef enum
 {
-	// TODO
-/* %token FUNC CHAR INT REAL STRING BOOL STRUCT VECTOR OF TYPE VAR CONST */
-/* %token SOL_BEGIN END IF THEN ENDIF ELSIF ELSE WHILE DO ENDWHILE FOR TO ENDFOR FOREACH ENDFOREACH */
-/* %token RETURN READ WRITE RD WR DEFINE ASSIGN */
-/* %token AND OR IN NOT TOINT TOREAL EQ NEQ GT GEQ LT LEQ PLUS MINUS MULTIPLY DIVIDE ID */
+	T_ATOMIC_DOMAIN,
+	T_TYPE,
+	T_VAR,
+	T_CONST,
+
+	T_BEGIN,
+	T_END,
+	T_IF,
+	T_THEN,
+	T_ENDIF,
+	T_ELSIF,
+	T_ELSE,
+	T_WHILE,
+	T_DO,
+	T_ENDWHILE,
+	T_FOR,
+	T_TO,
+	T_ENDFOR,
+	T_FOREACH,
+	T_ENDFOREACH,
+
+	T_RETURN,
+	T_READ,
+	T_WRITE,
+	T_RD,
+	T_WR,
+	T_DEFINE,
+	T_ASSIGN,
+
+	T_AND,
+	T_OR,
+	T_IN,
+	T_NOT,
+	T_TOINT,
+	T_TOREAL,
+	T_EQ,
+	T_NEQ,
+	T_GT,
+	T_GEQ,
+	T_LT,
+	T_LEQ,
+	T_PLUS,
+	T_MINUS,
+	T_MULTIPLY,
+	T_DIVIDE,
+
 	T_INT_CONST,
 	T_CHAR_CONST,
 	T_REAL_CONST,
@@ -86,6 +122,15 @@ typedef enum
     T_NONTERMINAL
 } TypeNode;
 
+typedef enum
+{
+	Q_CHAR,
+	Q_INT,
+	Q_REAL,
+	Q_STRING,
+	Q_BOOL
+} Qualifier;
+
 typedef union
 {
 	int i_val;
@@ -93,6 +138,7 @@ typedef union
 	char* s_val;
 	double r_val;
 	Boolean b_val;
+	Qualifier q_val;
 	Nonterminal n_val;
 } Value;
 
@@ -108,6 +154,7 @@ char* new_string( char* );
 Node* new_node( TypeNode );
 Node* new_nonterminal_node( Nonterminal );
 Node* new_terminal_node( TypeNode, Value );
+Node* new_qualified_node( TypeNode, Qualifier );
 
 Node** assign_brother( Node**, Node* );
 

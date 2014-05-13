@@ -1,4 +1,4 @@
-func prog( a: int; b: string; ): int
+func prog( a, b: int; c: string; ): int
 	type	T1: int;
 			T2: string;
 			T3, T4: T2;

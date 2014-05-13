@@ -1,6 +1,5 @@
 %{
 #include "def.h"
-// TODO
 #define YYSTYPE Node*
 extern FILE *yyin;
 extern char* yytext;
@@ -41,8 +40,13 @@ func_decl : FUNC ID { $$ = new_terminal_node( T_ID, lexval ); }
             }
           ;
 
+<<<<<<< Updated upstream
 decl_list_opt : decl_list { $$ = new_nonterminal_node( N_DECL_LIST ); $$->child = $1; }
               | { $$ = NULL; }
+=======
+decl_list_opt : decl_list { $$ = new_nonterminal_node( N_DECL_LIST ); $$->child = $1 }
+              | { $$ = NULL }
+>>>>>>> Stashed changes
               ;
 
 decl_list : decl ';' decl_list { $$ = new_nonterminal_node( N_DECL ); $$->child = $1; $$->brother = $3; }
@@ -51,12 +55,7 @@ decl_list : decl ';' decl_list { $$ = new_nonterminal_node( N_DECL ); $$->child 
 
 decl : id_list DEFINE domain {
                                   $$ = $1;
-                                  Node** brother = &($1->brother);
-                                  while (*brother != NULL)
-                                  {
-                                     brother = &( (*brother)->brother );
-                                  }
-                                  *brother = $3;
+								  assign_brother( &($1->brother), $3 );
                              }
      ;
 
@@ -65,52 +64,59 @@ id_list : ID { $$ = new_terminal_node( T_ID, lexval ); } ',' id_list { $$ = $2; 
         ;
 
 domain : atomic_domain
-       | struct_domain
-       | vector_domain
-       | ID
+       | struct_domain { $$ = new_nonterminal_node( N_STRUCT_DOMAIN ); $$->child = $1; }
+       | vector_domain { $$ = new_nonterminal_node( N_VECTOR_DOMAIN ); $$->child = $1; }
+       | ID			   { $$ = new_terminal_node( T_ID, lexval ); }
        ;
 
-atomic_domain : CHAR
-              | INT
-              | REAL
-              | STRING
-              | BOOL
+atomic_domain : CHAR	{ $$ = new_qualified_node( T_ATOMIC_DOMAIN, Q_CHAR ); }
+              | INT		{ $$ = new_qualified_node( T_ATOMIC_DOMAIN, Q_INT ); }
+              | REAL	{ $$ = new_qualified_node( T_ATOMIC_DOMAIN, Q_REAL ); }
+              | STRING	{ $$ = new_qualified_node( T_ATOMIC_DOMAIN, Q_STRING ); }
+              | BOOL	{ $$ = new_qualified_node( T_ATOMIC_DOMAIN, Q_BOOL ); }
               ;
 
-struct_domain : STRUCT '(' decl_list ')'
+struct_domain : STRUCT '(' decl_list ')' { $$ = $3; }
               ;
 
-vector_domain : VECTOR '[' INT_CONST ']' OF domain
+vector_domain : VECTOR '[' INT_CONST { $$ = new_terminal_node( T_INT_CONST, lexval ); } ']' OF domain { $$ = $4; $4->brother = $7; }
               ;
 
-type_sect_opt : TYPE decl_list
-              |
+type_sect_opt : TYPE decl_list { $$ = new_nonterminal_node( N_TYPE_SECT ); $$->child = $1; }
+              | { $$ = NULL }
               ;
 
-var_sect_opt : VAR decl_list
-             |
+var_sect_opt : VAR decl_list { $$ = new_nonterminal_node( N_VAR_SECT ); $$->child = $1; }
+             | { $$ = NULL }
              ;
 
-const_sect_opt : CONST const_list
-              |
+const_sect_opt : CONST const_list { $$ = new_nonterminal_node( N_CONST_SECT ); $$->child = $1; }
+              | { $$ = NULL }
               ;
 
-const_list : const_decl const_list
-           | const_decl
+const_list : const_decl const_list { $$ = new_nonterminal_node( N_CONST_DECL ); $$->child = $1; $$->brother = $2; }
+           | const_decl { $$ = new_nonterminal_node( N_CONST_DECL ); $$->child = $1; }
            ;
 
-const_decl : decl ASSIGN expr ';'
+const_decl : decl ASSIGN expr ';' { $$ = $1; $$->brother = $3; }
            ;
 
-func_list_opt : func_list
-              |
+func_list_opt : func_list { $$ = new_nonterminal_node( N_FUNC_LIST ); $$->child = $1; }
+              | { $$ = NULL }
               ;
 
-func_list : func_decl func_list
-          | func_decl
+func_list : func_decl func_list { $$ = new_nonterminal_node( N_FUNC_DECL ); $$->child = $1; $$->brother = $2; }
+          | func_decl { $$ = new_nonterminal_node( N_FUNC_DECL ); $$->child = $1; }
           ;
 
-func_body : SOL_BEGIN ID stat_list END ID
+func_body : SOL_BEGIN ID { $$ = new_terminal_node( T_ID, lexval ); } stat_list END ID { $$ = new_terminal_node( T_ID, lexval ); }
+			{ 
+				$$ = new_nonterminal_node( N_FUNC_BODY );
+				$$->child = $3;
+				$3->brother = new_nonterminal_node( N_STAT_LIST );
+				$3->brother->child = $4;
+				$3->brother->brother = $7;
+			}
           ;
 
 stat_list : stat ';' stat_list
@@ -465,10 +471,25 @@ Node* new_terminal_node( TypeNode type, Value value )
 	
 	switch( type )
 	{
+		case T_INT_CONST:
+			result->value.i_val = value.i_val;
+			break;
+
 		case T_ID:
 			result->value.s_val = value.s_val;
 			break;
+
+		default:
+			break;
 	}
+
+	return result;
+}
+
+Node* new_qualified_node( TypeNode type, Qualifier qualifier )
+{
+	Node* result = new_node( type );
+	result->value.q_val = qualifier;
 
 	return result;
 }
@@ -485,6 +506,11 @@ Node* new_terminal_node( TypeNode type, Value value )
  */
 Node** assign_brother( Node** initial, Node* brother )
 {
+	while( *initial != NULL )
+	{
+		initial = &( (*initial)->brother );
+	}
+
 	if( brother != NULL )
 	{
 		*initial = brother;
