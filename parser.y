@@ -40,13 +40,8 @@ func_decl : FUNC ID { $$ = new_terminal_node( T_ID, lexval ); }
             }
           ;
 
-<<<<<<< Updated upstream
 decl_list_opt : decl_list { $$ = new_nonterminal_node( N_DECL_LIST ); $$->child = $1; }
               | { $$ = NULL; }
-=======
-decl_list_opt : decl_list { $$ = new_nonterminal_node( N_DECL_LIST ); $$->child = $1 }
-              | { $$ = NULL }
->>>>>>> Stashed changes
               ;
 
 decl_list : decl ';' decl_list { $$ = new_nonterminal_node( N_DECL ); $$->child = $1; $$->brother = $3; }
@@ -122,7 +117,7 @@ func_body : SOL_BEGIN ID { $$ = new_terminal_node( T_ID, lexval ); } stat_list E
 stat_list : stat ';' stat_list
 		    {
 				$$ = $1;
-				$$ -> brother = $3;
+				$$->brother = $3;
 			}
           | stat ';' { $$ = $1; }
           ;
@@ -140,8 +135,8 @@ stat : assign_stat { $$ = $1; }
 assign_stat : left_hand_side ASSIGN expr
 			  {
 				$$ = new_nonterminal_node( N_ASSIGN_STAT );
-				$$ -> child = $1;
-				$$ -> child -> brother = $3;
+				$$->child = $1;
+				$$->child->brother = $3;
 			  }
             ;
 
@@ -153,24 +148,24 @@ left_hand_side : ID { $$ = new_terminal_node( T_ID, lexval ); }
 fielding : left_hand_side '.' ID { $$ = new_terminal_node( T_ID, lexval ); }
 		   {
 				$$ = new_nonterminal_node( N_FIELDING );
-				$$ -> child = $1;
-				$$ -> child -> brother = $4;
+				$$->child = $1;
+				$$->child->brother = $4;
 		   }
          ;
 
 indexing : left_hand_side '[' expr ']'
 		   {
 				$$ = new_nonterminal_node( N_INDEXING );
-				$$ -> child = $1;
-				$$ -> child -> brother = $3;
+				$$->child = $1;
+				$$->child->brother = $3;
 		   }
          ;
 
 if_stat : IF expr THEN stat_list elsif_stat_list_opt else_stat_opt ENDIF
 		  {
 				$$ = new_nonterminal_node( N_IF_STAT );
-				$$ -> child = $2;
-				Node** current = &( $$ -> child -> brother );
+				$$->child = $2;
+				Node** current = &( $$->child->brother );
 				current = assign_brother( current, $4 );
 				current = assign_brother( current, $5 );
 				current = assign_brother( current, $6 );
@@ -180,8 +175,8 @@ if_stat : IF expr THEN stat_list elsif_stat_list_opt else_stat_opt ENDIF
 elsif_stat_list_opt : ELSIF expr THEN stat_list elsif_stat_list_opt
 					  {
 							$$ = new_nonterminal_node( N_ELSIF_STAT_LIST_OPT );
-							$$ -> child = $2;
-							Node** current = &( $$ -> child -> brother );
+							$$->child = $2;
+							Node** current = &( $$->child->brother );
 							current = assign_brother( current, $4 );
 							current = assign_brother( current, $5 );
 					  }
@@ -195,16 +190,16 @@ else_stat_opt : ELSE stat_list { $$ = $2; }
 while_stat : WHILE expr DO stat_list ENDWHILE
 		     {
 				$$ = new_nonterminal_node( N_WHILE_STAT );
-				$$ -> child = $2;
-				$$ -> child -> brother = $4;
+				$$->child = $2;
+				$$->child->brother = $4;
 			 }
            ;
 
 for_stat : FOR ID { $$ = new_terminal_node( T_ID, lexval ); } ASSIGN expr TO expr DO stat_list ENDFOR
 		   {
 				$$ = new_nonterminal_node( N_FOR_STAT );
-				$$ -> child = $3;
-				Node** current = &( $$ -> child -> brother );
+				$$->child = $3;
+				Node** current = &( $$->child->brother );
 				current = assign_brother( current, $5 );
 				current = assign_brother( current, $7 );
 				current = assign_brother( current, $9 );
@@ -214,8 +209,8 @@ for_stat : FOR ID { $$ = new_terminal_node( T_ID, lexval ); } ASSIGN expr TO exp
 foreach_stat : FOREACH ID { $$ = new_terminal_node( T_ID, lexval ); } IN expr DO stat_list ENDFOREACH
 			   {
 					$$ = new_nonterminal_node( N_FOREACH_STAT );
-					$$ -> child = $3;
-					Node** current = &( $$ -> child -> brother );
+					$$->child = $3;
+					Node** current = &( $$->child->brother );
 					current = assign_brother( current, $5 );
 					current = assign_brother( current, $7 );
 			   }
@@ -224,15 +219,15 @@ foreach_stat : FOREACH ID { $$ = new_terminal_node( T_ID, lexval ); } IN expr DO
 return_stat : RETURN expr
 			  {
 				$$ = new_nonterminal_node( N_RETURN );
-				$$ -> child = $2;
+				$$->child = $2;
 			  }
             ;
 
 read_stat : READ specifier_opt ID { $$ = new_terminal_node( T_ID, lexval ); }
 		    {
 				$$ = new_nonterminal_node( N_READ_STAT );
-				$$ -> child = $2;
-				$$ -> child -> brother = $4;
+				$$->child = $2;
+				$$->child->brother = $4;
 			}
           ;
 
@@ -243,23 +238,29 @@ specifier_opt : '[' expr ']' { $$ = $2; }
 write_stat : WRITE specifier_opt expr
 		     {
 				$$ = new_nonterminal_node( N_WRITE_STAT );
-				$$ -> child = $2;
-				$$ -> child -> brother = $3;
+
+                if( $2 == NULL )
+                    $$->child = $3;
+                else
+                {
+                    $$->child = $2;
+                    $$->child->brother = $3;
+                }
 			 }
            ;
 
 expr : expr bool_op bool_term
 	   {
 			$$ = new_nonterminal_node( N_EXPR );
-			$$ -> child = $1;
-			Node **current = &( $$ -> child -> brother );
+			$$->child = $1;
+			Node **current = &( $$->child->brother );
 			current = assign_brother( current, $2 );
 			current = assign_brother( current, $3 );
        }
      | bool_term
 	   {
 			$$ = new_nonterminal_node( N_EXPR );
-			$$ -> child = $1;
+			$$->child = $1;
 	   }
      ;
 
@@ -270,15 +271,15 @@ bool_op : AND { $$ = new_node( T_AND ); }
 bool_term : rel_term rel_op rel_term
 			{
 				$$ = new_nonterminal_node( N_BOOL_TERM );
-				$$ -> child = $1;
-				Node **current = &( $$ -> child -> brother );
+				$$->child = $1;
+				Node **current = &( $$->child->brother );
 				current = assign_brother( current, $2 );
 				current = assign_brother( current, $3 );
 			}
           | rel_term
 			{
 				$$ = new_nonterminal_node( N_BOOL_TERM );
-				$$ -> child = $1;
+				$$->child = $1;
 			}
           ;
 
@@ -294,15 +295,15 @@ rel_op : EQ { $$ = new_node( T_EQ ); }
 rel_term : rel_term low_bin_op low_term
 		   {
 				$$ = new_nonterminal_node( N_REL_TERM );
-				$$ -> child = $1;
-				Node **current = &( $$ -> child -> brother );
+				$$->child = $1;
+				Node **current = &( $$->child->brother );
 				current = assign_brother( current, $2 );
 				current = assign_brother( current, $3 );
 		   }
          | low_term
 		   {
 				$$ = new_nonterminal_node( N_REL_TERM );
-				$$ -> child = $1;
+				$$->child = $1;
 		   }
          ;
 
@@ -313,15 +314,15 @@ low_bin_op : PLUS { $$ = new_node( T_PLUS ); }
 low_term : low_term high_bin_op factor 
 		   {
 				$$ = new_nonterminal_node( N_LOW_TERM );
-				$$ -> child = $1;
-				Node **current = &( $$ -> child -> brother );
+				$$->child = $1;
+				Node **current = &( $$->child->brother );
 				current = assign_brother( current, $2 );
 				current = assign_brother( current, $3 );
 		   }
          | factor
 		   {
 				$$ = new_nonterminal_node( N_LOW_TERM );
-				$$ -> child = $1;
+				$$->child = $1;
 		   }
          ;
 
@@ -359,14 +360,14 @@ instance_construction : struct_construction { $$ = $1; }
 struct_construction : STRUCT '(' expr_list ')'
 					  {
 						$$ = new_nonterminal_node( N_STRUCT_CONSTRUCTION );
-						$$ -> child = $3;
+						$$->child = $3;
 					  }
                     ;
 
 expr_list : expr ',' expr_list
 			{
 				$$ = $1;
-				$$ -> brother = $3;
+				$$->brother = $3;
 			}
           | expr { $$ = $1; }
           ;
@@ -374,15 +375,15 @@ expr_list : expr ',' expr_list
 vector_construction : VECTOR '(' expr_list ')'
 					  {
 						$$ = new_nonterminal_node( N_VECTOR_CONSTRUCTION );
-						$$ -> child = $3;
+						$$->child = $3;
 					  }
                     ;
 
 func_call : ID { $$ = new_terminal_node( T_ID, lexval ); } '(' expr_list_opt ')'
 			{
 				$$ = new_nonterminal_node( N_FUNC_CALL );
-				$$ -> child = $2;
-				$$ -> child -> brother = $4;
+				$$->child = $2;
+				$$->child->brother = $4;
 			}
           ;
 
@@ -393,8 +394,8 @@ expr_list_opt : expr_list { $$ = $1; }
 cond_expr : IF expr THEN expr elsif_expr_list_opt ELSE expr ENDIF
 			{
 				$$ = new_nonterminal_node( N_COND_EXPR );
-				$$ -> child = $2;
-				Node **current = &( $$ -> child -> brother );
+				$$->child = $2;
+				Node **current = &( $$->child->brother );
 				current = assign_brother( current, $4 );
 				current = assign_brother( current, $5 );
 				current = assign_brother( current, $7 );
@@ -404,8 +405,8 @@ cond_expr : IF expr THEN expr elsif_expr_list_opt ELSE expr ENDIF
 elsif_expr_list_opt : ELSIF expr THEN expr elsif_expr_list_opt
 					  {
 						$$ = new_nonterminal_node( N_ELSIF_EXPR_LIST_OPT );
-						$$ -> child = $2;
-						Node **current = &( $$ -> child -> brother );
+						$$->child = $2;
+						Node **current = &( $$->child->brother );
 						current = assign_brother( current, $4 );
 						current = assign_brother( current, $5 );
 					  }
@@ -419,30 +420,29 @@ built_in_call : toint_call { $$ = $1; }
 toint_call : TOINT '(' expr ')'
 			 {
 				$$ = new_nonterminal_node( N_TOINT_CALL );
-				$$ -> child = $3; 
+				$$->child = $3; 
 			 }
            ;
 
 toreal_call : TOREAL '(' expr ')'
 			  {
 				$$ = new_nonterminal_node( N_TOREAL_CALL );
-				$$ -> child = $3;
+				$$->child = $3;
 			  }
             ;
 
 dynamic_input : RD specifier_opt domain
 				{
 					$$ = new_nonterminal_node( N_DYNAMIC_INPUT );
-					$$ -> child = $2;
-					$$ -> child -> brother = $3;
+					$$->child = $2;
+					$$->child->brother = $3;
 				}
               ;
 
 dynamic_output : WR specifier_opt
 				 {
 					$$ = new_nonterminal_node( N_DYNAMIC_OUTPUT );
-					$$ -> child = $2;
-					$$ -> child -> brother = $3;
+					$$->child = $2;
 				}
                ;
 

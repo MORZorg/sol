@@ -63,6 +63,11 @@ typedef enum
 	N_TOREAL_CALL,
 	N_DYNAMIC_INPUT,
 	N_DYNAMIC_OUTPUT,
+	N_RETURN,
+	N_READ,
+	N_WRITE,
+	N_RD,
+	N_WR
 } Nonterminal;
 
 typedef enum
@@ -72,36 +77,10 @@ typedef enum
 	T_VAR,
 	T_CONST,
 
-	T_BEGIN,
-	T_END,
-	T_IF,
-	T_THEN,
-	T_ENDIF,
-	T_ELSIF,
-	T_ELSE,
-	T_WHILE,
-	T_DO,
-	T_ENDWHILE,
-	T_FOR,
-	T_TO,
-	T_ENDFOR,
-	T_FOREACH,
-	T_ENDFOREACH,
-
-	T_RETURN,
-	T_READ,
-	T_WRITE,
-	T_RD,
-	T_WR,
-	T_DEFINE,
-	T_ASSIGN,
-
 	T_AND,
 	T_OR,
 	T_IN,
 	T_NOT,
-	T_TOINT,
-	T_TOREAL,
 	T_EQ,
 	T_NEQ,
 	T_GT,

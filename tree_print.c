@@ -1,62 +1,5 @@
 #include "tree_print.h"
 
-const char* TREE_TYPES[] =
-{
-	"ATOMIC_DOMAIN",
-	"TYPE",
-	"VAR",
-	"CONST",
-
-	"BEGIN",
-	"END",
-	"IF",
-	"THEN",
-	"ENDIF",
-	"ELSIF",
-	"ELSE",
-	"WHILE",
-	"DO",
-	"ENDWHILE",
-	"FOR",
-	"TO",
-	"ENDFOR",
-	"FOREACH",
-	"ENDFOREACH",
-
-	"RETURN",
-	"READ",
-	"WRITE",
-	"RD",
-	"WR",
-	"DEFINE",
-	"ASSIGN",
-
-	"AND",
-	"OR",
-	"IN",
-	"NOT",
-	"TOINT",
-	"TOREAL",
-	"EQ",
-	"NEQ",
-	"GT",
-	"GEQ",
-	"LT",
-	"LEQ",
-	"PLUS",
-	"MINUS",
-	"MULTIPLY",
-	"DIVIDE",
-
-	"INT_CONST",
-	"CHAR_CONST",
-	"REAL_CONST",
-	"STR_CONST",
-	"BOOL_CONST",
-    "ID",
-    "NONTERMINAL"
-};
-
 const char* TREE_NONTERMINALS[] =
 {
 	"FUNC_DECL",
@@ -109,7 +52,43 @@ const char* TREE_NONTERMINALS[] =
 	"TOINT_CALL",
 	"TOREAL_CALL",
 	"DYNAMIC_INPUT",
-	"DYNAMIC_OUTPUT"
+	"DYNAMIC_OUTPUT",
+	"RETURN",
+	"READ",
+	"WRITE",
+	"RD",
+	"WR"
+};
+
+const char* TREE_TYPES[] =
+{
+	"ATOMIC_DOMAIN",
+	"TYPE",
+	"VAR",
+	"CONST",
+
+	"AND",
+	"OR",
+	"IN",
+	"NOT",
+	"EQ",
+	"NEQ",
+	"GT",
+	"GEQ",
+	"LT",
+	"LEQ",
+	"PLUS",
+	"MINUS",
+	"MULTIPLY",
+	"DIVIDE",
+
+	"INT_CONST",
+	"CHAR_CONST",
+	"REAL_CONST",
+	"STR_CONST",
+	"BOOL_CONST",
+    "ID",
+    "NONTERMINAL"
 };
 
 const char* TREE_QUALIFIERS[] =
