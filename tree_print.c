@@ -49,8 +49,6 @@ const char* TREE_NONTERMINALS[] =
 	"COND_EXPR",
 	"ELSIF_EXPR_LIST_OPT",
 	"BUILT_IN_CALL",
-	"TOINT_CALL",
-	"TOREAL_CALL",
 	"DYNAMIC_INPUT",
 	"DYNAMIC_OUTPUT",
 	"RETURN",
@@ -68,20 +66,12 @@ const char* TREE_TYPES[] =
 	"VAR",
 	"CONST",
 
-	"AND",
-	"OR",
-	"IN",
-	"NOT",
-	"EQ",
-	"NEQ",
-	"GT",
-	"GEQ",
-	"LT",
-	"LEQ",
-	"PLUS",
-	"MINUS",
-	"MULTIPLY",
-	"DIVIDE",
+	"LOGIC_EXPR",
+	"REL_EXPR",
+	"MATH_EXPR",
+	"NEG_EXPR",
+	"INSTANCE_EXPR",
+	"BUILT_IN_CALL_EXPR",
 
 	"INT_CONST",
 	"CHAR_CONST",
@@ -89,7 +79,7 @@ const char* TREE_TYPES[] =
 	"STR_CONST",
 	"BOOL_CONST",
     "ID",
-    "NONTERMINAL"
+    "UNQUALIFIED_NONTERMINAL"
 };
 
 const char* TREE_QUALIFIERS[] =
@@ -98,7 +88,28 @@ const char* TREE_QUALIFIERS[] =
 	"INT",
 	"REAL",
 	"STRING",
-	"BOOL"
+	"BOOL",
+
+	"AND",
+	"OR",
+
+	"EQ",
+	"NEQ",
+	"GT",
+	"GEQ",
+	"LT",
+	"LEQ",
+	"IN",
+
+	"NOT",
+
+	"PLUS",
+	"MINUS",
+	"MULTIPLY",
+	"DIVIDE",
+
+	"TOINT",
+	"TOREAL"
 };
 
 const char* SPACING = "  ";
@@ -111,12 +122,18 @@ void tree_print(Node* root, int indent)
 	for( i = 0; i < indent; i++ )
 		printf( "%s", SPACING );
 
-	printf( "%s", ( root->type == T_NONTERMINAL ?
+	printf( "%s", ( root->type == T_UNQUALIFIED_NONTERMINAL ?
 					TREE_NONTERMINALS[ root->value.n_val ] :
 					TREE_TYPES[ root->type ] ) );
 
 	switch( root->type )
 	{
+		case T_LOGIC_EXPR:
+		case T_REL_EXPR:
+		case T_MATH_EXPR:
+		case T_NEG_EXPR:
+		case T_INSTANCE_EXPR:
+		case T_BUILT_IN_CALL_EXPR:
 		case T_ATOMIC_DOMAIN:
 			printf( " (%s)", TREE_QUALIFIERS[ root->value.q_val ] );
 			break;

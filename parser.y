@@ -251,83 +251,102 @@ write_stat : WRITE specifier_opt expr
 
 expr : expr bool_op bool_term
 	   {
-			$$ = new_nonterminal_node( N_EXPR );
+			$$ = $2;
 			$$->child = $1;
-			Node** current = &( $$->child->brother );
-			current = assign_brother( current, $2 );
-			current = assign_brother( current, $3 );
+			$1->brother = $3;
        }
      | bool_term
 	   {
-			$$ = new_nonterminal_node( N_EXPR );
-			$$->child = $1;
+			if( $1->brother != NULL )
+			{
+				$$ = new_nonterminal_node( N_EXPR );
+				$$->child = $1;
+			}
+			else
+				$$ = $1;
 	   }
      ;
 
-bool_op : AND { $$ = new_node( T_AND ); }
-        | OR { $$ = new_node( T_OR ); }
+bool_op : AND { $$ = new_qualified_node( T_LOGIC_EXPR, Q_AND ); }
+        | OR { $$ = new_qualified_node( T_LOGIC_EXPR, Q_OR ); }
         ;
 
 bool_term : rel_term rel_op rel_term
 			{
-				$$ = new_nonterminal_node( N_BOOL_TERM );
+				$$ = $2;
 				$$->child = $1;
-				Node **current = &( $$->child->brother );
-				current = assign_brother( current, $2 );
-				current = assign_brother( current, $3 );
+				$1->brother = $3;
 			}
           | rel_term
 			{
-				$$ = new_nonterminal_node( N_BOOL_TERM );
-				$$->child = $1;
+				if( $1->brother != NULL )
+				{
+					$$ = new_nonterminal_node( N_BOOL_TERM );
+					$$->child = $1;
+				}
+				else
+					$$ = $1;
 			}
           ;
 
-rel_op : EQ { $$ = new_node( T_EQ ); }
-       | NEQ { $$ = new_node( T_NEQ ); }
-       | GT { $$ = new_node( T_GT ); }
-       | GEQ { $$ = new_node( T_GEQ ); }
-       | LT { $$ = new_node( T_LT ); }
-       | LEQ { $$ = new_node( T_LEQ ); }
-       | IN { $$ = new_node( T_IN ); }
+rel_op : EQ { $$ = new_qualified_node( T_REL_EXPR, Q_EQ ); }
+       | NEQ { $$ = new_qualified_node( T_REL_EXPR, Q_NEQ ); }
+       | GT { $$ = new_qualified_node( T_REL_EXPR, Q_GT ); }
+       | GEQ { $$ = new_qualified_node( T_REL_EXPR, Q_GEQ ); }
+       | LT { $$ = new_qualified_node( T_REL_EXPR, Q_LT ); }
+       | LEQ { $$ = new_qualified_node( T_REL_EXPR, Q_LEQ ); }
+       | IN { $$ = new_qualified_node( T_REL_EXPR, Q_IN ); }
        ;
 
 rel_term : rel_term low_bin_op low_term
 		   {
-				$$ = new_nonterminal_node( N_REL_TERM );
+				$$ = $2;
 				$$->child = $1;
-				Node **current = &( $$->child->brother );
-				current = assign_brother( current, $2 );
-				current = assign_brother( current, $3 );
+				$1->brother = $3;
 		   }
          | low_term
 		   {
-				$$ = new_nonterminal_node( N_REL_TERM );
-				$$->child = $1;
+				if( $1->brother != NULL )
+				{
+					$$ = new_nonterminal_node( N_REL_TERM );
+					$$->child = $1;
+				}
+				else
+					$$ = $1;
 		   }
          ;
 
-low_bin_op : PLUS { $$ = new_node( T_PLUS ); }
-           | MINUS { $$ = new_node( T_MINUS ); }
+low_bin_op : PLUS { $$ = new_qualified_node( T_MATH_EXPR, Q_PLUS ); }
+           | MINUS { $$ = new_qualified_node( T_MATH_EXPR, Q_MINUS ); }
            ;
 
 low_term : low_term high_bin_op factor 
 		   {
+				$$ = $2;
+				$$->child = $1;
+				$1->brother = $3;
+				/*
 				$$ = new_nonterminal_node( N_LOW_TERM );
 				$$->child = $1;
 				Node **current = &( $$->child->brother );
 				current = assign_brother( current, $2 );
 				current = assign_brother( current, $3 );
+				*/
 		   }
          | factor
 		   {
-				$$ = new_nonterminal_node( N_LOW_TERM );
-				$$->child = $1;
+				if( $1->brother != NULL )
+				{
+					$$ = new_nonterminal_node( N_LOW_TERM );
+					$$->child = $1;
+				}
+				else
+					$$ = $1;
 		   }
          ;
 
-high_bin_op : MULTIPLY { $$ = new_node( T_MULTIPLY ); }
-            | DIVIDE { $$ = new_node( T_DIVIDE ); }
+high_bin_op : MULTIPLY { $$ = new_qualified_node( T_MATH_EXPR, Q_MULTIPLY ); }
+            | DIVIDE { $$ = new_qualified_node( T_MATH_EXPR, Q_DIVIDE ); }
             ;
 
 factor : unary_op factor { $$ = $1; $$->brother = $2; }
@@ -341,8 +360,8 @@ factor : unary_op factor { $$ = $1; $$->brother = $2; }
        | dynamic_input { $$ = $1; }
        ;
 
-unary_op : MINUS { $$ = new_node( T_MINUS ); }
-         | NOT { $$ = new_node( T_NOT ); } 
+unary_op : MINUS { $$ = new_qualified_node( T_NEG_EXPR, Q_MINUS ); }
+         | NOT { $$ = new_qualified_node( T_NEG_EXPR, Q_NOT ); } 
          | dynamic_output { $$ = $1; }
          ;
 
@@ -415,14 +434,14 @@ built_in_call : toint_call { $$ = $1; }
 
 toint_call : TOINT '(' expr ')'
 			 {
-				$$ = new_nonterminal_node( N_TOINT_CALL );
+				$$ = new_qualified_node( T_BUILT_IN_CALL_EXPR, Q_TOINT );
 				$$->child = $3; 
 			 }
            ;
 
 toreal_call : TOREAL '(' expr ')'
 			  {
-				$$ = new_nonterminal_node( N_TOREAL_CALL );
+				$$ = new_qualified_node( T_BUILT_IN_CALL_EXPR, Q_TOREAL );
 				$$->child = $3;
 			  }
             ;
@@ -455,7 +474,7 @@ Node* new_node( TypeNode type )
 
 Node* new_nonterminal_node( Nonterminal value )
 {
-	Node* result = new_node( T_NONTERMINAL );
+	Node* result = new_node( T_UNQUALIFIED_NONTERMINAL );
 	result->value.n_val = value;
 
 	return result;

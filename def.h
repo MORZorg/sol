@@ -59,8 +59,6 @@ typedef enum
 	N_COND_EXPR,
 	N_ELSIF_EXPR_LIST_OPT,
 	N_BUILT_IN_CALL,
-	N_TOINT_CALL,
-	N_TOREAL_CALL,
 	N_DYNAMIC_INPUT,
 	N_DYNAMIC_OUTPUT,
 	N_RETURN,
@@ -78,20 +76,12 @@ typedef enum
 	T_VAR,
 	T_CONST,
 
-	T_AND,
-	T_OR,
-	T_IN,
-	T_NOT,
-	T_EQ,
-	T_NEQ,
-	T_GT,
-	T_GEQ,
-	T_LT,
-	T_LEQ,
-	T_PLUS,
-	T_MINUS,
-	T_MULTIPLY,
-	T_DIVIDE,
+	T_LOGIC_EXPR,
+	T_REL_EXPR,
+	T_MATH_EXPR,
+	T_NEG_EXPR,
+	T_INSTANCE_EXPR,
+	T_BUILT_IN_CALL_EXPR,
 
 	T_INT_CONST,
 	T_CHAR_CONST,
@@ -99,7 +89,7 @@ typedef enum
 	T_STR_CONST,
 	T_BOOL_CONST,
     T_ID,
-    T_NONTERMINAL
+    T_UNQUALIFIED_NONTERMINAL
 } TypeNode;
 
 typedef enum
@@ -108,7 +98,28 @@ typedef enum
 	Q_INT,
 	Q_REAL,
 	Q_STRING,
-	Q_BOOL
+	Q_BOOL,
+
+	Q_AND,
+	Q_OR,
+
+	Q_EQ,
+	Q_NEQ,
+	Q_GT,
+	Q_GEQ,
+	Q_LT,
+	Q_LEQ,
+	Q_IN,
+
+	Q_NOT,
+
+	Q_PLUS,
+	Q_MINUS,
+	Q_MULTIPLY,
+	Q_DIVIDE,
+
+	Q_TOINT,
+	Q_TOREAL
 } Qualifier;
 
 typedef union
