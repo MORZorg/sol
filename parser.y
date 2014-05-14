@@ -77,16 +77,16 @@ struct_domain : STRUCT '(' decl_list ')' { $$ = $3; }
 vector_domain : VECTOR '[' INT_CONST { $$ = new_terminal_node( T_INT_CONST, lexval ); } ']' OF domain { $$ = $4; $4->brother = $7; }
               ;
 
-type_sect_opt : TYPE decl_list { $$ = new_nonterminal_node( N_TYPE_SECT ); $$->child = $1; }
-              | { $$ = NULL }
+type_sect_opt : TYPE decl_list { $$ = new_nonterminal_node( N_TYPE_SECT ); $$->child = $2; }
+              | { $$ = NULL; }
               ;
 
-var_sect_opt : VAR decl_list { $$ = new_nonterminal_node( N_VAR_SECT ); $$->child = $1; }
-             | { $$ = NULL }
+var_sect_opt : VAR decl_list { $$ = new_nonterminal_node( N_VAR_SECT ); $$->child = $2; }
+             | { $$ = NULL; }
              ;
 
-const_sect_opt : CONST const_list { $$ = new_nonterminal_node( N_CONST_SECT ); $$->child = $1; }
-              | { $$ = NULL }
+const_sect_opt : CONST const_list { $$ = new_nonterminal_node( N_CONST_SECT ); $$->child = $2; }
+              | { $$ = NULL; }
               ;
 
 const_list : const_decl const_list { $$ = new_nonterminal_node( N_CONST_DECL ); $$->child = $1; $$->brother = $2; }
@@ -97,7 +97,7 @@ const_decl : decl ASSIGN expr ';' { $$ = $1; $$->brother = $3; }
            ;
 
 func_list_opt : func_list { $$ = new_nonterminal_node( N_FUNC_LIST ); $$->child = $1; }
-              | { $$ = NULL }
+              | { $$ = NULL; }
               ;
 
 func_list : func_decl func_list { $$ = new_nonterminal_node( N_FUNC_DECL ); $$->child = $1; $$->brother = $2; }
@@ -253,7 +253,7 @@ expr : expr bool_op bool_term
 	   {
 			$$ = new_nonterminal_node( N_EXPR );
 			$$->child = $1;
-			Node **current = &( $$->child->brother );
+			Node** current = &( $$->child->brother );
 			current = assign_brother( current, $2 );
 			current = assign_brother( current, $3 );
        }
@@ -346,11 +346,11 @@ unary_op : MINUS { $$ = new_node( T_MINUS ); }
          | dynamic_output { $$ = $1; }
          ;
 
-atomic_const : CHAR_CONST { $$ = new_node( T_CHAR_CONST ); }
-             | INT_CONST { $$ = new_node( T_INT_CONST ); }
-             | REAL_CONST { $$ = new_node( T_REAL_CONST ); }
-             | STR_CONST { $$ = new_node( T_STR_CONST ); }
-             | BOOL_CONST { $$ = new_node( T_BOOL_CONST ); }
+atomic_const : CHAR_CONST { $$ = new_terminal_node( T_CHAR_CONST, lexval ); }
+             | INT_CONST { $$ = new_terminal_node( T_INT_CONST, lexval ); }
+             | REAL_CONST { $$ = new_terminal_node( T_REAL_CONST, lexval ); }
+             | STR_CONST { $$ = new_terminal_node( T_STR_CONST, lexval ); }
+             | BOOL_CONST { $$ = new_terminal_node( T_BOOL_CONST, lexval ); }
              ;
 
 instance_construction : struct_construction { $$ = $1; }
