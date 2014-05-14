@@ -73,6 +73,7 @@ typedef enum
 typedef enum
 {
 	T_ATOMIC_DOMAIN,
+    T_ID_DOMAIN,
 	T_TYPE,
 	T_VAR,
 	T_CONST,

@@ -76,7 +76,7 @@ wr				{ fprintf( stderr, "%s ", "WR" ); return( WR ); }
 "*"				{ fprintf( stderr, "%s ", "MULTIPLY" ); return( MULTIPLY ); }
 "/"				{ fprintf( stderr, "%s ", "DIVIDE" ); return( DIVIDE ); }
 {intconst}		{ fprintf( stderr, "%s ", "INT_CONST" ); lexval.i_val = atoi( yytext ); return( INT_CONST ); }
-{charconst}		{ fprintf( stderr, "%s ", "CHAR_CONST" ); lexval.c_val = yytext[ 0 ]; return( CHAR_CONST ); }
+{charconst}		{ fprintf( stderr, "%s ", "CHAR_CONST" ); lexval.c_val = yytext[ 1 ]; return( CHAR_CONST ); }
 {realconst}		{ fprintf( stderr, "%s ", "REAL_CONST" ); lexval.r_val = atof( yytext ); return( REAL_CONST ); }
 {strconst}		{ fprintf( stderr, "%s ", "STR_CONST" ); lexval.s_val = new_string( yytext ); return( STR_CONST ); }
 {boolconst}		{ fprintf( stderr, "%s ", "BOOL_CONST" ); lexval.b_val = ( yytext[ 0 ] == 'f' ? FALSE : TRUE ); return( BOOL_CONST ); }

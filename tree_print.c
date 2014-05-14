@@ -63,6 +63,7 @@ const char* TREE_NONTERMINALS[] =
 const char* TREE_TYPES[] =
 {
 	"ATOMIC_DOMAIN",
+    "ID_DOMAIN",
 	"TYPE",
 	"VAR",
 	"CONST",
@@ -100,13 +101,15 @@ const char* TREE_QUALIFIERS[] =
 	"BOOL"
 };
 
+const char* SPACING = "  ";
+
 void tree_print(Node* root, int indent)
 {
 	int i;
 	Node* p;
 
 	for( i = 0; i < indent; i++ )
-		printf("    ");
+		printf( "%s", SPACING );
 
 	printf( "%s", ( root->type == T_NONTERMINAL ?
 					TREE_NONTERMINALS[ root->value.n_val ] :
@@ -136,6 +139,7 @@ void tree_print(Node* root, int indent)
 
 		case T_STR_CONST:
 		case T_ID:
+        case T_ID_DOMAIN:
 			printf( " (%s)", root->value.s_val );
 			break;
 

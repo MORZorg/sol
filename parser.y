@@ -61,7 +61,7 @@ id_list : ID { $$ = new_terminal_node( T_ID, lexval ); } ',' id_list { $$ = $2; 
 domain : atomic_domain
        | struct_domain { $$ = new_nonterminal_node( N_STRUCT_DOMAIN ); $$->child = $1; }
        | vector_domain { $$ = new_nonterminal_node( N_VECTOR_DOMAIN ); $$->child = $1; }
-       | ID			   { $$ = new_terminal_node( T_ID, lexval ); }
+       | ID			   { $$ = new_terminal_node( T_ID_DOMAIN, lexval ); }
        ;
 
 atomic_domain : CHAR	{ $$ = new_qualified_node( T_ATOMIC_DOMAIN, Q_CHAR ); }
@@ -330,7 +330,7 @@ high_bin_op : MULTIPLY { $$ = new_node( T_MULTIPLY ); }
             | DIVIDE { $$ = new_node( T_DIVIDE ); }
             ;
 
-factor : unary_op factor { $$ = $1; }
+factor : unary_op factor { $$ = $1; $$->brother = $2; }
        | '(' expr ')' { $$ = $2; }
        | left_hand_side { $$ = $1; }
        | atomic_const { $$ = $1; }
@@ -364,11 +364,7 @@ struct_construction : STRUCT '(' expr_list ')'
 					  }
                     ;
 
-expr_list : expr ',' expr_list
-			{
-				$$ = $1;
-				$$->brother = $3;
-			}
+expr_list : expr ',' expr_list { $$ = $1; $$->brother = $3; }
           | expr { $$ = $1; }
           ;
 
@@ -475,7 +471,21 @@ Node* new_terminal_node( TypeNode type, Value value )
 			result->value.i_val = value.i_val;
 			break;
 
+        case T_CHAR_CONST:
+            result->value.c_val = value.c_val;
+            break;
+
+        case T_REAL_CONST:
+            result->value.r_val = value.r_val;
+            break;
+
+        case T_BOOL_CONST:
+            result->value.b_val = value.b_val;
+            break;
+
+        case T_STR_CONST:
 		case T_ID:
+        case T_ID_DOMAIN:
 			result->value.s_val = value.s_val;
 			break;
 
