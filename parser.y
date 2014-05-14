@@ -1,5 +1,8 @@
 %{
+#include <string.h>
+
 #include "def.h"
+
 #define YYSTYPE Node*
 extern FILE *yyin;
 extern char* yytext;
@@ -93,7 +96,7 @@ const_list : const_decl const_list { $$ = new_nonterminal_node( N_CONST_DECL ); 
            | const_decl { $$ = new_nonterminal_node( N_CONST_DECL ); $$->child = $1; }
            ;
 
-const_decl : decl ASSIGN expr ';' { $$ = $1; $$->brother = $3; }
+const_decl : decl ASSIGN expr ';' { $$ = $1; assign_brother( &($$->brother), $3 ); }
            ;
 
 func_list_opt : func_list { $$ = new_nonterminal_node( N_FUNC_LIST ); $$->child = $1; }
@@ -106,11 +109,13 @@ func_list : func_decl func_list { $$ = new_nonterminal_node( N_FUNC_DECL ); $$->
 
 func_body : SOL_BEGIN ID { $$ = new_terminal_node( T_ID, lexval ); } stat_list END ID { $$ = new_terminal_node( T_ID, lexval ); }
 			{ 
+                if( strcmp( $3->value.s_val, $7->value.s_val ) )
+                    yyerror( "unmatched identifier" );
+
 				$$ = new_nonterminal_node( N_FUNC_BODY );
 				$$->child = $3;
 				$3->brother = new_nonterminal_node( N_STAT_LIST );
 				$3->brother->child = $4;
-				$3->brother->brother = $7;
 			}
           ;
 
@@ -174,7 +179,7 @@ if_stat : IF expr THEN stat_list elsif_stat_list_opt else_stat_opt ENDIF
 
 elsif_stat_list_opt : ELSIF expr THEN stat_list elsif_stat_list_opt
 					  {
-							$$ = new_nonterminal_node( N_ELSIF_STAT_LIST_OPT );
+							$$ = new_nonterminal_node( N_ELSIF_STAT );
 							$$->child = $2;
 							Node** current = &( $$->child->brother );
 							current = assign_brother( current, $4 );
@@ -183,7 +188,7 @@ elsif_stat_list_opt : ELSIF expr THEN stat_list elsif_stat_list_opt
                     | { $$ = NULL; }
                     ;
 
-else_stat_opt : ELSE stat_list { $$ = $2; }
+else_stat_opt : ELSE stat_list { $$ = new_nonterminal_node( N_ELSE_STAT ); $$->child = $2; }
               | { $$ = NULL; }
               ;
 
@@ -289,13 +294,13 @@ bool_term : rel_term rel_op rel_term
 			}
           ;
 
-rel_op : EQ { $$ = new_qualified_node( T_REL_EXPR, Q_EQ ); }
-       | NEQ { $$ = new_qualified_node( T_REL_EXPR, Q_NEQ ); }
-       | GT { $$ = new_qualified_node( T_REL_EXPR, Q_GT ); }
-       | GEQ { $$ = new_qualified_node( T_REL_EXPR, Q_GEQ ); }
-       | LT { $$ = new_qualified_node( T_REL_EXPR, Q_LT ); }
-       | LEQ { $$ = new_qualified_node( T_REL_EXPR, Q_LEQ ); }
-       | IN { $$ = new_qualified_node( T_REL_EXPR, Q_IN ); }
+rel_op : EQ   { $$ = new_qualified_node( T_REL_EXPR, Q_EQ  ); }
+       | NEQ  { $$ = new_qualified_node( T_REL_EXPR, Q_NEQ ); }
+       | GT   { $$ = new_qualified_node( T_REL_EXPR, Q_GT  ); }
+       | GEQ  { $$ = new_qualified_node( T_REL_EXPR, Q_GEQ ); }
+       | LT   { $$ = new_qualified_node( T_REL_EXPR, Q_LT  ); }
+       | LEQ  { $$ = new_qualified_node( T_REL_EXPR, Q_LEQ ); }
+       | IN   { $$ = new_qualified_node( T_REL_EXPR, Q_IN  ); }
        ;
 
 rel_term : rel_term low_bin_op low_term
@@ -349,7 +354,7 @@ high_bin_op : MULTIPLY { $$ = new_qualified_node( T_MATH_EXPR, Q_MULTIPLY ); }
             | DIVIDE { $$ = new_qualified_node( T_MATH_EXPR, Q_DIVIDE ); }
             ;
 
-factor : unary_op factor { $$ = $1; $$->brother = $2; }
+factor : unary_op factor { $$ = $1; $$->child = $2; }
        | '(' expr ')' { $$ = $2; }
        | left_hand_side { $$ = $1; }
        | atomic_const { $$ = $1; }
@@ -378,8 +383,8 @@ instance_construction : struct_construction { $$ = $1; }
 
 struct_construction : STRUCT '(' expr_list ')'
 					  {
-						$$ = new_nonterminal_node( N_STRUCT_CONSTRUCTION );
-						$$->child = $3;
+                          $$ = new_nonterminal_node( N_STRUCT_CONSTRUCTION );
+                          $$->child = $3;
 					  }
                     ;
 
@@ -389,8 +394,8 @@ expr_list : expr ',' expr_list { $$ = $1; $$->brother = $3; }
 
 vector_construction : VECTOR '(' expr_list ')'
 					  {
-						$$ = new_nonterminal_node( N_VECTOR_CONSTRUCTION );
-						$$->child = $3;
+                          $$ = new_nonterminal_node( N_VECTOR_CONSTRUCTION );
+                          $$->child = $3;
 					  }
                     ;
 
@@ -419,7 +424,7 @@ cond_expr : IF expr THEN expr elsif_expr_list_opt ELSE expr ENDIF
 
 elsif_expr_list_opt : ELSIF expr THEN expr elsif_expr_list_opt
 					  {
-						$$ = new_nonterminal_node( N_ELSIF_EXPR_LIST_OPT );
+						$$ = new_nonterminal_node( N_ELSIF_EXPR_LIST );
 						$$->child = $2;
 						Node **current = &( $$->child->brother );
 						current = assign_brother( current, $4 );
@@ -434,14 +439,14 @@ built_in_call : toint_call { $$ = $1; }
 
 toint_call : TOINT '(' expr ')'
 			 {
-				$$ = new_qualified_node( T_BUILT_IN_CALL_EXPR, Q_TOINT );
+				$$ = new_qualified_node( T_BUILT_IN_CALL, Q_TOINT );
 				$$->child = $3; 
 			 }
            ;
 
 toreal_call : TOREAL '(' expr ')'
 			  {
-				$$ = new_qualified_node( T_BUILT_IN_CALL_EXPR, Q_TOREAL );
+				$$ = new_qualified_node( T_BUILT_IN_CALL, Q_TOREAL );
 				$$->child = $3;
 			  }
             ;
@@ -449,8 +454,13 @@ toreal_call : TOREAL '(' expr ')'
 dynamic_input : RD specifier_opt domain
 				{
 					$$ = new_nonterminal_node( N_DYNAMIC_INPUT );
-					$$->child = $2;
-					$$->child->brother = $3;
+                    if( $2 == NULL )
+                        $$->child = $3;
+                    else
+                    {
+                        $$->child = $2;
+                        $2->brother = $3;
+                    }
 				}
               ;
 

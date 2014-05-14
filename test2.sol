@@ -3,6 +3,8 @@ begin prog
 	write a;
     write 'c';
     write '\t';
-    return "a\ts\nd";
+    write '\'';
+    write prog(primo, a);
+    return "a\"\ts\\d";
 end prog
 

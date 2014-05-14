@@ -20,8 +20,8 @@ const char* TREE_NONTERMINALS[] =
 	"FIELDING",
 	"INDEXING",
 	"IF_STAT",
-	"ELSIF_STAT_LIST_OPT",
-	"ELSE_STAT_OPT",
+	"ELSIF_STAT",
+	"ELSE_STAT",
 	"WHILE_STAT",
 	"FOR_STAT",
 	"FOREACH_STAT",
@@ -43,12 +43,11 @@ const char* TREE_NONTERMINALS[] =
 	"INSTANCE_CONSTRUCTION",
 	"STRUCT_CONSTRUCTION",
 	"EXPR_LIST",
+    "ELSIF_EXPR_LIST",
 	"VECTOR_CONSTRUCTION",
 	"FUNC_CALL",
 	"EXPR_LIST_OPT",
 	"COND_EXPR",
-	"ELSIF_EXPR_LIST_OPT",
-	"BUILT_IN_CALL",
 	"DYNAMIC_INPUT",
 	"DYNAMIC_OUTPUT",
 	"RETURN",
@@ -71,7 +70,7 @@ const char* TREE_TYPES[] =
 	"MATH_EXPR",
 	"NEG_EXPR",
 	"INSTANCE_EXPR",
-	"BUILT_IN_CALL_EXPR",
+	"BUILT_IN_CALL",
 
 	"INT_CONST",
 	"CHAR_CONST",
@@ -133,7 +132,7 @@ void tree_print(Node* root, int indent)
 		case T_MATH_EXPR:
 		case T_NEG_EXPR:
 		case T_INSTANCE_EXPR:
-		case T_BUILT_IN_CALL_EXPR:
+		case T_BUILT_IN_CALL:
 		case T_ATOMIC_DOMAIN:
 			printf( " (%s)", TREE_QUALIFIERS[ root->value.q_val ] );
 			break;
