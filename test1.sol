@@ -19,6 +19,8 @@ begin prog
     a = 1;
     s[ 5 ][ 3 ] = 5.6;
     q.b = "Carl";
+    q.b = "Ca\trl";
+    carl.lenny = 1;
     if q.b == "ciao" then
         q.a = 4;
     elsif not false != false then

@@ -109,7 +109,7 @@ func_list : func_decl func_list { $$ = new_nonterminal_node( N_FUNC_DECL ); $$->
 
 func_body : SOL_BEGIN ID { $$ = new_terminal_node( T_ID, lexval ); } stat_list END ID { $$ = new_terminal_node( T_ID, lexval ); }
 			{ 
-                if( strcmp( $3->value.s_val, $7->value.s_val ) )
+                if( $3->value.s_val != $7->value.s_val )
                     yyerror( "unmatched identifier" );
 
 				$$ = new_nonterminal_node( N_FUNC_BODY );
