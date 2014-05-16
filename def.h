@@ -12,6 +12,8 @@ typedef enum
 
 typedef enum 
 {
+    // TODO Minimize me!
+    
 	N_FUNC_DECL,
 	N_DECL_LIST,
 	N_DECL,
@@ -50,11 +52,8 @@ typedef enum
 	N_FACTOR,
 	N_UNARY_OP,
 	N_ATOMIC_CONST,
-	N_INSTANCE_CONSTRUCTION,
-	N_STRUCT_CONSTRUCTION,
 	N_EXPR_LIST,
     N_ELSIF_EXPR_LIST,
-	N_VECTOR_CONSTRUCTION,
 	N_FUNC_CALL,
 	N_EXPR_LIST_OPT,
 	N_COND_EXPR,
@@ -118,7 +117,10 @@ typedef enum
 	Q_DIVIDE,
 
 	Q_TOINT,
-	Q_TOREAL
+	Q_TOREAL,
+
+    Q_STRUCT,
+    Q_VECTOR
 } Qualifier;
 
 typedef union

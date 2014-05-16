@@ -17,7 +17,7 @@ func prog( a, b: int; c: string; ): int
 
 begin prog
     a = 1;
-    s[5][3] = 5.6;
+    s[ 5 ][ 3 ] = 5.6;
     q.b = "Carl";
     if q.b == "ciao" then
         q.a = 4;
@@ -28,7 +28,7 @@ begin prog
         return prog(q.a, a, q.b);
     endif;
 
-    while q.a > 0 do
+    while q.a >= 0 do
         q.a = q.a + -1;
     endwhile;
 
@@ -42,7 +42,7 @@ begin prog
 
     read [ "asd" ] z;
     write [ "asd" + "pino" ] t;
-	write MAX;
+	write if a > 3 then toint( a ) else toreal( a ) endif;
 
     return i;
 end prog

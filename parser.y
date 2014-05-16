@@ -383,7 +383,7 @@ instance_construction : struct_construction { $$ = $1; }
 
 struct_construction : STRUCT '(' expr_list ')'
 					  {
-                          $$ = new_nonterminal_node( N_STRUCT_CONSTRUCTION );
+                          $$ = new_qualified_node( T_INSTANCE_EXPR, Q_STRUCT );
                           $$->child = $3;
 					  }
                     ;
@@ -394,7 +394,7 @@ expr_list : expr ',' expr_list { $$ = $1; $$->brother = $3; }
 
 vector_construction : VECTOR '(' expr_list ')'
 					  {
-                          $$ = new_nonterminal_node( N_VECTOR_CONSTRUCTION );
+                          $$ = new_qualified_node( T_INSTANCE_EXPR, Q_VECTOR );
                           $$->child = $3;
 					  }
                     ;
@@ -501,7 +501,7 @@ Node* new_terminal_node( TypeNode type, Value value )
 			break;
 
         case T_CHAR_CONST:
-            result->value.c_val = value.c_val;
+            result->value.c_val = value.c_val;https://code.google.com/p/ulib/downloads/detail?name=ulib-2.0.1_src.tar.gz
             break;
 
         case T_REAL_CONST:
@@ -534,7 +534,8 @@ Node* new_qualified_node( TypeNode type, Qualifier qualifier )
 }
 
 /**
- * @brief Assigns to the given pointer to a tree node (Node*) the given tree node.
+ * @brief Assigns to the given pointer to a tree node (Node*) the given tree
+ *        node or its last brother.
  * @note Can be optimized if brother can't be NULL.
  *
  * @param initial
