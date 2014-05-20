@@ -27,6 +27,6 @@ parser: main.c tree_print.o lexer.o parser.o hashmap.o
 
 .PHONY : clean
 clean:
-	rm -f lexer lexer.c lexer.o \
-	  parser parser.c parser.h parser.o parser.output
-	rm -rf lexer.dSYM parser.dSYM
+	rm -f lexer lexer.c \
+	  parser parser.c parser.h parser.output *.o
+	rm -rf *.dSYM
