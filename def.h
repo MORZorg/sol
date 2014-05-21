@@ -138,8 +138,8 @@ typedef struct snode
 {
     TypeNode type;
     Value value;
-    snode* child;
-    snode* brother;
+    struct snode* child;
+    struct snode* brother;
 } Node;
 
 char* new_string( char* );

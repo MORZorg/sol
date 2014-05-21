@@ -30,8 +30,8 @@ typedef struct schema
 	TypeSchema type;
 	char* id;
 	int size;
-	schema* child;
-	schema* brother;
+	struct schema* child;
+	struct schema* brother;
 } Schema;
 
 typedef struct symtab
@@ -42,7 +42,7 @@ typedef struct symtab
 	Schema schema;
 	map_t locenv;
 	int formals_size;
-	symtab* formals[];
+	struct symtab* formals[];
 } Symbol;
 
 int yysem();

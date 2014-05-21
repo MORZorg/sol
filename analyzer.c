@@ -1,11 +1,16 @@
 #include "analyzer.h"
 
+extern int yyparse();
 extern Node* root;
 
 int yysem()
 {
 	// Passing through the syntax tree to check semantic
-	return check_syntax_tree( root );
+    int result = yyparse();
+    if( result == 0 )
+      return check_syntax_tree( root );
+    else
+      return result;
 }
 
 int check_syntax_tree( Node* node )
