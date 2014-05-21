@@ -12,8 +12,6 @@ typedef enum
 
 typedef enum 
 {
-    // TODO Minimize me!
-    
 	N_FUNC_DECL,
 	N_PAR_LIST,
 	N_DECL,
@@ -26,9 +24,7 @@ typedef enum
 	N_FUNC_LIST,
 	N_FUNC_BODY,
 	N_STAT_LIST,
-	N_STAT,
 	N_ASSIGN_STAT,
-	N_LEFT_HAND_SIDE,
 	N_FIELDING,
 	N_INDEXING,
 	N_IF_STAT,
@@ -39,40 +35,22 @@ typedef enum
 	N_FOREACH_STAT,
 	N_RETURN_STAT,
 	N_READ_STAT,
-	N_SPECIFIER_OPT,
 	N_WRITE_STAT,
 	N_EXPR,
-	N_BOOL_OP,
 	N_BOOL_TERM,
-	N_REL_OP,
 	N_REL_TERM,
-	N_LOW_BIN_OP,
 	N_LOW_TERM,
-	N_HIGH_BIN_OP,
-	N_FACTOR,
-	N_UNARY_OP,
-	N_ATOMIC_CONST,
-	N_EXPR_LIST,
     N_ELSIF_EXPR_LIST,
 	N_FUNC_CALL,
-	N_EXPR_LIST_OPT,
 	N_COND_EXPR,
 	N_DYNAMIC_INPUT,
 	N_DYNAMIC_OUTPUT,
-	N_RETURN,
-	N_READ,
-	N_WRITE,
-	N_RD,
-	N_WR
 } Nonterminal;
 
 typedef enum
 {
 	T_ATOMIC_DOMAIN,
     T_ID_DOMAIN,
-	T_TYPE,
-	T_VAR,
-	T_CONST,
 
 	T_LOGIC_EXPR,
 	T_REL_EXPR,

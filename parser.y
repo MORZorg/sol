@@ -223,7 +223,7 @@ foreach_stat : FOREACH ID { $$ = new_terminal_node( T_ID, lexval ); } IN expr DO
 
 return_stat : RETURN expr
 			  {
-				$$ = new_nonterminal_node( N_RETURN );
+				$$ = new_nonterminal_node( N_RETURN_STAT );
 				$$->child = $2;
 			  }
             ;
@@ -330,13 +330,6 @@ low_term : low_term high_bin_op factor
 				$$ = $2;
 				$$->child = $1;
 				$1->brother = $3;
-				/*
-				$$ = new_nonterminal_node( N_LOW_TERM );
-				$$->child = $1;
-				Node **current = &( $$->child->brother );
-				current = assign_brother( current, $2 );
-				current = assign_brother( current, $3 );
-				*/
 		   }
          | factor
 		   {
