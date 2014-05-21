@@ -48,6 +48,8 @@ typedef struct symtab
 int yysem();
 int check_syntax_tree( Node* );
 Symbol* create_symbol_table_element( Node*, int );
+Schema* create_schema( Node* );
+Schema* create_schema_attribute( Node* );
 
 #endif
 
