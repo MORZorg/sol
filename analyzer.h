@@ -51,5 +51,5 @@ Symbol* create_symbol_table_element( Node*, int );
 Schema* create_schema( Node* );
 Schema* create_schema_attribute( Node* );
 
-#endif
+#endif // __ANALYZER_H__
 
