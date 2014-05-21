@@ -14,18 +14,20 @@ stacklist scope;
 int yysem()
 {
 	// Passing through the syntax tree to check semantic
-    int result = yyparse();
-    if( result == 0 )
-      return check_function_subtree( root );
-    else
-      return result;
+	int result = yyparse();
+	if( result == 0 )
+	{
+		scope = new_stack();
+		return check_function_subtree( root );
+	}
+	else
+		return result;
 }
 
 int check_function_subtree( Node* node )
 {
 	int oid_relative = 1;
 	int oid_absolute = 1;
-	stacklist scope = new_stack();
 
 	Symbol* element = create_symbol_table_element( node, oid_absolute );
 	oid_absolute++;
@@ -41,32 +43,36 @@ int check_function_subtree( Node* node )
 Symbol* create_symbol_table_element( Node* node, int oid )
 {
 	Symbol* result = malloc( sizeof( Symbol ) );
-	result->name = node->child->s_val;
 	result->oid = oid;
 
 	switch( node->type )
 	{
 		case N_TYPE_SECT:
-			result->class = CS_TYPE;
+			result->clazz = CS_TYPE;
 			break;
 
 		case N_VAR_SECT:
-			result->class = CS_VAR;
+			result->clazz = CS_VAR;
 			break;
 
 		case N_CONST_DECL:
-			result->class = CS_CONST;
+			result->clazz = CS_CONST;
 			break;
 
 		case N_FUNC_DECL:
-			result->class = CS_FUNC;
-			result->schema = look_into_schema_table( node->child->brother->brother );
+			result->name = node->child->value.s_val;
+			result->clazz = CS_FUNC;
+			result->schema = create_schema( node->child->brother->brother );
+			result->locenv = hashmap_new();
 			break;
 
-		// PARAMETERS
-	}
+		case N_PAR_LIST:
+			result->clazz = CS_PAR;
+			break;
 
-	result->next = NULL;
+		default:
+			yyerror( STR_BUG );
+	}
 
 	return result;
 }
