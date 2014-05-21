@@ -15,7 +15,7 @@ typedef enum
     // TODO Minimize me!
     
 	N_FUNC_DECL,
-	N_DECL_LIST,
+	N_PAR_LIST,
 	N_DECL,
 	N_STRUCT_DOMAIN,
 	N_VECTOR_DOMAIN,

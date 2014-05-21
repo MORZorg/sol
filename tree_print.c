@@ -3,7 +3,7 @@
 const char* TREE_NONTERMINALS[] =
 {
 	"FUNC_DECL",
-	"DECL_LIST",
+	"PAR_LIST",
 	"DECL",
 	"STRUCT_DOMAIN",
 	"VECTOR_DOMAIN",

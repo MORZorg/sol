@@ -27,7 +27,7 @@ program : func_decl { root = $1; }
         ;
 
 func_decl : FUNC ID { $$ = new_terminal_node( T_ID, lexval ); }
-            '(' decl_list_opt ')' DEFINE domain
+            '(' par_list ')' DEFINE domain
             type_sect_opt var_sect_opt const_sect_opt func_list_opt func_body
             {
                 $$ = new_nonterminal_node( N_FUNC_DECL );
@@ -43,9 +43,9 @@ func_decl : FUNC ID { $$ = new_terminal_node( T_ID, lexval ); }
             }
           ;
 
-decl_list_opt : decl_list { $$ = new_nonterminal_node( N_DECL_LIST ); $$->child = $1; }
-              | { $$ = NULL; }
-              ;
+par_list : decl_list { $$ = new_nonterminal_node( N_PAR_LIST ); $$->child = $1; }
+           | { $$ = NULL; }
+           ;
 
 decl_list : decl ';' decl_list { $$ = new_nonterminal_node( N_DECL ); $$->child = $1; $$->brother = $3; }
           | decl ';' { $$ = new_nonterminal_node( N_DECL ); $$->child = $1; }
