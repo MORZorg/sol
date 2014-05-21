@@ -3,6 +3,8 @@
 #include "parser.h"
 #include "hashmap.h"
 
+char* STR_ERROR = "lexical error";
+
 int line = 1;
 Value lexval;
 static char* strbuf;
@@ -98,7 +100,7 @@ wr					{ SPAM( "WR" ); return( WR ); }
 {boolconst}			{ SPAM( "BOOL_CONST" ); lexval.b_val = ( yytext[ 0 ] == 'f' ? FALSE : TRUE ); return( BOOL_CONST ); }
 {id}				{ SPAM( "ID" ); lexval.s_val = new_string( yytext ); return( ID ); }
 {sugar}				{ SPAM( yytext ); return( yytext[ 0 ] ); }
-.					{ yyerror("lexical error"); }
+.					{ yyerror( STR_ERROR ); }
 %%
 
 char* new_string( char* s )

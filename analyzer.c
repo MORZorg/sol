@@ -1,11 +1,15 @@
 #include "analyzer.h"
 #include "stacklist.h"
 
+#define STR_BUG "compiler bug"
+#define STR_UNDECLARED "undeclared id"
+#define STR_EMPTY_DECL "empty declaration"
+
 extern int yyerror(char*);
 extern int yyparse();
 extern Node* root;
 
-char* STR_BUG = "compiler bug";
+stacklist scope;
 
 int yysem()
 {
@@ -79,12 +83,44 @@ Symbol* create_symbol_table_element( Node* node, int oid )
 Schema* create_schema( Node* node )
 {
 	if( node->type == T_ID_DOMAIN )
-		return NULL; // TODO Fetch from stacklist
+	{
+		Symbol* definition = fetch_scope( node->value.s_val );
+		if( definition == NULL )
+			yyerror( STR_UNDECLARED );
+		else
+			return definition->schema;
+	}
 
 	Schema* result = malloc( sizeof( Schema ) );
 	switch( node->type )
 	{
 		case T_ATOMIC_DOMAIN:
+			switch( node->value.q_val )
+			{
+				case Q_CHAR:
+					result->type = TS_CHAR;
+					break;
+
+				case Q_INT:
+					result->type = TS_INT;
+					break;
+
+				case Q_REAL:
+					result->type = TS_REAL;
+					break;
+
+				case Q_STRING:
+					result->type = TS_STRING;
+					break;
+
+				case Q_BOOL:
+					result->type = TS_BOOL;
+					break;
+
+				default:
+					yyerror( STR_BUG );
+					break;
+			}
 			break;
 			
 		case T_INSTANCE_EXPR:
@@ -92,10 +128,12 @@ Schema* create_schema( Node* node )
 			{
 				case Q_STRUCT:
 				{
+					result->type = TS_STRUCT;
+
 					Schema** current_schema = &(result->child);
 					Node* current_node = node->child;
 					if( current_node == NULL )
-						yyerror( "empty struct" );
+						yyerror( STR_EMPTY_DECL );
 
 					do
 					{
@@ -107,6 +145,8 @@ Schema* create_schema( Node* node )
 				}
 
 				case Q_VECTOR:
+					result->type = TS_VECTOR;
+
 					result->size = node->child->value.i_val;
 					result->child = create_schema( node->child->brother );
 					break;
@@ -135,6 +175,7 @@ Schema* create_schema( Node* node )
 Schema* create_schema_attribute( Node* node )
 {
 	Schema* result = malloc( sizeof( Schema ) );
+	result->type = TS_ATTR;
 	result->id = node->value.s_val;
 
 	if( node->brother == NULL )
@@ -159,3 +200,27 @@ Schema* create_schema_attribute( Node* node )
 
 	return result;
 }
+
+/**
+ * @brief Searches for an ID in the actual scope and, eventually, its fathers.
+ *
+ * @param id
+ *
+ * @return 
+ */
+Symbol* fetch_scope( char* id )
+{
+	Symbol* result = NULL;
+
+	stacklist current_scope = scope;
+	while( current_scope != NULL )
+	{
+		if( hashmap_get(current_scope->table, id, (any_t*) &result ) == STACK_OK )
+			break;
+
+		current_scope = current_scope->next;
+	}
+
+	return result;
+}
+

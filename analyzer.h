@@ -39,7 +39,7 @@ typedef struct symtab
 	char* name;
 	int oid;
 	ClassSymbol clazz;
-	Schema schema;
+	Schema* schema;
 	map_t locenv;
 	int formals_size;
 	struct symtab* formals[];
@@ -50,6 +50,7 @@ int check_function_subtree( Node* );
 Symbol* create_symbol_table_element( Node*, int );
 Schema* create_schema( Node* );
 Schema* create_schema_attribute( Node* );
+Symbol* fetch_scope( char* );
 
 #endif // __ANALYZER_H__
 
