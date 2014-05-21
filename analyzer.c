@@ -1,4 +1,5 @@
 #include "analyzer.h"
+#include "stacklist.h"
 
 extern int yyerror(char*);
 extern int yyparse();
@@ -11,19 +12,22 @@ int yysem()
 	// Passing through the syntax tree to check semantic
     int result = yyparse();
     if( result == 0 )
-      return check_syntax_tree( root );
+      return check_function_subtree( root );
     else
       return result;
 }
 
-int check_syntax_tree( Node* node )
+int check_function_subtree( Node* node )
 {
 	int oid_relative = 1;
 	int oid_absolute = 1;
-
+	stacklist scope = new_stack();
 
 	Symbol* element = create_symbol_table_element( node, oid_absolute );
 	oid_absolute++;
+
+	if( stacklist_push( scope, (any_t) element ) )
+		return STACK_ERROR;
 	
 	// Check if there is another func_decl and process it
 	
@@ -34,31 +38,32 @@ Symbol* create_symbol_table_element( Node* node, int oid )
 {
 	Symbol* result = malloc( sizeof( Symbol ) );
 	result->name = node->child->s_val;
+	result->oid = oid;
 
 	switch( node->type )
 	{
 		case N_TYPE_SECT:
-			result->class = CLASS_TYPE;
+			result->class = CS_TYPE;
 			break;
 
 		case N_VAR_SECT:
-			result->class = CLASS_VAR;
+			result->class = CS_VAR;
 			break;
 
 		case N_CONST_DECL:
-			result->class = CLASS_CONST;
+			result->class = CS_CONST;
 			break;
 
 		case N_FUNC_DECL:
-			result->oid = oid;
-			result->class = CLASS_FUNC;
+			result->class = CS_FUNC;
 			result->schema = look_into_schema_table( node->child->brother->brother );
 			break;
 
 		// PARAMETERS
 	}
 
-	
+	result->next = NULL;
+
 	return result;
 }
 
