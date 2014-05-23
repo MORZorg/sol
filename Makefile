@@ -7,6 +7,9 @@ lexer.o: lexer.c parser.h def.h
 parser.o: parser.c def.h
 	$(CC) -g -c $<
 
+analyzer.o: analyzer.c analyzer.h
+	$(CC) -g -c $<
+
 tree_print.o: tree_print.c tree_print.h def.h
 	$(CC) -g -c $<
 
@@ -24,6 +27,9 @@ lexer: main.c lexer.o hashmap.o
 
 parser: main.c tree_print.o lexer.o parser.o hashmap.o
 	$(CC) -g -o $@ $^ -DPARSER
+
+analyzer: main.c lexer.o parser.o analyzer.o hashmap.o stacklist.o
+	$(CC) -g -o $@ $^ -DANALYZER
 
 .PHONY : clean
 clean:

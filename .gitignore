@@ -28,9 +28,9 @@
 # Debug executables and temporary files
 lexer
 lexer.c
-lexer.dSYM
 parser
 parser.c
 parser.h
 parser.output
-parser.dSYM
+*.dSYM
+analyzer
