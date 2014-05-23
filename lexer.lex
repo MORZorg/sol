@@ -195,8 +195,8 @@ char parse_escape_seq( char* s )
   return result;
 }
 
-int yyerror(char* type)
+int yyerror( char* type )
 {
   fprintf( stdout, "Line %d: %s on symbol \"%s\".\n", line, type, yytext );
-  exit(2);
+  exit( 2 );
 }

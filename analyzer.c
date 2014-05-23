@@ -3,11 +3,11 @@
 #define STR_BUG "compiler bug"
 #define STR_UNDECLARED "undeclared id"
 #define STR_EMPTY_DECL "empty declaration"
+#define PRINT_ERROR(a,b) a ": " b
 
 #define SEM_OK 0
 #define SEM_ERROR -1
 
-extern int yyerror( char* );
 extern int yyparse();
 extern Node* root;
 
@@ -82,7 +82,7 @@ Symbol* create_symbol_table_element( Node* node, int* oid )
 	Symbol* result = malloc( sizeof( Symbol ) );
 	result->oid = (*oid);
 
-	switch( node->type )
+	switch( node->value.n_val )
 	{
 		case N_TYPE_SECT:
 			analyze_decl_list( node->child, oid, CS_TYPE );
@@ -107,8 +107,14 @@ Symbol* create_symbol_table_element( Node* node, int* oid )
 			analyze_decl_list( node->child, oid, CS_PAR );
 			break;
 
+		case N_FUNC_BODY:
+			fprintf( stdout, "Loading Body..." );
+			break;
+
 		default:
-			yyerror( STR_BUG );
+			fprintf( stderr, "%d\n", node->value.n_val );
+			tree_print( node, 0 );
+			yysemerror( node, PRINT_ERROR( STR_BUG, "create_symbol_table_element" ) );
 	}
 
 	return result;
@@ -148,15 +154,6 @@ void analyze_decl_list( Node* node, int* oid, ClassSymbol clazz )
 	}
 }
 
-Node* get_last_brother( Node* node )
-{
-    Node* current_node = node;
-    while( current_node->brother != NULL )
-        current_node = current_node->brother;
-
-    return current_node;
-}
-
 /**
  * @brief Transmutes a syntax domain node into a schema node.
  * Expects a syntax node regarding a DOMAIN definition. In other cases
@@ -172,7 +169,7 @@ Schema* create_schema( Node* node )
 	{
 		Symbol* definition = fetch_scope( node->value.s_val );
 		if( definition == NULL )
-			yyerror( STR_UNDECLARED );
+			yysemerror( node, STR_UNDECLARED );
 		else
 			return definition->schema;
 	}
@@ -204,7 +201,7 @@ Schema* create_schema( Node* node )
 					break;
 
 				default:
-					yyerror( STR_BUG );
+					yysemerror( node, PRINT_ERROR( STR_BUG, "create_schema atomic" ) );
 					break;
 			}
 			break;
@@ -219,7 +216,7 @@ Schema* create_schema( Node* node )
 					Schema** current_schema = &(result->child);
 					Node* current_node = node->child;
 					if( current_node == NULL )
-						yyerror( STR_EMPTY_DECL );
+						yysemerror( node, STR_EMPTY_DECL );
 
 					do
 					{
@@ -238,12 +235,12 @@ Schema* create_schema( Node* node )
 					break;
 
 				default:
-					yyerror( STR_BUG );
+					yysemerror( node, PRINT_ERROR( STR_BUG, "create_schema instance" ) );
 					break;
 			}
 
 		default:
-			yyerror( STR_BUG );
+			yysemerror( node, PRINT_ERROR( STR_BUG, "create_schema general" ) );
 			break;
 	}
 	return result;
@@ -265,7 +262,7 @@ Schema* create_schema_attribute( Node* node )
 	result->id = node->value.s_val;
 
 	if( node->brother == NULL )
-		yyerror( STR_BUG );
+		yysemerror( node, PRINT_ERROR( STR_BUG, "create_schema_attribute brother" ) );
 
 	switch( node->brother->type )
 	{
@@ -281,7 +278,7 @@ Schema* create_schema_attribute( Node* node )
 			break;
 
 		default:
-			yyerror( STR_BUG );
+			yysemerror( node, PRINT_ERROR( STR_BUG, "create_schema_attribute" ) );
 	}
 
 	return result;
@@ -310,3 +307,10 @@ Symbol* fetch_scope( char* id )
 	return result;
 }
 
+int yysemerror( Node* node, char* type )
+{
+	fprintf( stderr, "%d\n", node->value.n_val );
+	tree_print( node, 0 );
+	fprintf( stdout, "Line %d: %s.\n", node->line, type );
+	exit( 3 );
+}

@@ -28,7 +28,7 @@ lexer: main.c lexer.o hashmap.o
 parser: main.c tree_print.o lexer.o parser.o hashmap.o
 	$(CC) -g -o $@ $^ -DPARSER
 
-analyzer: main.c lexer.o parser.o analyzer.o hashmap.o stacklist.o
+analyzer: main.c lexer.o parser.o analyzer.o hashmap.o stacklist.o tree_print.o
 	$(CC) -g -o $@ $^ -DANALYZER
 
 .PHONY : clean

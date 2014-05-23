@@ -472,6 +472,7 @@ Node* new_node( TypeNode type )
 	Node* result = malloc( sizeof( Node ) );
 	result->type = type;
 	result->child = result->brother = NULL;
+	result->line = line;
 
 	return result;
 }
@@ -552,4 +553,13 @@ Node** assign_brother( Node** initial, Node* brother )
 	}
 
 	return initial;
+}
+
+Node* get_last_brother( Node* node )
+{
+    Node* current_node = node;
+    while( current_node->brother != NULL )
+        current_node = current_node->brother;
+
+    return current_node;
 }
