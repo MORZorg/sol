@@ -1,4 +1,4 @@
-solc: lex.o parser.o tree.o
+solc: lex.o parser.o analyzer.o
 	$(CC) -g -o $@ $^
 
 lexer.o: lexer.c parser.h def.h

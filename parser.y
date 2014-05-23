@@ -4,13 +4,13 @@
 #include "def.h"
 
 #define YYSTYPE Node*
-extern FILE *yyin;
+extern FILE* yyin;
 extern char* yytext;
 extern Value lexval;
 extern int line;
 
 extern int yylex();
-extern int yyerror(char*);
+extern int yyerror( char* );
 
 Node* root = NULL;
 %}
@@ -44,8 +44,8 @@ func_decl : FUNC ID { $$ = new_terminal_node( T_ID, lexval ); }
           ;
 
 par_list : decl_list { $$ = new_nonterminal_node( N_PAR_LIST ); $$->child = $1; }
-           | { $$ = NULL; }
-           ;
+         | { $$ = NULL; }
+         ;
 
 decl_list : decl ';' decl_list { $$ = new_nonterminal_node( N_DECL ); $$->child = $1; $$->brother = $3; }
           | decl ';' { $$ = new_nonterminal_node( N_DECL ); $$->child = $1; }
