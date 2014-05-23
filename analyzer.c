@@ -5,7 +5,8 @@
 #define STR_UNDECLARED "undeclared id"
 #define STR_EMPTY_DECL "empty declaration"
 
-#define SEM_OK 0
+#define ST_OK 0
+#define ST_ERROR -1
 
 extern int yyerror(char*);
 extern int yyparse();
@@ -26,7 +27,14 @@ int yysem()
 		return result;
 }
 
-int check_function_subtree( Node* node, int oid_absolute )
+/**
+ * @brief Creates the whole symbol table, knowing that every node precessed will be a FUNC_STAT.
+ *
+ * @param node
+ *
+ * @return 
+ */
+int check_function_subtree( Node* node )
 {
 	int oid_relative = 1;
 
@@ -63,6 +71,14 @@ int check_function_subtree( Node* node, int oid_absolute )
     return SEM_OK;
 }
 
+/**
+ * @brief Creates a symbol table for the node given
+ *
+ * @param node
+ * @param oid
+ *
+ * @return 
+ */
 Symbol* create_symbol_table_element( Node* node, int oid )
 {
 	Symbol* result = malloc( sizeof( Symbol ) );
