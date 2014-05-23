@@ -1,5 +1,4 @@
 #include "analyzer.h"
-#include "stacklist.h"
 
 #define STR_BUG "compiler bug"
 #define STR_UNDECLARED "undeclared id"
@@ -8,7 +7,7 @@
 #define SEM_OK 0
 #define SEM_ERROR -1
 
-extern int yyerror(char*);
+extern int yyerror( char* );
 extern int yyparse();
 extern Node* root;
 
@@ -39,10 +38,9 @@ int check_function_subtree( Node* node, int oid_absolute )
 	int oid_relative = 1;
 
 	Symbol* element = create_symbol_table_element( node, &oid_absolute );
-    // Updating the scope with the new function just created
-    stacklist_push( &scope, element->locenv );
 
-	if( stacklist_push( &scope, (any_t) element ) )
+    // Updating the scope with the new function just created
+	if( stacklist_push( &scope, (any_t) element->locenv ) )
 		return STACK_ERROR;
 
     // Skipping the ID name of the function and look if there are parameters
@@ -87,35 +85,15 @@ Symbol* create_symbol_table_element( Node* node, int* oid )
 	switch( node->type )
 	{
 		case N_TYPE_SECT:
-            // Entering the decl list
-            node = node->child;
-            while( node != NULL )
-            {
-              Node* type_node = node->child;
-              while( type_node != NULL )
-              {
-                  Symbol* aType = malloc( sizeof( Symbol ) );
-                  aType->name = type_node->value.s_val;
-                  aType->oid = (*oid);
-                  (*oid)++;
-                  aType->clazz = CS_TYPE;
-                  aType->schema = create_schema( type_node );
-                  // aType->locenv = NULL;
-                  // aType->formals = 0;
-
-                  // Adding the new type to the locenv in the scope in which is defined
-                  hashmap_put( scope->table, aType->name, aType );
-              }
-            }
-
+			analyze_decl_list( node->child, oid, CS_TYPE );
 			break;
 
 		case N_VAR_SECT:
-			result->clazz = CS_VAR;
+			analyze_decl_list( node->child, oid, CS_VAR );
 			break;
 
 		case N_CONST_DECL:
-			result->clazz = CS_CONST;
+			// analyze_decl_list( node->child, oid, CS_CONST );
 			break;
 
 		case N_FUNC_DECL:
@@ -126,7 +104,7 @@ Symbol* create_symbol_table_element( Node* node, int* oid )
 			break;
 
 		case N_PAR_LIST:
-			result->clazz = CS_PAR;
+			analyze_decl_list( node->child, oid, CS_PAR );
 			break;
 
 		default:
@@ -134,6 +112,40 @@ Symbol* create_symbol_table_element( Node* node, int* oid )
 	}
 
 	return result;
+}
+
+/**
+ * @brief 
+ *
+ * @param node We expect this to be the first element of the decl list.
+ * @param oid
+ * @param clazz
+ */
+void analyze_decl_list( Node* node, int* oid, ClassSymbol clazz )
+{
+	// Entering the decl list
+	while( node != NULL )
+	{
+	  Node* type_node = node->child;
+	  Node* domain_node = get_last_brother( type_node );
+	  Schema* domain_schema = create_schema( domain_node );
+	  while( type_node != domain_node )
+	  {
+		  Symbol* aType = malloc( sizeof( Symbol ) );
+		  aType->name = type_node->value.s_val;
+		  aType->oid = (*oid);
+		  (*oid)++;
+		  aType->clazz = CS_TYPE;
+		  aType->schema = domain_schema; 
+
+		  // Adding the new type to the locenv in the scope in which is defined
+		  hashmap_put( scope->table, aType->name, aType );
+
+		  type_node = type_node->brother;
+	  }
+
+	  node = node->brother;
+	}
 }
 
 Node* get_last_brother( Node* node )

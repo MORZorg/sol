@@ -7,7 +7,7 @@ stacklist new_stack()
 	return result;
 }
 
-Entry* new_entry( any_t table )
+Entry* new_entry( stack_t table )
 {
 	Entry* result = malloc( sizeof( Entry ) );
 
@@ -20,7 +20,7 @@ Entry* new_entry( any_t table )
 	return result;
 }
 
-int stacklist_push( stacklist* stack, any_t table )
+int stacklist_push( stacklist* stack, stack_t table )
 {
 	Entry* result = new_entry( table );
 

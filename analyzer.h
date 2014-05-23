@@ -1,5 +1,6 @@
 #include "def.h"
 #include "hashmap.h"
+#include "stacklist.h"
 
 #ifndef __ANALYZER_H__
 #define __ANALYZER_H__
@@ -51,6 +52,8 @@ Symbol* create_symbol_table_element( Node*, int* );
 Schema* create_schema( Node* );
 Schema* create_schema_attribute( Node* );
 Symbol* fetch_scope( char* );
+void analyze_decl_list( Node*, int*, ClassSymbol );
+Node* get_last_brother( Node* );
 
 #endif // __ANALYZER_H__
 
