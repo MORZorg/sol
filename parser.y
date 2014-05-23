@@ -17,7 +17,7 @@ Node* root = NULL;
 
 %token FUNC CHAR INT REAL STRING BOOL STRUCT VECTOR OF TYPE VAR CONST
 %token SOL_BEGIN END IF THEN ENDIF ELSIF ELSE WHILE DO ENDWHILE FOR TO ENDFOR FOREACH ENDFOREACH
-%token RETURN READ WRITE RD WR DEFINE ASSIGN
+%token RETURN READ WRITE RD WR DEFINE ASSIGN BREAK
 %token AND OR IN NOT TOINT TOREAL EQ NEQ GT GEQ LT LEQ PLUS MINUS MULTIPLY DIVIDE ID
 %token INT_CONST CHAR_CONST REAL_CONST STR_CONST BOOL_CONST
 
@@ -103,8 +103,8 @@ func_list_opt : func_list { $$ = new_nonterminal_node( N_FUNC_LIST ); $$->child 
               | { $$ = NULL; }
               ;
 
-func_list : func_decl func_list { $$ = new_nonterminal_node( N_FUNC_DECL ); $$->child = $1; $$->brother = $2; }
-          | func_decl { $$ = new_nonterminal_node( N_FUNC_DECL ); $$->child = $1; }
+func_list : func_decl func_list { $$ = $1; $$->brother = $2; }
+          | func_decl { $$ = $1; }
           ;
 
 func_body : SOL_BEGIN ID { $$ = new_terminal_node( T_ID, lexval ); } stat_list END ID { $$ = new_terminal_node( T_ID, lexval ); }
@@ -135,6 +135,7 @@ stat : assign_stat { $$ = $1; }
      | return_stat { $$ = $1; }
      | read_stat { $$ = $1; }
      | write_stat { $$ = $1; }
+     | BREAK { $$ = new_terminal_node( T_BREAK_STAT, lexval ); }
      ;
 
 assign_stat : left_hand_side ASSIGN expr

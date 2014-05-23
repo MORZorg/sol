@@ -30,6 +30,7 @@ intconst		{digit}+
 realconst		{digit}+\.{digit}+
 boolconst		true|false
 
+comment         --.*
 spacing			([ \t])+
 sugar			[()\[\]{}.,;]
 
@@ -40,6 +41,7 @@ sugar			[()\[\]{}.,;]
 EOF                 { return 0; }
 \n					{ SPAM( "\n" ); line++; }
 {spacing}			;
+{comment}           { SPAM( "COMMENT" ); }
 func				{ SPAM( "FUNC" ); return( FUNC ); }
 char				{ SPAM( "CHAR" ); return( CHAR ); }
 int					{ SPAM( "INT" ); return( INT ); }
@@ -78,6 +80,7 @@ toint				{ SPAM( "TOINT" ); return( TOINT ); }
 toreal				{ SPAM( "TOREAL" ); return( TOREAL ); }
 rd					{ SPAM( "RD" ); return( RD ); }
 wr					{ SPAM( "WR" ); return( WR ); }
+break               { SPAM( "BREAK" ); return( BREAK ); }
 ":"					{ SPAM( "DEFINE" ); return( DEFINE ); }
 "="					{ SPAM( "ASSIGN" ); return( ASSIGN ); }
 "=="				{ SPAM( "EQ" ); return( EQ ); }

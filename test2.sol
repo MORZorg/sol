@@ -1,5 +1,7 @@
 func prog( primo: vector[1] of vector[3] of char; a: struct(a: int;); b: vector[5] of int; ): int
 
+    -- I'm a comment, I'm a comment, I'm a comment.
+    -- I'm a comment, I'm a comment, I'm a comment.
     func a(): int
     begin a
         return 1;
@@ -12,5 +14,8 @@ begin prog
     write '\'';
     write prog(primo, a);
     return "a\"\ts\\d";
+    while true do
+		break;
+	endwhile;
 end prog
 

@@ -49,6 +49,8 @@ const char* TREE_TYPES[] =
 	"INSTANCE_EXPR",
 	"BUILT_IN_CALL",
 
+    "BREAK_STAT",
+
 	"INT_CONST",
 	"CHAR_CONST",
 	"REAL_CONST",
