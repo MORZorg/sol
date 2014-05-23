@@ -5,6 +5,8 @@
 #define STR_UNDECLARED "undeclared id"
 #define STR_EMPTY_DECL "empty declaration"
 
+#define SEM_OK 0
+
 extern int yyerror(char*);
 extern int yyparse();
 extern Node* root;
@@ -18,26 +20,47 @@ int yysem()
 	if( result == 0 )
 	{
 		scope = new_stack();
-		return check_function_subtree( root );
+		return check_function_subtree( root, 1 );
 	}
 	else
 		return result;
 }
 
-int check_function_subtree( Node* node )
+int check_function_subtree( Node* node, int oid_absolute )
 {
 	int oid_relative = 1;
-	int oid_absolute = 1;
 
 	Symbol* element = create_symbol_table_element( node, oid_absolute );
-	oid_absolute++;
+    // Updating the scope with the new function just created
+    stacklist_push( scope, element->locenv );
 
 	if( stacklist_push( scope, (any_t) element ) )
 		return STACK_ERROR;
-	
-	// Check if there is another func_decl and process it
-	
-	// Processing body of the function
+
+    // Skipping the ID name of the function and look if there are parameters
+    Node* current_node = node->child->brother;
+    if( current_node->type == N_PAR_LIST )
+    {
+      // TODO: saving this somewhere
+        create_symbol_table_element( current_node, oid_relative );
+        current_node = current_node->brother;
+    }
+
+    // Creating schemas for every section
+    create_symbol_table_element( ( current_node = current_node->brother ), oid_relative ); // TYPE_SECT
+    create_symbol_table_element( ( current_node = current_node->brother ), oid_relative ); // VAR_SECT
+    create_symbol_table_element( ( current_node = current_node->brother ), oid_relative ); // CONST_SECT 
+
+    // Checking for other functions declarations
+    if( ( current_node = current_node->brother ) == N_FUNC_DECL )
+    {
+        create_function_subtree( current_node, oid_absolute + 1 );
+        current_node = current_node->brother;
+    }
+
+	// TODO: Processing body of the function
+
+    return SEM_OK;
 }
 
 Symbol* create_symbol_table_element( Node* node, int oid )
@@ -48,7 +71,27 @@ Symbol* create_symbol_table_element( Node* node, int oid )
 	switch( node->type )
 	{
 		case N_TYPE_SECT:
-			result->clazz = CS_TYPE;
+            // Entering the decl list
+            node = node->child;
+            while( node != NULL )
+            {
+              Node* type_node = node->child;
+              while( type_node != NULL )
+              {
+                  Symbol* aType = malloc( sizeof( Symbol ) );
+                  aType->name = type_node->value.qualifier;
+                  aType->oid = oid;
+                  (*oid)++;
+                  aType->clazz = CS_TYPE;
+                  aType->schema = create_schema( type_node );
+                  // aType->locenv = NULL;
+                  // aType->formals = 0;
+
+                  // Adding the new type to the locenv in the scope in which is defined
+                  hashmap_put( scope->table, aType->name, aType );
+              }
+            }
+
 			break;
 
 		case N_VAR_SECT:
@@ -75,6 +118,15 @@ Symbol* create_symbol_table_element( Node* node, int oid )
 	}
 
 	return result;
+}
+
+Node* get_last_brother( Node* node )
+{
+    Node* current_node = node;
+    while( current_node->brother != NULL )
+        current_node = current_node->brother;
+
+    return current_node;
 }
 
 /**
