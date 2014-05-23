@@ -5,8 +5,8 @@
 #define STR_UNDECLARED "undeclared id"
 #define STR_EMPTY_DECL "empty declaration"
 
-#define ST_OK 0
-#define ST_ERROR -1
+#define SEM_OK 0
+#define SEM_ERROR -1
 
 extern int yyerror(char*);
 extern int yyparse();
@@ -34,15 +34,15 @@ int yysem()
  *
  * @return 
  */
-int check_function_subtree( Node* node )
+int check_function_subtree( Node* node, int oid_absolute )
 {
 	int oid_relative = 1;
 
-	Symbol* element = create_symbol_table_element( node, oid_absolute );
+	Symbol* element = create_symbol_table_element( node, &oid_absolute );
     // Updating the scope with the new function just created
-    stacklist_push( scope, element->locenv );
+    stacklist_push( &scope, element->locenv );
 
-	if( stacklist_push( scope, (any_t) element ) )
+	if( stacklist_push( &scope, (any_t) element ) )
 		return STACK_ERROR;
 
     // Skipping the ID name of the function and look if there are parameters
@@ -50,19 +50,19 @@ int check_function_subtree( Node* node )
     if( current_node->type == N_PAR_LIST )
     {
       // TODO: saving this somewhere
-        create_symbol_table_element( current_node, oid_relative );
+        create_symbol_table_element( current_node, &oid_relative );
         current_node = current_node->brother;
     }
 
     // Creating schemas for every section
-    create_symbol_table_element( ( current_node = current_node->brother ), oid_relative ); // TYPE_SECT
-    create_symbol_table_element( ( current_node = current_node->brother ), oid_relative ); // VAR_SECT
-    create_symbol_table_element( ( current_node = current_node->brother ), oid_relative ); // CONST_SECT 
+    create_symbol_table_element( ( current_node = current_node->brother ), &oid_relative ); // TYPE_SECT
+    create_symbol_table_element( ( current_node = current_node->brother ), &oid_relative ); // VAR_SECT
+    create_symbol_table_element( ( current_node = current_node->brother ), &oid_relative ); // CONST_SECT 
 
     // Checking for other functions declarations
     if( ( current_node = current_node->brother ) == N_FUNC_DECL )
     {
-        create_function_subtree( current_node, oid_absolute + 1 );
+        check_function_subtree( current_node, oid_absolute + 1 );
         current_node = current_node->brother;
     }
 
@@ -79,10 +79,10 @@ int check_function_subtree( Node* node )
  *
  * @return 
  */
-Symbol* create_symbol_table_element( Node* node, int oid )
+Symbol* create_symbol_table_element( Node* node, int* oid )
 {
 	Symbol* result = malloc( sizeof( Symbol ) );
-	result->oid = oid;
+	result->oid = (*oid);
 
 	switch( node->type )
 	{
@@ -95,8 +95,8 @@ Symbol* create_symbol_table_element( Node* node, int oid )
               while( type_node != NULL )
               {
                   Symbol* aType = malloc( sizeof( Symbol ) );
-                  aType->name = type_node->value.qualifier;
-                  aType->oid = oid;
+                  aType->name = type_node->value.s_val;
+                  aType->oid = (*oid);
                   (*oid)++;
                   aType->clazz = CS_TYPE;
                   aType->schema = create_schema( type_node );

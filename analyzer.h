@@ -47,7 +47,7 @@ typedef struct symtab
 
 int yysem();
 int check_function_subtree( Node*, int );
-Symbol* create_symbol_table_element( Node*, int );
+Symbol* create_symbol_table_element( Node*, int* );
 Schema* create_schema( Node* );
 Schema* create_schema_attribute( Node* );
 Symbol* fetch_scope( char* );
