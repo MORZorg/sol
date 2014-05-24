@@ -496,7 +496,7 @@ Node* new_terminal_node( TypeNode type, Value value )
 			break;
 
         case T_CHAR_CONST:
-            result->value.c_val = value.c_val;https://code.google.com/p/ulib/downloads/detail?name=ulib-2.0.1_src.tar.gz
+            result->value.c_val = value.c_val;
             break;
 
         case T_REAL_CONST:
@@ -562,4 +562,11 @@ Node* get_last_brother( Node* node )
         current_node = current_node->brother;
 
     return current_node;
+}
+
+void print_node( Node* node )
+{
+	fprintf( stderr, "\n *** NODE *** \t" );
+	fprintf( stderr, "Line: %d\t", node->line );
+	fprintf( stderr, "TypeNode: %d\t\n", node->type );
 }

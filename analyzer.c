@@ -45,9 +45,8 @@ int check_function_subtree( Node* node, int oid_absolute )
 
     // Skipping the ID name of the function and look if there are parameters
     Node* current_node = node->child->brother;
-    if( current_node->type == N_PAR_LIST )
+    if( current_node->type == T_UNQUALIFIED_NONTERMINAL ) // N_PARAM_LIST value
     {
-      // TODO: saving this somewhere
         create_symbol_table_element( current_node, &oid_relative );
         current_node = current_node->brother;
     }
@@ -58,13 +57,14 @@ int check_function_subtree( Node* node, int oid_absolute )
     create_symbol_table_element( ( current_node = current_node->brother ), &oid_relative ); // CONST_SECT 
 
     // Checking for other functions declarations
-    if( ( current_node = current_node->brother ) == N_FUNC_DECL )
+    if( ( current_node = current_node->brother )->value.n_val == N_FUNC_DECL )
     {
         check_function_subtree( current_node, oid_absolute + 1 );
         current_node = current_node->brother;
     }
 
 	// TODO: Processing body of the function
+	//create_symbol_table_element( current_node, 0 );
 
     return SEM_OK;
 }
@@ -85,25 +85,35 @@ Symbol* create_symbol_table_element( Node* node, int* oid )
 	switch( node->value.n_val )
 	{
 		case N_TYPE_SECT:
+			fprintf( stdout, "Processing TYPE_SECT\n" );
 			analyze_decl_list( node->child, oid, CS_TYPE );
 			break;
 
 		case N_VAR_SECT:
+			fprintf( stdout, "Processing VAR_SECT\n" );
 			analyze_decl_list( node->child, oid, CS_VAR );
 			break;
 
-		case N_CONST_DECL:
-			// analyze_decl_list( node->child, oid, CS_CONST );
+		case N_CONST_SECT:
+			fprintf( stdout, "Processing CONST_SECT\n" );
+			analyze_decl_list( node->child, oid, CS_CONST );
 			break;
 
 		case N_FUNC_DECL:
+			fprintf( stdout, "Processing FUNC_SECT\n" );
 			result->name = node->child->value.s_val;
 			result->clazz = CS_FUNC;
-			result->schema = create_schema( node->child->brother->brother );
+			// Checking if the function has or not a parameter list
+			if( node->child->brother->type == T_UNQUALIFIED_NONTERMINAL )
+				result->schema = create_schema( node->child->brother->brother );
+			else
+				result->schema = create_schema( node->child->brother );
+
 			result->locenv = hashmap_new();
 			break;
 
 		case N_PAR_LIST:
+			fprintf( stdout, "Processing PAR_SECT\n" );
 			analyze_decl_list( node->child, oid, CS_PAR );
 			break;
 
@@ -112,8 +122,6 @@ Symbol* create_symbol_table_element( Node* node, int* oid )
 			break;
 
 		default:
-			fprintf( stderr, "%d\n", node->value.n_val );
-			tree_print( node, 0 );
 			yysemerror( node, PRINT_ERROR( STR_BUG, "create_symbol_table_element" ) );
 	}
 
@@ -127,12 +135,13 @@ Symbol* create_symbol_table_element( Node* node, int* oid )
  * @param oid
  * @param clazz
  */
-void analyze_decl_list( Node* node, int* oid, ClassSymbol clazz )
+void analyze_decl_list( Node* node, int* oid, ClassSymbol clazz  )
 {
 	// Entering the decl list
 	while( node != NULL )
 	{
 	  Node* type_node = node->child;
+	  // TODO: fix for const_sect where the last brother is the value and not the type
 	  Node* domain_node = get_last_brother( type_node );
 	  Schema* domain_schema = create_schema( domain_node );
 	  while( type_node != domain_node )
@@ -141,7 +150,7 @@ void analyze_decl_list( Node* node, int* oid, ClassSymbol clazz )
 		  aType->name = type_node->value.s_val;
 		  aType->oid = (*oid);
 		  (*oid)++;
-		  aType->clazz = CS_TYPE;
+		  aType->clazz = clazz;
 		  aType->schema = domain_schema; 
 
 		  // Adding the new type to the locenv in the scope in which is defined
@@ -169,7 +178,7 @@ Schema* create_schema( Node* node )
 	{
 		Symbol* definition = fetch_scope( node->value.s_val );
 		if( definition == NULL )
-			yysemerror( node, STR_UNDECLARED );
+			yysemerror( node, PRINT_ERROR( STR_UNDECLARED, "null definition" ) );
 		else
 			return definition->schema;
 	}
@@ -205,7 +214,41 @@ Schema* create_schema( Node* node )
 					break;
 			}
 			break;
-			
+
+		case T_UNQUALIFIED_NONTERMINAL:
+			switch( node->value.n_val )
+			{
+				case N_STRUCT_DOMAIN:
+				{
+					result->type = TS_STRUCT;
+
+					Schema** current_schema = &(result->child);
+					Node* current_node = node->child;
+					if( current_node == NULL )
+						yysemerror( node, STR_EMPTY_DECL );
+
+					do
+					{
+						*current_schema = create_schema_attribute( current_node->child );
+						current_node = current_node->brother;
+						current_schema = &( (*current_schema)->brother );
+					} while( current_node != NULL );
+					break;
+				}
+
+				case N_VECTOR_DOMAIN:
+					result->type = TS_VECTOR;
+
+					result->size = node->child->value.i_val;
+					result->child = create_schema( node->child->brother );
+					break;
+
+				default:
+					yysemerror( node, PRINT_ERROR( STR_BUG, "create_schema instance" ) );
+					break;
+			}
+			break;
+
 		case T_INSTANCE_EXPR:
 			switch( node->value.q_val )
 			{
@@ -238,6 +281,16 @@ Schema* create_schema( Node* node )
 					yysemerror( node, PRINT_ERROR( STR_BUG, "create_schema instance" ) );
 					break;
 			}
+			break;
+
+
+//		case T_INT_CONST:
+//		case T_CHAR_CONST:
+//		case T_REAL_CONST:
+//		case T_STR_CONST:
+//		case T_BOOL_CONST:
+//			fprintf( stderr, "I should not be here, but..\n" );
+//			break;
 
 		default:
 			yysemerror( node, PRINT_ERROR( STR_BUG, "create_schema general" ) );
@@ -309,7 +362,9 @@ Symbol* fetch_scope( char* id )
 
 int yysemerror( Node* node, char* type )
 {
-	fprintf( stderr, "%d\n", node->value.n_val );
+	fprintf( stderr, "\n *** ERROR *** \n" );
+	fprintf( stderr, "Type: %d\t", node->type );
+	fprintf( stderr, "(N)Value: %d\n", node->value.n_val );
 	tree_print( node, 0 );
 	fprintf( stdout, "Line %d: %s.\n", node->line, type );
 	exit( 3 );

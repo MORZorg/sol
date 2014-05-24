@@ -134,5 +134,6 @@ Node* new_qualified_node( TypeNode, Qualifier );
 
 Node** assign_brother( Node**, Node* );
 Node* get_last_brother( Node* );
+void print_node( Node* );
 
 #endif
