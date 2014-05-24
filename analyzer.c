@@ -39,38 +39,54 @@ int check_function_subtree( Node* node, int oid_absolute )
 
 	Symbol* element = create_symbol_table_element( node, &oid_absolute );
 
-    // Updating the scope with the new function just created
-	if( stacklist_push( &scope, (any_t) element->locenv ) )
+	// Updating the scope with the new function just created
+	if( stacklist_push( &scope, (stacklist_t) element->locenv ) )
 		return STACK_ERROR;
 
-    // Skipping the ID name of the function and look if there are parameters
-    Node* current_node = node->child->brother;
-    if( current_node->type == T_UNQUALIFIED_NONTERMINAL ) // N_PARAM_LIST value
-    {
-        create_symbol_table_element( current_node, &oid_relative );
-        current_node = current_node->brother;
-    }
+	// Skipping the ID name of the function and look if there are parameters
+	Node* current_node = node->child->brother;
+	if( current_node->type == T_UNQUALIFIED_NONTERMINAL ) // N_PARAM_LIST value
+	{
+		create_symbol_table_element( current_node, &oid_relative );
+		current_node = current_node->brother;
+	}
+	current_node = current_node->brother;
 
-    // Creating schemas for every section
-    create_symbol_table_element( ( current_node = current_node->brother ), &oid_relative ); // TYPE_SECT
-    create_symbol_table_element( ( current_node = current_node->brother ), &oid_relative ); // VAR_SECT
-    create_symbol_table_element( ( current_node = current_node->brother ), &oid_relative ); // CONST_SECT 
-
-    // Checking for other functions declarations
-    if( ( current_node = current_node->brother )->value.n_val == N_FUNC_DECL )
-    {
-        check_function_subtree( current_node, oid_absolute + 1 );
-        current_node = current_node->brother;
-    }
+	// Creating schemas for every section
+	if( current_node->value.n_val == N_TYPE_SECT )
+	{
+		create_symbol_table_element( current_node, &oid_relative );
+		current_node = current_node->brother;
+	}
+	if( current_node->value.n_val == N_VAR_SECT )
+	{
+		create_symbol_table_element( current_node, &oid_relative );
+		current_node = current_node->brother;
+	}
+	if( current_node->value.n_val == N_CONST_SECT )
+	{
+		create_symbol_table_element( current_node, &oid_relative );
+		current_node = current_node->brother;
+	}
+	if( current_node->value.n_val == N_FUNC_LIST )
+	{
+		Node* current_child = current_node->child;
+		do
+		{
+			check_function_subtree( current_child, oid_absolute + 1 );
+			current_child = current_child->brother;
+		} while( current_child != NULL );
+	}
 
 	// TODO: Processing body of the function
 	//create_symbol_table_element( current_node, 0 );
 
-    return SEM_OK;
+	return SEM_OK;
 }
 
 /**
  * @brief Creates a symbol table for the node given
+ * @todo Or this function adds to the scope or the caller does!
  *
  * @param node
  * @param oid
@@ -86,17 +102,21 @@ Symbol* create_symbol_table_element( Node* node, int* oid )
 	{
 		case N_TYPE_SECT:
 			fprintf( stdout, "Processing TYPE_SECT\n" );
-			analyze_decl_list( node->child, oid, CS_TYPE );
+			analyze_decl_list( node->child, oid, CS_TYPE, FALSE );
 			break;
 
 		case N_VAR_SECT:
 			fprintf( stdout, "Processing VAR_SECT\n" );
-			analyze_decl_list( node->child, oid, CS_VAR );
+			analyze_decl_list( node->child, oid, CS_VAR, FALSE );
 			break;
 
 		case N_CONST_SECT:
 			fprintf( stdout, "Processing CONST_SECT\n" );
-			analyze_decl_list( node->child, oid, CS_CONST );
+			analyze_decl_list( node->child, oid, CS_CONST, TRUE );
+			break;
+
+		case N_FUNC_LIST:
+			// TODO
 			break;
 
 		case N_FUNC_DECL:
@@ -113,8 +133,8 @@ Symbol* create_symbol_table_element( Node* node, int* oid )
 			break;
 
 		case N_PAR_LIST:
-			fprintf( stdout, "Processing PAR_SECT\n" );
-			analyze_decl_list( node->child, oid, CS_PAR );
+			fprintf( stdout, "Processing PAR_LIST\n" );
+			analyze_decl_list( node->child, oid, CS_PAR, FALSE );
 			break;
 
 		case N_FUNC_BODY:
@@ -127,7 +147,6 @@ Symbol* create_symbol_table_element( Node* node, int* oid )
 
 	return result;
 }
-
 /**
  * @brief 
  *
@@ -135,31 +154,43 @@ Symbol* create_symbol_table_element( Node* node, int* oid )
  * @param oid
  * @param clazz
  */
-void analyze_decl_list( Node* node, int* oid, ClassSymbol clazz  )
+void analyze_decl_list( Node* node, int* oid, ClassSymbol clazz, Boolean hasAssignment )
 {
 	// Entering the decl list
 	while( node != NULL )
 	{
-	  Node* type_node = node->child;
-	  // TODO: fix for const_sect where the last brother is the value and not the type
-	  Node* domain_node = get_last_brother( type_node );
-	  Schema* domain_schema = create_schema( domain_node );
-	  while( type_node != domain_node )
-	  {
-		  Symbol* aType = malloc( sizeof( Symbol ) );
-		  aType->name = type_node->value.s_val;
-		  aType->oid = (*oid);
-		  (*oid)++;
-		  aType->clazz = clazz;
-		  aType->schema = domain_schema; 
+		Node* type_node = node->child;
+		// TODO: fix for const_sect where the last brother is the value and not the type
+		Node* domain_node;
+		if( hasAssignment )
+		{
+			domain_node = type_node->brother;
+			while( domain_node->brother->brother != NULL )
+				domain_node = domain_node->brother;
 
-		  // Adding the new type to the locenv in the scope in which is defined
-		  hashmap_put( scope->table, aType->name, aType );
+			calculate_expression( domain_node->brother );
+		}
+		else
+			domain_node = get_last_brother( type_node );
 
-		  type_node = type_node->brother;
-	  }
+		Schema* domain_schema = create_schema( domain_node );
+		while( type_node != domain_node )
+		{
+			Symbol* aType = malloc( sizeof( Symbol ) );
+			aType->name = type_node->value.s_val;
+			aType->oid = (*oid);
+			(*oid)++;
+			aType->clazz = clazz;
+			aType->schema = domain_schema; 
 
-	  node = node->brother;
+			// Adding the new type to the locenv in the scope in which is defined
+			// TODO Check for duplicates
+			hashmap_put( scope->table, aType->name, aType );
+
+			type_node = type_node->brother;
+		}
+
+		node = node->brother;
 	}
 }
 
@@ -219,22 +250,22 @@ Schema* create_schema( Node* node )
 			switch( node->value.n_val )
 			{
 				case N_STRUCT_DOMAIN:
-				{
-					result->type = TS_STRUCT;
-
-					Schema** current_schema = &(result->child);
-					Node* current_node = node->child;
-					if( current_node == NULL )
-						yysemerror( node, STR_EMPTY_DECL );
-
-					do
 					{
-						*current_schema = create_schema_attribute( current_node->child );
-						current_node = current_node->brother;
-						current_schema = &( (*current_schema)->brother );
-					} while( current_node != NULL );
-					break;
-				}
+						result->type = TS_STRUCT;
+
+						Schema** current_schema = &(result->child);
+						Node* current_node = node->child;
+						if( current_node == NULL )
+							yysemerror( node, STR_EMPTY_DECL );
+
+						do
+						{
+							*current_schema = create_schema_attribute( current_node->child );
+							current_node = current_node->brother;
+							current_schema = &( (*current_schema)->brother );
+						} while( current_node != NULL );
+						break;
+					}
 
 				case N_VECTOR_DOMAIN:
 					result->type = TS_VECTOR;
@@ -248,49 +279,6 @@ Schema* create_schema( Node* node )
 					break;
 			}
 			break;
-
-		case T_INSTANCE_EXPR:
-			switch( node->value.q_val )
-			{
-				case Q_STRUCT:
-				{
-					result->type = TS_STRUCT;
-
-					Schema** current_schema = &(result->child);
-					Node* current_node = node->child;
-					if( current_node == NULL )
-						yysemerror( node, STR_EMPTY_DECL );
-
-					do
-					{
-						*current_schema = create_schema_attribute( current_node->child );
-						current_node = current_node->brother;
-						current_schema = &( (*current_schema)->brother );
-					} while( current_node != NULL );
-					break;
-				}
-
-				case Q_VECTOR:
-					result->type = TS_VECTOR;
-
-					result->size = node->child->value.i_val;
-					result->child = create_schema( node->child->brother );
-					break;
-
-				default:
-					yysemerror( node, PRINT_ERROR( STR_BUG, "create_schema instance" ) );
-					break;
-			}
-			break;
-
-
-//		case T_INT_CONST:
-//		case T_CHAR_CONST:
-//		case T_REAL_CONST:
-//		case T_STR_CONST:
-//		case T_BOOL_CONST:
-//			fprintf( stderr, "I should not be here, but..\n" );
-//			break;
 
 		default:
 			yysemerror( node, PRINT_ERROR( STR_BUG, "create_schema general" ) );
@@ -335,6 +323,16 @@ Schema* create_schema_attribute( Node* node )
 	}
 
 	return result;
+}
+
+/**
+ * @brief Simplifies as much as possible an expression, calculating every constant value
+ * @todo
+ *
+ * @param node
+ */
+void calculate_expression( Node* node )
+{
 }
 
 /**
