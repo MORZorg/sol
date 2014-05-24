@@ -57,7 +57,7 @@ int main()
 #else
 #ifdef ANALYZER
 
-#include "analyzer.h"
+#include "analyser.h"
 
 int main()
 {

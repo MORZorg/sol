@@ -1,4 +1,4 @@
-solc: lex.o parser.o analyzer.o
+solc: lex.o parser.o analyser.o
 	$(CC) -g -o $@ $^
 
 lexer.o: lexer.c parser.h def.h
@@ -7,7 +7,7 @@ lexer.o: lexer.c parser.h def.h
 parser.o: parser.c def.h
 	$(CC) -g -c $<
 
-analyzer.o: analyzer.c analyzer.h
+analyser.o: analyser.c analyser.h
 	$(CC) -g -c $<
 
 tree_print.o: tree_print.c tree_print.h def.h
@@ -28,11 +28,13 @@ lexer: main.c lexer.o hashmap.o
 parser: main.c tree_print.o lexer.o parser.o hashmap.o
 	$(CC) -g -o $@ $^ -DPARSER
 
-analyzer: main.c lexer.o parser.o analyzer.o hashmap.o stacklist.o tree_print.o
+analyser: main.c lexer.o parser.o analyser.o hashmap.o stacklist.o tree_print.o
 	$(CC) -g -o $@ $^ -DANALYZER
 
 .PHONY : clean
 clean:
-	rm -f lexer lexer.c \
-	  parser parser.c parser.h parser.output *.o
+	rm -f \
+	  lexer lexer.c \
+	  parser parser.c parser.h parser.output *.o \
+	  analyser
 	rm -rf *.dSYM

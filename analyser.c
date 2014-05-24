@@ -1,4 +1,4 @@
-#include "analyzer.h"
+#include "analyser.h"
 
 #define STR_BUG "compiler bug"
 #define STR_UNDECLARED "undeclared id"
@@ -102,17 +102,17 @@ Symbol* create_symbol_table_element( Node* node, int* oid )
 	{
 		case N_TYPE_SECT:
 			fprintf( stdout, "Processing TYPE_SECT\n" );
-			analyze_decl_list( node->child, oid, CS_TYPE, FALSE );
+			analyse_decl_list( node->child, oid, CS_TYPE, FALSE );
 			break;
 
 		case N_VAR_SECT:
 			fprintf( stdout, "Processing VAR_SECT\n" );
-			analyze_decl_list( node->child, oid, CS_VAR, FALSE );
+			analyse_decl_list( node->child, oid, CS_VAR, FALSE );
 			break;
 
 		case N_CONST_SECT:
 			fprintf( stdout, "Processing CONST_SECT\n" );
-			analyze_decl_list( node->child, oid, CS_CONST, TRUE );
+			analyse_decl_list( node->child, oid, CS_CONST, TRUE );
 			break;
 
 		case N_FUNC_LIST:
@@ -134,7 +134,7 @@ Symbol* create_symbol_table_element( Node* node, int* oid )
 
 		case N_PAR_LIST:
 			fprintf( stdout, "Processing PAR_LIST\n" );
-			analyze_decl_list( node->child, oid, CS_PAR, FALSE );
+			analyse_decl_list( node->child, oid, CS_PAR, FALSE );
 			break;
 
 		case N_FUNC_BODY:
@@ -154,7 +154,7 @@ Symbol* create_symbol_table_element( Node* node, int* oid )
  * @param oid
  * @param clazz
  */
-void analyze_decl_list( Node* node, int* oid, ClassSymbol clazz, Boolean hasAssignment )
+void analyse_decl_list( Node* node, int* oid, ClassSymbol clazz, Boolean hasAssignment )
 {
 	// Entering the decl list
 	while( node != NULL )

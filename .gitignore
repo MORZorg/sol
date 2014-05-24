@@ -33,4 +33,4 @@ parser.c
 parser.h
 parser.output
 *.dSYM
-analyzer
+analyser
