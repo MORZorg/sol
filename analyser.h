@@ -53,7 +53,7 @@ Schema* create_schema( Node* );
 Schema* create_schema_attribute( Node* );
 Symbol* fetch_scope( char* );
 void analyse_decl_list( Node*, int*, ClassSymbol, Boolean hasAssignment );
-void simplify_expression( Node* );
+Boolean simplify_expression( Node* );
 
 int yysemerror( Node*, char* );
 

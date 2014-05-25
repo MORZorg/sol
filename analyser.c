@@ -343,8 +343,142 @@ Schema* create_schema_attribute( Node* node )
  *
  * @param node
  */
-void simplify_expression( Node* node )
+Boolean simplify_expression( Node* node )
 {
+	if( node == NULL )
+		return TRUE;
+
+	switch( node->type )
+	{
+		case T_INT_CONST:
+		case T_CHAR_CONST:
+		case T_REAL_CONST:
+		case T_STR_CONST:
+		case T_BOOL_CONST:
+			return TRUE;
+
+		case T_ID:
+			return FALSE;
+
+		default:
+			break;
+	}
+
+	Node* left_child = node->child;
+	Node* right_child = left_child->brother;
+	if( simplify_expression( left_child ) && simplify_expression( right_child ) )
+	{
+		if( left_child->type != right_child->type )
+			yysemerror( node, PRINT_ERROR( STR_GENERAL, "incompatible types" ) );
+
+		switch( node->type )
+		{
+			case T_LOGIC_EXPR:
+				node->type = T_BOOL_CONST;
+				switch( node->value.q_val )
+				{
+					case Q_AND:
+						node->value.b_val = left_child->value.b_val && right_child->value.b_val;
+						break;
+
+					case Q_OR:
+						node->value.b_val = left_child->value.b_val || right_child->value.b_val;
+						break;
+
+					default:
+						yysemerror( node, PRINT_ERROR( STR_BUG, "wrong syntax" ) );
+				}
+				break;
+
+			case T_REL_EXPR:
+				printf( "rel!\n" );
+				// TODO
+				return FALSE;
+
+			case T_MATH_EXPR:
+				node->type = left_child->type;
+				if( node->type == T_INT_CONST )
+					switch( node->value.q_val )
+					{
+						case Q_PLUS:
+							node->value.i_val = left_child->value.i_val + right_child->value.i_val;
+							break;
+
+						case Q_MINUS:
+							node->value.i_val = left_child->value.i_val - right_child->value.i_val;
+							break;
+
+						case Q_MULTIPLY:
+							node->value.i_val = left_child->value.i_val * right_child->value.i_val;
+							break;
+
+						case Q_DIVIDE:
+							node->value.i_val = left_child->value.i_val / right_child->value.i_val;
+							break;
+
+						default:
+							yysemerror( node, PRINT_ERROR( STR_BUG, "wrong syntax" ) );
+					}
+				else
+					switch( node->value.q_val )
+					{
+						case Q_PLUS:
+							node->value.r_val = left_child->value.r_val + right_child->value.r_val;
+							break;
+
+						case Q_MINUS:
+							node->value.r_val = left_child->value.r_val - right_child->value.r_val;
+							break;
+
+						case Q_MULTIPLY:
+							node->value.r_val = left_child->value.r_val * right_child->value.r_val;
+							break;
+
+						case Q_DIVIDE:
+							node->value.r_val = left_child->value.r_val / right_child->value.r_val;
+							break;
+
+						default:
+							yysemerror( node, PRINT_ERROR( STR_BUG, "wrong syntax" ) );
+					}
+
+				break;
+
+			case T_NEG_EXPR:
+				node->type = T_BOOL_CONST;
+				node->value.b_val = !left_child->value.b_val;
+				break;
+
+			case T_INSTANCE_EXPR:
+				printf( "inst!\n" );
+				return FALSE;
+
+			case T_BUILT_IN_CALL:
+				if( node->value.q_val == Q_TOREAL )
+				{
+					node->type = T_REAL_CONST;
+					node->value.r_val = node->value.i_val;
+				}
+				else
+				{
+					node->type = T_INT_CONST;
+					node->value.i_val = node->value.r_val;
+				}
+					
+				break;
+
+			default:
+				yysemerror( node, PRINT_ERROR( STR_BUG, "simplify not an expression" ) );
+		}
+
+		/* free(left_child); */
+		/* free(right_child); */
+		node->child = NULL;
+
+		return TRUE;
+	}
+
+	return FALSE;
 }
 
 /**
