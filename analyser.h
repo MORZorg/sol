@@ -1,10 +1,9 @@
+#ifndef __ANALYSER_H__
+#define __ANALYSER_H__
+
 #include "def.h"
 #include "hashmap.h"
 #include "stacklist.h"
-#include "tree_print.h"
-
-#ifndef __ANALYZER_H__
-#define __ANALYZER_H__
 
 typedef enum
 {
@@ -54,9 +53,12 @@ Schema* create_schema( Node* );
 Schema* create_schema_attribute( Node* );
 Symbol* fetch_scope( char* );
 void analyse_decl_list( Node*, int*, ClassSymbol, Boolean hasAssignment );
-void calculate_expression( Node* );
+void simplify_expression( Node* );
 
 int yysemerror( Node*, char* );
+
+// FIXME Used only for debug and put in the end due to cyclicity.
+#include "tree_print.h"
 
 #endif // __ANALYZER_H__
 

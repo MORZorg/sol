@@ -29,7 +29,7 @@ parser: main.c tree_print.o lexer.o parser.o hashmap.o
 	$(CC) -g -o $@ $^ -DPARSER
 
 analyser: main.c lexer.o parser.o analyser.o hashmap.o stacklist.o tree_print.o
-	$(CC) -g -o $@ $^ -DANALYZER
+	$(CC) -g -o $@ $^ -DANALYSER
 
 .PHONY : clean
 clean:

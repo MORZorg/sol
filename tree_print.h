@@ -1,11 +1,11 @@
-#include "def.h"
-
 #ifndef __TREE_PRINT_H__
 #define __TREE_PRINT_H__
 
-extern const char* TREE_TYPES[];
-extern const char* TREE_NONTERMINALS[];
+#include "def.h"
+#include "analyser.h"
 
 void tree_print( Node*, int );
+void table_print( Symbol*, int );
+
 #endif
 

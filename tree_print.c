@@ -93,15 +93,41 @@ const char* TREE_QUALIFIERS[] =
     "VECTOR"
 };
 
+const char* TABLE_CLASSES[] =
+{
+	"TYPE",
+	"VAR",
+	"CONST",
+	"FUNC",
+	"PAR"
+};
+
+const char* TABLE_TYPES[] =
+{
+	"CHAR",
+	"INT",
+	"REAL",
+	"STRING",
+	"BOOL",
+	"STRUCT",
+	"VECTOR",
+	"ATTR"
+};
+
 const char* SPACING = "  ";
 
-void tree_print(Node* root, int indent)
+void print_indent( int indent )
 {
 	int i;
-	Node* p;
-
 	for( i = 0; i < indent; i++ )
 		printf( "%s", SPACING );
+}
+
+void tree_print( Node* root, int indent )
+{
+	Node* p;
+
+    print_indent( indent );
 
 	printf( "%s", ( root->type == T_UNQUALIFIED_NONTERMINAL ?
 					TREE_NONTERMINALS[ root->value.n_val ] :
@@ -148,4 +174,16 @@ void tree_print(Node* root, int indent)
 
 	for( p = root->child; p != NULL; p = p->brother )
 		tree_print( p, indent + 1 );
+}
+
+void table_print( Symbol* root, int indent )
+{
+	int i;
+	Node* p;
+
+    print_indent( indent );
+    printf( "%s %d %s\n", root->name, root->oid, TABLE_CLASSES[ root->clazz ] );
+    if( root->clazz == CS_FUNC )
+		for( i = 0; i < root->formals_size; i++ )
+			table_print( root->formals[ i ], indent+1 );
 }

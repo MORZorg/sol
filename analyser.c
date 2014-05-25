@@ -45,8 +45,11 @@ int check_function_subtree( Node* node, int oid_absolute )
 
 	// Skipping the ID name of the function and look if there are parameters
 	Node* current_node = node->child->brother;
-	if( current_node->type == T_UNQUALIFIED_NONTERMINAL ) // N_PARAM_LIST value
+	if( current_node->type == T_UNQUALIFIED_NONTERMINAL )
 	{
+		if( current_node->value.n_val != N_PAR_LIST )
+			yysemerror( node, PRINT_ERROR( STR_BUG, "expected param list" ) );
+
 		create_symbol_table_element( current_node, &oid_relative );
 		current_node = current_node->brother;
 	}
@@ -80,6 +83,11 @@ int check_function_subtree( Node* node, int oid_absolute )
 
 	// TODO: Processing body of the function
 	//create_symbol_table_element( current_node, 0 );
+	
+	table_print( element, 0 );
+
+    if( stacklist_pop( &scope ) )
+      return STACK_ERROR;
 
 	return SEM_OK;
 }
@@ -168,7 +176,7 @@ void analyse_decl_list( Node* node, int* oid, ClassSymbol clazz, Boolean hasAssi
 			while( domain_node->brother->brother != NULL )
 				domain_node = domain_node->brother;
 
-			calculate_expression( domain_node->brother );
+			simplify_expression( domain_node->brother );
 		}
 		else
 			domain_node = get_last_brother( type_node );
@@ -331,7 +339,7 @@ Schema* create_schema_attribute( Node* node )
  *
  * @param node
  */
-void calculate_expression( Node* node )
+void simplify_expression( Node* node )
 {
 }
 

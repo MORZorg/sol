@@ -1,8 +1,8 @@
-#include <stdio.h>
-#include <stdlib.h>
-
 #ifndef __DEF_H__
 #define __DEF_H__
+
+#include <stdio.h>
+#include <stdlib.h>
 
 typedef enum
 {
