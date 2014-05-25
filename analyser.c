@@ -3,6 +3,7 @@
 #define STR_BUG "compiler bug"
 #define STR_UNDECLARED "undeclared id"
 #define STR_EMPTY_DECL "empty declaration"
+#define STR_GENERAL "semantic error"
 #define PRINT_ERROR(a,b) a ": " b
 
 #define SEM_OK 0
@@ -143,6 +144,7 @@ Symbol* create_symbol_table_element( Node* node, int* oid )
 		case N_PAR_LIST:
 			fprintf( stdout, "Processing PAR_LIST\n" );
 			analyse_decl_list( node->child, oid, CS_PAR, FALSE );
+			// FIXME The parameters should be added to the func as well
 			break;
 
 		case N_FUNC_BODY:
@@ -279,6 +281,8 @@ Schema* create_schema( Node* node )
 					result->type = TS_VECTOR;
 
 					result->size = node->child->value.i_val;
+					if( result->size <= 0 )
+						yysemerror( node, PRINT_ERROR( STR_GENERAL, "vector size must be greater than zero" ) );
 					result->child = create_schema( node->child->brother );
 					break;
 

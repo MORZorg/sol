@@ -176,14 +176,51 @@ void tree_print( Node* root, int indent )
 		tree_print( p, indent + 1 );
 }
 
+int table_print_hashmap( any_t indent, any_t root )
+{
+	table_print( (Symbol*) root, *(int*) indent );
+	return MAP_OK;
+}
+
 void table_print( Symbol* root, int indent )
 {
 	int i;
-	Node* p;
 
     print_indent( indent );
     printf( "%s %d %s\n", root->name, root->oid, TABLE_CLASSES[ root->clazz ] );
-    if( root->clazz == CS_FUNC )
-		for( i = 0; i < root->formals_size; i++ )
-			table_print( root->formals[ i ], indent+1 );
+	switch( root->clazz )
+	{
+		case CS_FUNC:
+			for( i = 0; i < root->formals_size; i++ )
+				table_print( root->formals[ i ], indent+2 );
+
+			schema_print( root->schema, indent+2);
+			break;
+
+		case CS_TYPE:
+		case CS_VAR:
+		case CS_PAR:
+		case CS_CONST:
+			schema_print( root->schema, indent+1 );
+			break;
+	}
+
+	int next_indent = indent+1;
+	hashmap_iterate( root->locenv, table_print_hashmap, (any_t) &next_indent );
+}
+
+void schema_print( Schema* root, int indent )
+{
+    print_indent( indent );
+    printf( "%s", TABLE_TYPES[ root->type ] );
+	if( root->id != NULL )
+		printf( " %s", root->id );
+	if( root->size > 0 )
+		printf( " %d", root->size );
+	printf( "\n" );
+
+	if( root->child != NULL )
+		schema_print( root->child, indent+1 );
+	if( root->brother != NULL )
+		schema_print( root->brother, indent );
 }
