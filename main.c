@@ -59,9 +59,12 @@ int main()
 
 #include "analyser.h"
 
+extern Symbol* symbol_table;
+
 int main()
 {
-	yysem();
+	if( yysem() == SEM_OK )
+		table_print( symbol_table, 0 );
 
 	return 0;
 }
