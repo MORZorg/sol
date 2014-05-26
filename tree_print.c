@@ -187,37 +187,35 @@ void table_print( Symbol* root, int indent )
 	int i;
 
     print_indent( indent );
-    printf( "%s %d %s\n", root->name, root->oid, TABLE_CLASSES[ root->clazz ] );
-	switch( root->clazz )
-	{
-		case CS_FUNC:
-			for( i = 0; i < root->formals_size; i++ )
-				table_print( root->formals[ i ], indent+2 );
+    printf( "%s %d %s ", root->name, root->oid, TABLE_CLASSES[ root->clazz ] );
+	schema_print( root->schema );
+	printf( "\n" );
 
-			schema_print( root->schema, indent+2 );
-			break;
-
-        default:
-			schema_print( root->schema, indent+1 );
-			break;
-	}
+	if( root->clazz == CS_FUNC )
+		for( i = 0; i < root->formals_size; i++ )
+			table_print( root->formals[ i ], indent+2 );
 
 	int next_indent = indent+1;
 	hashmap_iterate( root->locenv, table_print_hashmap, (any_t) &next_indent );
 }
 
-void schema_print( Schema* root, int indent )
+void schema_print( Schema* root )
 {
-    print_indent( indent );
     printf( "%s", TABLE_TYPES[ root->type ] );
 	if( root->id != NULL )
 		printf( " %s", root->id );
 	if( root->size > 0 )
 		printf( " %d", root->size );
-	printf( "\n" );
 
 	if( root->child != NULL )
-		schema_print( root->child, indent+1 );
+	{
+		printf( " ( " );
+		schema_print( root->child );
+		printf( " )" );
+	}
 	if( root->brother != NULL )
-		schema_print( root->brother, indent );
+	{
+		printf( ", " );
+		schema_print( root->brother );
+	}
 }

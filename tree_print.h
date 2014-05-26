@@ -6,7 +6,7 @@
 
 void tree_print( Node*, int );
 void table_print( Symbol*, int );
-void schema_print( Schema*, int );
+void schema_print( Schema* );
 
 #endif
 

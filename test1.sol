@@ -8,7 +8,7 @@ func prog( a, b: int; c: string; ): int
 			z: T1;
 			s, t: T5;
             q: struct( a: int; b: T4; );
-			a: vector [ 100 ] of int;
+			d: vector [ 100 ] of int;
 			
 	const 	MAX: int = 100;
 			NAME: T2 = "alpha";

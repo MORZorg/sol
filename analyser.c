@@ -1,7 +1,7 @@
 #include "analyser.h"
 
 #define STR_BUG "compiler bug"
-#define STR_CONFLICT_TYPE "conflicting types"
+#define STR_CONFLICT_TYPE "conflicting declaration (same variable defined twice in the same scope)"
 #define STR_UNDECLARED "undeclared id"
 #define STR_EMPTY_DECL "empty declaration"
 #define STR_GENERAL "semantic error"
@@ -23,7 +23,7 @@ int yysem()
 	if( result == 0 )
 	{
 		symbol_table = check_function_subtree( root, 1 );
-        return ( symbol_table == NULL ? SEM_ERROR : SEM_OK );
+		return ( symbol_table == NULL ? SEM_ERROR : SEM_OK );
 	}
 	else
 		return result;
@@ -79,7 +79,7 @@ Symbol* check_function_subtree( Node* node, int oid_absolute )
 		Node* current_child = current_node->child;
 		do
 		{
-            if( !insert_unconflicted_element( check_function_subtree( current_child, oid_absolute + 1 ) ) )
+			if( !insert_unconflicted_element( check_function_subtree( current_child, oid_absolute + 1 ) ) )
 				yysemerror( current_child, STR_CONFLICT_TYPE );
 
 			current_child = current_child->brother;
@@ -88,11 +88,11 @@ Symbol* check_function_subtree( Node* node, int oid_absolute )
 
 	// TODO: Processing body of the function
 	//create_symbol_table_element( current_node, 0 );
-	
+
 	table_print( element, 0 );
 
-    if( stacklist_pop( &scope ) )
-      return NULL;
+	if( stacklist_pop( &scope ) )
+		return NULL;
 
 	return element;
 }
@@ -274,7 +274,7 @@ Schema* create_schema( Node* node )
 							current_node = current_node->brother;
 							current_schema = &( (*current_schema)->brother );
 						} while( current_node != NULL );
-                        // TODO Check for conflicts
+						// TODO Check for conflicts
 						break;
 					}
 
@@ -452,7 +452,7 @@ Boolean simplify_expression( Node* node )
 
 			case T_INSTANCE_EXPR:
 				printf( "inst!\n" );
-                // TODO
+				// TODO
 				return FALSE;
 
 			case T_BUILT_IN_CALL:
@@ -466,7 +466,7 @@ Boolean simplify_expression( Node* node )
 					node->type = T_INT_CONST;
 					node->value.i_val = node->value.r_val;
 				}
-					
+
 				break;
 
 			default:
@@ -521,6 +521,6 @@ int yysemerror( Node* node, char* type )
 	fprintf( stderr, "Type: %d\t", node->type );
 	fprintf( stderr, "(N)Value: %d\n", node->value.n_val );
 	tree_print( node, 0 );
-	fprintf( stdout, "Line %d: %s.\n", node->line, type );
+	fprintf( stdout, "Line %d on symbol '%s': %s.\n", node->line, node->value.s_val, type );
 	exit( 3 );
 }
