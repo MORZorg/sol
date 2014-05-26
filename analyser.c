@@ -1,6 +1,7 @@
 #include "analyser.h"
 
 #define STR_BUG "compiler bug"
+#define STR_CONFLICT_TYPE "conflicting types"
 #define STR_UNDECLARED "undeclared id"
 #define STR_EMPTY_DECL "empty declaration"
 #define STR_GENERAL "semantic error"
@@ -13,6 +14,7 @@ extern int yyparse();
 extern Node* root;
 
 stacklist scope;
+Symbol* symbol_table;
 
 int yysem()
 {
@@ -21,7 +23,8 @@ int yysem()
 	if( result == 0 )
 	{
 		scope = new_stack();
-		return check_function_subtree( root, 1 );
+		symbol_table = check_function_subtree( root, 1 );
+        return ( symbol_table == NULL ? SEM_ERROR : SEM_OK );
 	}
 	else
 		return result;
@@ -34,7 +37,7 @@ int yysem()
  *
  * @return 
  */
-int check_function_subtree( Node* node, int oid_absolute )
+Symbol* check_function_subtree( Node* node, int oid_absolute )
 {
 	int oid_relative = 1;
 
@@ -42,7 +45,7 @@ int check_function_subtree( Node* node, int oid_absolute )
 
 	// Updating the scope with the new function just created
 	if( stacklist_push( &scope, (stacklist_t) element->locenv ) )
-		return STACK_ERROR;
+		return NULL;
 
 	// Skipping the ID name of the function and look if there are parameters
 	Node* current_node = node->child->brother;
@@ -77,7 +80,9 @@ int check_function_subtree( Node* node, int oid_absolute )
 		Node* current_child = current_node->child;
 		do
 		{
-			check_function_subtree( current_child, oid_absolute + 1 );
+            if( !insert_unconflicted_element( check_function_subtree( current_child, oid_absolute + 1 ) ) )
+				yysemerror( current_child, STR_CONFLICT_TYPE );
+
 			current_child = current_child->brother;
 		} while( current_child != NULL );
 	}
@@ -88,9 +93,9 @@ int check_function_subtree( Node* node, int oid_absolute )
 	table_print( element, 0 );
 
     if( stacklist_pop( &scope ) )
-      return STACK_ERROR;
+      return NULL;
 
-	return SEM_OK;
+	return element;
 }
 
 /**
@@ -122,10 +127,6 @@ Symbol* create_symbol_table_element( Node* node, int* oid )
 		case N_CONST_SECT:
 			fprintf( stdout, "Processing CONST_SECT\n" );
 			analyse_decl_list( node->child, oid, CS_CONST, TRUE );
-			break;
-
-		case N_FUNC_LIST:
-			// TODO
 			break;
 
 		case N_FUNC_DECL:
@@ -194,8 +195,8 @@ void analyse_decl_list( Node* node, int* oid, ClassSymbol clazz, Boolean hasAssi
 			aType->schema = domain_schema; 
 
 			// Adding the new type to the locenv in the scope in which is defined
-			// TODO Check for duplicates
-			hashmap_put( scope->table, aType->name, aType );
+			if( !insert_unconflicted_element( aType ) )
+				yysemerror( type_node, STR_CONFLICT_TYPE );
 
 			type_node = type_node->brother;
 		}
@@ -274,6 +275,7 @@ Schema* create_schema( Node* node )
 							current_node = current_node->brother;
 							current_schema = &( (*current_schema)->brother );
 						} while( current_node != NULL );
+                        // TODO Check for conflicts
 						break;
 					}
 
@@ -451,6 +453,7 @@ Boolean simplify_expression( Node* node )
 
 			case T_INSTANCE_EXPR:
 				printf( "inst!\n" );
+                // TODO
 				return FALSE;
 
 			case T_BUILT_IN_CALL:
@@ -502,6 +505,15 @@ Symbol* fetch_scope( char* id )
 	}
 
 	return result;
+}
+
+Boolean insert_unconflicted_element( Symbol* element )
+{
+	if( fetch_scope( element->name ) != NULL )
+		return FALSE;
+
+	hashmap_put( scope->table, element->name, element );
+	return TRUE;
 }
 
 int yysemerror( Node* node, char* type )

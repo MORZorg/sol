@@ -194,13 +194,10 @@ void table_print( Symbol* root, int indent )
 			for( i = 0; i < root->formals_size; i++ )
 				table_print( root->formals[ i ], indent+2 );
 
-			schema_print( root->schema, indent+2);
+			schema_print( root->schema, indent+2 );
 			break;
 
-		case CS_TYPE:
-		case CS_VAR:
-		case CS_PAR:
-		case CS_CONST:
+        default:
 			schema_print( root->schema, indent+1 );
 			break;
 	}
