@@ -15,7 +15,6 @@ typedef struct entry
 	struct entry* next;
 } Entry;
 
-stacklist new_stack();
 Entry* new_entry( stacklist_t );
 int stacklist_push( stacklist*, stacklist_t );
 int stacklist_pop( stacklist* );

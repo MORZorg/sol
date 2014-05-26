@@ -1,12 +1,5 @@
 #include "stacklist.h"
 
-stacklist new_stack()
-{
-	stacklist result = malloc( sizeof( Entry ) );
-
-	return result;
-}
-
 Entry* new_entry( stacklist_t table )
 {
 	Entry* result = malloc( sizeof( Entry ) );

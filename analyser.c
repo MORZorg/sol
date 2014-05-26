@@ -22,7 +22,6 @@ int yysem()
 	int result = yyparse();
 	if( result == 0 )
 	{
-		scope = new_stack();
 		symbol_table = check_function_subtree( root, 1 );
         return ( symbol_table == NULL ? SEM_ERROR : SEM_OK );
 	}
@@ -498,7 +497,7 @@ Symbol* fetch_scope( char* id )
 	stacklist current_scope = scope;
 	while( current_scope != NULL )
 	{
-		if( hashmap_get(current_scope->table, id, (any_t*) &result ) == STACK_OK )
+		if( hashmap_get( current_scope->table, id, (any_t*) &result ) == MAP_OK )
 			break;
 
 		current_scope = current_scope->next;
