@@ -187,7 +187,7 @@ void table_print( Symbol* root, int indent )
 	int i;
 
     print_indent( indent );
-    printf( "%s %d %s ", root->name, root->oid, TABLE_CLASSES[ root->clazz ] );
+    printf( "%-6s %-4d %-10s ", TABLE_CLASSES[ root->clazz ], root->oid, root->name );
 	schema_print( root->schema );
 	printf( "\n" );
 
@@ -203,13 +203,13 @@ void schema_print( Schema* root )
 {
     printf( "%s", TABLE_TYPES[ root->type ] );
 	if( root->id != NULL )
-		printf( " %s", root->id );
+		printf( ": %s ", root->id );
 	if( root->size > 0 )
-		printf( " %d", root->size );
+		printf( "[%d]", root->size );
 
 	if( root->child != NULL )
 	{
-		printf( " ( " );
+		printf( "( " );
 		schema_print( root->child );
 		printf( " )" );
 	}
