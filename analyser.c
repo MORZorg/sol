@@ -7,9 +7,6 @@
 #define STR_GENERAL "semantic error"
 #define PRINT_ERROR(a,b) a ": " b
 
-#define SEM_OK 0
-#define SEM_ERROR -1
-
 extern int yyparse();
 extern Node* root;
 
@@ -23,7 +20,7 @@ int yysem()
 	if( result == 0 )
 	{
 		symbol_table = check_function_subtree( root, 1 );
-        return ( symbol_table == NULL ? SEM_ERROR : SEM_OK );
+        return symbol_table == NULL ? SEM_ERROR : SEM_OK;
 	}
 	else
 		return result;
@@ -88,8 +85,6 @@ Symbol* check_function_subtree( Node* node, int oid_absolute )
 
 	// TODO: Processing body of the function
 	//create_symbol_table_element( current_node, 0 );
-	
-	table_print( element, 0 );
 
     if( stacklist_pop( &scope ) )
       return NULL;
@@ -170,7 +165,6 @@ void analyse_decl_list( Node* node, int* oid, ClassSymbol clazz, Boolean hasAssi
 	while( node != NULL )
 	{
 		Node* type_node = node->child;
-		// TODO: fix for const_sect where the last brother is the value and not the type
 		Node* domain_node;
 		if( hasAssignment )
 		{
@@ -274,7 +268,22 @@ Schema* create_schema( Node* node )
 							current_node = current_node->brother;
 							current_schema = &( (*current_schema)->brother );
 						} while( current_node != NULL );
-                        // TODO Check for conflicts
+
+                        // Check for conflicts with a `wonderful' O(n log(n))
+						Schema* reference_attr = result->child;
+						while( reference_attr != NULL )
+						{
+							Schema* checked_attr = reference_attr->brother;
+							while( checked_attr != NULL )
+							{
+								if( reference_attr->id == checked_attr->id )
+									yysemerror( node, STR_CONFLICT_TYPE );
+
+								checked_attr = checked_attr->brother;
+							}
+
+							reference_attr = reference_attr->brother;
+						}
 						break;
 					}
 

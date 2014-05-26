@@ -4,10 +4,10 @@ func prog( primo: vector[1] of vector[3] of char; a: struct(a: int;); b: vector[
 
     -- I'm a comment, I'm a comment, I'm a comment.
     -- I'm a comment, I'm a comment, I'm a comment.
-    func a(): int
-    begin a
+    func ao(): int
+    begin ao
         return 1;
-    end a
+    end ao
 
 begin prog
 	write a;

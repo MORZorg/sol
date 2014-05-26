@@ -5,6 +5,9 @@
 #include "hashmap.h"
 #include "stacklist.h"
 
+#define SEM_OK 0
+#define SEM_ERROR -1
+
 typedef enum
 {
 	CS_TYPE,
