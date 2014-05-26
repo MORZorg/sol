@@ -4,7 +4,9 @@ func prog( primo: vector[1] of vector[3] of char; a: struct(a: int;); b: vector[
 
     -- I'm a comment, I'm a comment, I'm a comment.
     -- I'm a comment, I'm a comment, I'm a comment.
-    func ao(): int
+    func ao( sbrai: int; sbras: string; ): vector[ 456 ] of struct( a: string; )
+		type
+			sbrat: vector[ 2 ] of bool;
     begin ao
         return 1;
     end ao
