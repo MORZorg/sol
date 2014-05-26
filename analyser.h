@@ -46,7 +46,7 @@ typedef struct symtab
 	Schema* schema;
 	map_t locenv;
 	int formals_size;
-	struct symtab* formals[];
+	struct symtab** formals;
 } Symbol;
 
 int yysem();
@@ -58,6 +58,7 @@ Symbol* fetch_scope( char* );
 void analyse_decl_list( Node*, int*, ClassSymbol, Boolean hasAssignment );
 Boolean simplify_expression( Node* );
 Boolean insert_unconflicted_element( Symbol* );
+int associate_formals_parameters( Node*, Symbol* );
 
 int yysemerror( Node*, char* );
 

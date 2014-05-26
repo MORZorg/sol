@@ -7,6 +7,9 @@
 #define STR_GENERAL "semantic error"
 #define PRINT_ERROR(a,b) a ": " b
 
+#define SEM_OK 0
+#define SEM_ERROR -1
+
 extern int yyparse();
 extern Node* root;
 
@@ -51,6 +54,7 @@ Symbol* check_function_subtree( Node* node, int oid_absolute )
 			yysemerror( node, PRINT_ERROR( STR_BUG, "expected param list" ) );
 
 		create_symbol_table_element( current_node, &oid_relative );
+		associate_formals_parameters( current_node, element );
 		current_node = current_node->brother;
 	}
 	current_node = current_node->brother;
@@ -76,7 +80,7 @@ Symbol* check_function_subtree( Node* node, int oid_absolute )
 		Node* current_child = current_node->child;
 		do
 		{
-            if( !insert_unconflicted_element( check_function_subtree( current_child, oid_absolute + 1 ) ) )
+			if( !insert_unconflicted_element( check_function_subtree( current_child, oid_absolute + 1 ) ) )
 				yysemerror( current_child, STR_CONFLICT_TYPE );
 
 			current_child = current_child->brother;
@@ -86,8 +90,8 @@ Symbol* check_function_subtree( Node* node, int oid_absolute )
 	// TODO: Processing body of the function
 	//create_symbol_table_element( current_node, 0 );
 
-    if( stacklist_pop( &scope ) )
-      return NULL;
+	if( stacklist_pop( &scope ) )
+		return NULL;
 
 	return element;
 }
@@ -137,9 +141,9 @@ Symbol* create_symbol_table_element( Node* node, int* oid )
 			break;
 
 		case N_PAR_LIST:
+			// FIXME The parameters should be added to the func as well
 			fprintf( stdout, "Processing PAR_LIST\n" );
 			analyse_decl_list( node->child, oid, CS_PAR, FALSE );
-			// FIXME The parameters should be added to the func as well
 			break;
 
 		case N_FUNC_BODY:
@@ -152,6 +156,7 @@ Symbol* create_symbol_table_element( Node* node, int* oid )
 
 	return result;
 }
+
 /**
  * @brief 
  *
@@ -165,6 +170,7 @@ void analyse_decl_list( Node* node, int* oid, ClassSymbol clazz, Boolean hasAssi
 	while( node != NULL )
 	{
 		Node* type_node = node->child;
+		// TODO: fix for const_sect where the last brother is the value and not the type
 		Node* domain_node;
 		if( hasAssignment )
 		{
@@ -196,6 +202,40 @@ void analyse_decl_list( Node* node, int* oid, ClassSymbol clazz, Boolean hasAssi
 
 		node = node->brother;
 	}
+}
+
+int associate_formals_parameters( Node* node, Symbol* element )
+{
+	// Cycling on the locenv of element knowing that its elements are only the formal paramenters
+	Node* brothers = node->child;
+	Node* current_node;
+	Symbol* pointer;
+	int actual_size = 4;
+	element->formals_size = 0;
+	element->formals = malloc( sizeof( Symbol* ) * actual_size );
+
+	while( brothers != NULL )
+	{
+		current_node = brothers->child;
+
+		while( current_node->brother != NULL )
+		{
+			// Assuming that I will find that element
+			hashmap_get( element->locenv, current_node->value.s_val, (any_t*) &pointer );
+
+			if( element->formals_size >= actual_size )
+				element->formals = realloc( element->formals, sizeof( Symbol* ) * ( actual_size *= 2 ) );
+
+			element->formals[ element->formals_size ] = pointer;
+
+			element->formals_size++;
+			current_node = current_node->brother;
+		}
+
+		brothers = brothers->brother;
+	}
+	
+	return element->formals_size;
 }
 
 /**
@@ -268,22 +308,7 @@ Schema* create_schema( Node* node )
 							current_node = current_node->brother;
 							current_schema = &( (*current_schema)->brother );
 						} while( current_node != NULL );
-
-                        // Check for conflicts with a `wonderful' O(n log(n))
-						Schema* reference_attr = result->child;
-						while( reference_attr != NULL )
-						{
-							Schema* checked_attr = reference_attr->brother;
-							while( checked_attr != NULL )
-							{
-								if( reference_attr->id == checked_attr->id )
-									yysemerror( node, STR_CONFLICT_TYPE );
-
-								checked_attr = checked_attr->brother;
-							}
-
-							reference_attr = reference_attr->brother;
-						}
+						// TODO Check for conflicts
 						break;
 					}
 
@@ -461,7 +486,7 @@ Boolean simplify_expression( Node* node )
 
 			case T_INSTANCE_EXPR:
 				printf( "inst!\n" );
-                // TODO
+				// TODO
 				return FALSE;
 
 			case T_BUILT_IN_CALL:
@@ -475,7 +500,7 @@ Boolean simplify_expression( Node* node )
 					node->type = T_INT_CONST;
 					node->value.i_val = node->value.r_val;
 				}
-					
+
 				break;
 
 			default:
