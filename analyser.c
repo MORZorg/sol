@@ -1,7 +1,8 @@
 #include "analyser.h"
 
 #define STR_BUG "compiler bug"
-#define STR_CONFLICT_TYPE "conflicting declaration (same variable defined twice in the same scope)"
+#define STR_CONFLICT_SCOPE "conflicting declaration (same variable defined twice in the same scope)"
+#define STR_CONFLICT_STRUCT "conflicting declaration (same field defined twice in the same struct)"
 #define STR_UNDECLARED "undeclared id"
 #define STR_EMPTY_DECL "empty declaration"
 #define STR_GENERAL "semantic error"
@@ -81,7 +82,7 @@ Symbol* check_function_subtree( Node* node, int oid_absolute )
 		do
 		{
 			if( !insert_unconflicted_element( check_function_subtree( current_child, oid_absolute + 1 ) ) )
-				yysemerror( current_child, STR_CONFLICT_TYPE );
+				yysemerror( current_child, STR_CONFLICT_SCOPE );
 
 			current_child = current_child->brother;
 		} while( current_child != NULL );
@@ -195,7 +196,7 @@ void analyse_decl_list( Node* node, int* oid, ClassSymbol clazz, Boolean hasAssi
 
 			// Adding the new type to the locenv in the scope in which is defined
 			if( !insert_unconflicted_element( aType ) )
-				yysemerror( type_node, STR_CONFLICT_TYPE );
+				yysemerror( type_node, STR_CONFLICT_SCOPE );
 
 			type_node = type_node->brother;
 		}
@@ -242,7 +243,7 @@ int associate_formals_parameters( Node* node, Symbol* element )
 
 		brothers = brothers->brother;
 	}
-	
+
 	return element->formals_size;
 }
 
@@ -316,7 +317,23 @@ Schema* create_schema( Node* node )
 							current_node = current_node->brother;
 							current_schema = &( (*current_schema)->brother );
 						} while( current_node != NULL );
-						// TODO Check for conflicts
+						
+						// Check for conflicts with a `wonderful' O(n log(n))
+						Schema* reference_attr = result->child;
+						while( reference_attr != NULL )
+						{
+							Schema* checked_attr = reference_attr->brother;
+
+							while( checked_attr != NULL )
+							{
+								if( reference_attr->id == checked_attr->id )
+									yysemerror( node, STR_CONFLICT_STRUCT );
+
+								checked_attr = checked_attr->brother;
+							}
+
+							reference_attr = reference_attr->brother;
+						}	
 						break;
 					}
 

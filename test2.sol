@@ -1,4 +1,4 @@
-func prog( primo: vector[1] of vector[3] of char; a: struct(a: int;); b: vector[5] of int; ): int
+func prog( primo: vector[1] of vector[3] of char; a: struct(a: int; b: string;); b: vector[5] of int; ): int
 
 	const PEO: int = 3 + 3 + 4;
 
