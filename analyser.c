@@ -343,6 +343,7 @@ Schema* create_schema( Node* node )
 					result->size = node->child->value.i_val;
 					if( result->size <= 0 )
 						yysemerror( node, PRINT_ERROR( STR_GENERAL, "vector size must be greater than zero" ) );
+
 					result->child = create_schema( node->child->brother );
 					break;
 
@@ -384,9 +385,11 @@ Schema* create_schema_attribute( Node* node )
 			result->child = result->brother->child;
 			break;
 
+		// Check for other types of domains, like ID, ATOMIC, STRUCT AND VECTOR (UNQUALIFIED) and an INSTANCE
 		case T_ID_DOMAIN:
 		case T_ATOMIC_DOMAIN:
 		case T_INSTANCE_EXPR:
+		case T_UNQUALIFIED_NONTERMINAL:
 			result->child = create_schema( node->brother );
 			break;
 
@@ -592,6 +595,7 @@ Boolean insert_unconflicted_element( Symbol* element )
 int yysemerror( Node* node, char* type )
 {
 	fprintf( stderr, "\n *** ERROR *** \n" );
+	fprintf( stderr, "Line: %d\tType: %d\n", node->line, node->type );
 	tree_print( node, 0 );
 
 	if( node->type == T_ID )

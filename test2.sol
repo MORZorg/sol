@@ -1,5 +1,6 @@
 func prog( primo: vector[1] of vector[3] of char; a: struct(a: int; b: string;); b: vector[5] of int; ): int
 
+	type from_slides: vector [10] of struct( la: int; lala: vector[20] of vector [5] of real; );
 	const PEO: int = 3 + 3 + 4;
 
     -- I'm a comment, I'm a comment, I'm a comment.
