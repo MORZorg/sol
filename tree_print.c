@@ -193,9 +193,9 @@ void table_print( Symbol* root, int indent )
 
 	if( root->clazz == CS_FUNC )
 		for( i = 0; i < root->formals_size; i++ )
-			table_print( root->formals[ i ], indent+2 );
+			table_print( root->formals[ i ], indent + 2 );
 
-	int next_indent = indent+1;
+	int next_indent = indent + 1;
 	hashmap_iterate( root->locenv, table_print_hashmap, (any_t) &next_indent );
 }
 
