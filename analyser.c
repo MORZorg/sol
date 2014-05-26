@@ -527,9 +527,12 @@ Boolean insert_unconflicted_element( Symbol* element )
 int yysemerror( Node* node, char* type )
 {
 	fprintf( stderr, "\n *** ERROR *** \n" );
-	fprintf( stderr, "Type: %d\t", node->type );
-	fprintf( stderr, "(N)Value: %d\n", node->value.n_val );
 	tree_print( node, 0 );
-	fprintf( stdout, "Line %d on symbol '%s': %s.\n", node->line, node->value.s_val, type );
+
+	if( node->type == T_ID )
+		fprintf( stdout, "Line %d on symbol '%s': %s.\n", node->line, node->value.s_val, type );
+	else
+		fprintf( stdout, "Line %d: %s.\n", node->line, type );
+
 	exit( 3 );
 }
