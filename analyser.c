@@ -204,6 +204,14 @@ void analyse_decl_list( Node* node, int* oid, ClassSymbol clazz, Boolean hasAssi
 	}
 }
 
+/**
+ * @brief Adds all elements in the locenv as formal parameters of the given element.
+ *
+ * @param node PAR_LIST node
+ * @param element Symbol table
+ *
+ * @return Returns the number of elements added as formal parameters.
+ */
 int associate_formals_parameters( Node* node, Symbol* element )
 {
 	// Cycling on the locenv of element knowing that its elements are only the formal paramenters
@@ -540,6 +548,13 @@ Symbol* fetch_scope( char* id )
 	return result;
 }
 
+/**
+ * @brief Inserts an element checking name integrity in the rest of the scope.
+ *
+ * @param element
+ *
+ * @return 
+ */
 Boolean insert_unconflicted_element( Symbol* element )
 {
 	if( fetch_scope( element->name ) != NULL )
@@ -549,6 +564,14 @@ Boolean insert_unconflicted_element( Symbol* element )
 	return TRUE;
 }
 
+/**
+ * @brief Error function occured on the given node knowing the error type.
+ *
+ * @param node
+ * @param type
+ *
+ * @return 
+ */
 int yysemerror( Node* node, char* type )
 {
 	fprintf( stderr, "\n *** ERROR *** \n" );
