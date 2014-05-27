@@ -171,7 +171,6 @@ void analyse_decl_list( Node* node, int* oid, ClassSymbol clazz, Boolean hasAssi
 	while( node != NULL )
 	{
 		Node* type_node = node->child;
-		// TODO: fix for const_sect where the last brother is the value and not the type
 		Node* domain_node;
 		if( hasAssignment )
 		{
@@ -535,6 +534,7 @@ Boolean simplify_expression( Node* node )
 				yysemerror( node, PRINT_ERROR( STR_BUG, "simplify not an expression" ) );
 		}
 
+        // FIXME
 		/* free(left_child); */
 		/* free(right_child); */
 		node->child = NULL;
@@ -543,6 +543,120 @@ Boolean simplify_expression( Node* node )
 	}
 
 	return FALSE;
+}
+
+Schema* infere_expression_schema( Node* node )
+{
+	// FIXME Maybe not to always be allocated
+	Schema* result = malloc( sizeof( Schema ) );
+
+	switch( node->type )
+	{
+		case T_LOGIC_EXPR:
+		case T_REL_EXPR:
+			if( !schema_check( result, infere_expression_schema( node->child->brother ) ) )
+				yysemerror( node, PRINT_ERROR( STR_GENERAL, "type checking" ) );
+			result->type = TS_BOOL;
+			break;
+
+		case T_MATH_EXPR:
+			result = infere_expression_schema( node->child );
+			if( !schema_check( result, infere_expression_schema( node->child->brother ) ) )
+				yysemerror( node, PRINT_ERROR( STR_GENERAL, "type checking" ) );
+			break;
+
+		case T_NEG_EXPR:
+			result = infere_expression_schema( node->child );
+			/* TODO Type check, something like:
+			 *
+			 * if( !schema_check( result, new Schema( BOOL ) ) ||
+			 * 	!schema_check( result, new Schema( INT ) ) ||
+			 * 	!schema_check( result, new Schema( REAL ) ) )
+			 * 	yysemerror( node, PRINT_ERROR( STR_GENERAL, "type checking" ) );
+			 */
+			break;
+
+		case T_INSTANCE_EXPR:
+			switch( node->value.q_val )
+			{
+				case Q_STRUCT:
+				{
+					result->type = TS_STRUCT;
+					Node* current_child = node->child;
+					Schema** current_attribute = &(result->child);
+					while( current_child != NULL )
+					{
+						*current_attribute = malloc( sizeof( Schema ) );
+						(*current_attribute)->type = TS_ATTR;
+						(*current_attribute)->child = infere_expression_schema( current_child );
+
+						current_child = current_child->brother;
+						current_attribute = &(*current_attribute)->brother;
+					}
+					break;
+				}
+
+				case Q_VECTOR:
+				{
+					result->type = TS_VECTOR;
+					result->size = 1;
+					result->child = infere_expression_schema( node->child );
+
+					Node* current_child = node->child->brother;
+					while( current_child != NULL )
+					{
+						if( !schema_check( result->child, infere_expression_schema( current_child ) ) )
+							yysemerror( node, PRINT_ERROR( STR_GENERAL, "type checking" ) );
+
+						result->size++;
+						current_child = current_child->brother;
+					}
+					break;
+				}
+
+				default:
+					yysemerror( node, PRINT_ERROR( STR_BUG, "wrong qualifier" ) );
+			}
+			break;
+
+		case T_BUILT_IN_CALL:
+			switch( node->value.q_val )
+			{
+				case Q_TOINT:
+					if( infere_expression_schema( node->child )->type != TS_REAL )
+						yysemerror( node, PRINT_ERROR( STR_GENERAL, "type checking" ) );
+
+					result->type = TS_INT;
+					break;
+
+				case Q_TOREAL:
+					if( infere_expression_schema( node->child )->type != TS_INT )
+						yysemerror( node, PRINT_ERROR( STR_GENERAL, "type checking" ) );
+
+					result->type = TS_REAL;
+					break;
+
+				default:
+					yysemerror( node, PRINT_ERROR( STR_BUG, "wrong qualifier" ) );
+			}
+			break;
+
+		case T_INT_CONST:
+		case T_CHAR_CONST:
+		case T_REAL_CONST:
+		case T_STR_CONST:
+		case T_BOOL_CONST:
+		case T_ID:
+		default:
+			break;
+	}
+
+	return result;
+}
+
+Boolean schema_check( Schema* first, Schema* second )
+{
+	return TRUE;
 }
 
 /**
