@@ -1,16 +1,24 @@
 #include "analyser.h"
 
 #define STR_BUG "compiler bug"
+
 #define STR_CONFLICT_SCOPE "conflicting declaration (same variable defined twice in the same scope)"
 #define STR_CONFLICT_STRUCT "conflicting declaration (same field defined twice in the same struct)"
 #define STR_CONFLICT_TYPE "conflicting types"
+
+#define STR_SCHEMA_DIFFERENT "incompatible types"
+
+#define STR_VECTOR_SIZE "vectors must be of the same size!"
+#define STR_VECTOR_TYPE "vector elements must be of the same type!"
+
+#define STR_STRUCT_NAMES "record fields must have the same name!"
+#define STR_STRUCT_TYPES "record fields must have the same type!"
+
 #define STR_UNDECLARED "undeclared id"
 #define STR_EMPTY_DECL "empty declaration"
 #define STR_GENERAL "semantic error"
-#define PRINT_ERROR(a,b) a ": " b
 
-#define SEM_OK 0
-#define SEM_ERROR -1
+#define PRINT_ERROR(a,b) a ": " b
 
 extern int yyparse();
 extern Node* root;
@@ -607,7 +615,7 @@ Schema* infere_expression_schema( Node* node )
 					while( current_child != NULL )
 					{
 						if( !schema_check( result->child, infere_expression_schema( current_child ) ) )
-							yysemerror( node, STR_CONFLICT_TYPE );
+							yysemerror( current_child, STR_CONFLICT_TYPE );
 
 						result->size++;
 						current_child = current_child->brother;
@@ -689,9 +697,65 @@ Schema* infere_expression_schema( Node* node )
 
 	return result;
 }
-
 Boolean schema_check( Schema* first, Schema* second )
 {
+	if( first->type != second->type )
+	{
+		//yysemerror( NULL, STR_SCHEMA_DIFFERENT );
+		return FALSE;
+	}
+
+	switch( first->type )
+	{
+		case TS_VECTOR:
+			if( first->size != first->size )
+			{
+				// FIXME: I want to be prettier! (((o(*ﾟ▽ﾟ*)o))) 
+				//yysemerror( NULL, STR_VECTOR_SIZE );
+				return FALSE;
+			}
+			if( !schema_check( first->child, second->child ) )
+			{
+				//yysemerror( NULL, STR_VECTOR_TYPE );
+				return FALSE;
+			}
+
+			break;
+
+		case TS_STRUCT:
+			{
+				Schema* first_child = first->child;
+				Schema* second_child = second->child;
+				while( first_child != NULL && second_child != NULL )
+				{
+					schema_check( first_child, second_child );
+					first_child = first_child->brother;
+					second_child = second_child->brother;
+				}
+				break;
+			}
+
+		case TS_ATTR:
+			if( !schema_check( first->child, second->child ) )
+			{
+				//yysemerror( NULL, STR_STRUCT_TYPES );
+				return FALSE;
+			}
+			break;
+
+		case TS_CHAR:
+		case TS_INT:
+		case TS_REAL:
+		case TS_STRING:
+		case TS_BOOL:
+			break;
+
+		default:
+			yysemerror( NULL, PRINT_ERROR( STR_BUG, "schema_check" ) );
+			return FALSE;
+			break;
+	}
+
 	return TRUE;
 }
 
