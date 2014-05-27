@@ -1,16 +1,19 @@
 func prog( a, b: int; c: string; ): int
 	type	T1: int;
+			BLANDO: real;
 			T2: string;
 			T3, T4: T2;
 			T5: vector [ 10 ] of T3;
 			
 	var		i, j: int;
+			x, y: BLANDO;
 			z: T1;
 			s, t: T5;
             q: struct( a: int; b: T4; );
 			d: vector [ 100 ] of int;
 			
 	const 	MAX: int = 100;
+			PINO: struct( a, b: int ) = struct( 3, 5 );
 			NAME: T2 = "alpha";
 			VECT: vector [ 5 ] of real = vector( 2.0, 3.12, 4.67, 1.1, 23.0 );
 			MAT: vector [ 2 ] of vector [ 5 ] of real = vector( VECT, vector( x, y, z, 10.0, x + y * -z ) );

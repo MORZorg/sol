@@ -3,6 +3,7 @@
 #define STR_BUG "compiler bug"
 #define STR_CONFLICT_SCOPE "conflicting declaration (same variable defined twice in the same scope)"
 #define STR_CONFLICT_STRUCT "conflicting declaration (same field defined twice in the same struct)"
+#define STR_CONFLICT_TYPE "conflicting types"
 #define STR_UNDECLARED "undeclared id"
 #define STR_EMPTY_DECL "empty declaration"
 #define STR_GENERAL "semantic error"
@@ -184,6 +185,9 @@ void analyse_decl_list( Node* node, int* oid, ClassSymbol clazz, Boolean hasAssi
 			domain_node = get_last_brother( type_node );
 
 		Schema* domain_schema = create_schema( domain_node );
+		if( hasAssignment && !schema_check( domain_schema, infere_expression_schema( domain_node->brother ) ) )
+			yysemerror( node, STR_CONFLICT_TYPE );
+		
 		while( type_node != domain_node )
 		{
 			Symbol* aType = malloc( sizeof( Symbol ) );
@@ -431,7 +435,7 @@ Boolean simplify_expression( Node* node )
 	if( simplify_expression( left_child ) && simplify_expression( right_child ) )
 	{
 		if( left_child->type != right_child->type )
-			yysemerror( node, PRINT_ERROR( STR_GENERAL, "incompatible types" ) );
+			yysemerror( node, STR_CONFLICT_TYPE );
 
 		switch( node->type )
 		{
@@ -555,25 +559,22 @@ Schema* infere_expression_schema( Node* node )
 		case T_LOGIC_EXPR:
 		case T_REL_EXPR:
 			if( !schema_check( result, infere_expression_schema( node->child->brother ) ) )
-				yysemerror( node, PRINT_ERROR( STR_GENERAL, "type checking" ) );
+				yysemerror( node, STR_CONFLICT_TYPE );
 			result->type = TS_BOOL;
 			break;
 
 		case T_MATH_EXPR:
+			free(result);
 			result = infere_expression_schema( node->child );
 			if( !schema_check( result, infere_expression_schema( node->child->brother ) ) )
-				yysemerror( node, PRINT_ERROR( STR_GENERAL, "type checking" ) );
+				yysemerror( node, STR_CONFLICT_TYPE );
 			break;
 
 		case T_NEG_EXPR:
+			free(result);
 			result = infere_expression_schema( node->child );
-			/* TODO Type check, something like:
-			 *
-			 * if( !schema_check( result, new Schema( BOOL ) ) ||
-			 * 	!schema_check( result, new Schema( INT ) ) ||
-			 * 	!schema_check( result, new Schema( REAL ) ) )
-			 * 	yysemerror( node, PRINT_ERROR( STR_GENERAL, "type checking" ) );
-			 */
+			if( result->type != TS_INT && result->type != TS_REAL && result->type != TS_BOOL )
+				yysemerror( node, STR_CONFLICT_TYPE );
 			break;
 
 		case T_INSTANCE_EXPR:
@@ -606,7 +607,7 @@ Schema* infere_expression_schema( Node* node )
 					while( current_child != NULL )
 					{
 						if( !schema_check( result->child, infere_expression_schema( current_child ) ) )
-							yysemerror( node, PRINT_ERROR( STR_GENERAL, "type checking" ) );
+							yysemerror( node, STR_CONFLICT_TYPE );
 
 						result->size++;
 						current_child = current_child->brother;
@@ -624,14 +625,14 @@ Schema* infere_expression_schema( Node* node )
 			{
 				case Q_TOINT:
 					if( infere_expression_schema( node->child )->type != TS_REAL )
-						yysemerror( node, PRINT_ERROR( STR_GENERAL, "type checking" ) );
+						yysemerror( node, STR_CONFLICT_TYPE );
 
 					result->type = TS_INT;
 					break;
 
 				case Q_TOREAL:
 					if( infere_expression_schema( node->child )->type != TS_INT )
-						yysemerror( node, PRINT_ERROR( STR_GENERAL, "type checking" ) );
+						yysemerror( node, STR_CONFLICT_TYPE );
 
 					result->type = TS_REAL;
 					break;
@@ -642,11 +643,46 @@ Schema* infere_expression_schema( Node* node )
 			break;
 
 		case T_INT_CONST:
+			result->type = TS_INT;
+			break;
+
 		case T_CHAR_CONST:
+			result->type = TS_CHAR;
+			break;
+
 		case T_REAL_CONST:
+			result->type = TS_REAL;
+			break;
+
 		case T_STR_CONST:
+			result->type = TS_STRING;
+			break;
+
 		case T_BOOL_CONST:
+			result->type = TS_BOOL;
+			break;
+
 		case T_ID:
+			free(result);
+			Symbol* variable = fetch_scope( node->value.s_val );
+			if( variable == NULL )
+				yysemerror( node, STR_UNDECLARED );
+
+			switch( variable->clazz )
+			{
+				case CS_TYPE:
+				case CS_FUNC:
+					yysemerror( node, PRINT_ERROR( STR_CONFLICT_TYPE, "not a variable" ) );
+					break;
+
+				case CS_VAR:
+				case CS_CONST:
+				case CS_PAR:
+					result = fetch_scope( node->value.s_val )->schema;
+					break;
+			}
+			break;
+
 		default:
 			break;
 	}
