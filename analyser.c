@@ -14,6 +14,13 @@
 #define STR_STRUCT_NAMES "record fields must have the same name!"
 #define STR_STRUCT_TYPES "record fields must have the same type!"
 
+#define STR_NO_RETURN "no RETURN indicated or not all paths could end."
+#define STR_CODE_AFTER_RETURN "there is more code after the end of the program."
+#define STR_ID_NOT_DEFINED "no declaration for this id."
+#define STR_ASSIGN_TYPE "this could not be a lhs term."
+#define STR_INDEXING "this statement could not be indexed."
+#define STR_FIELDING "this statement could not be accessed as a record."
+
 #define STR_UNDECLARED "undeclared id"
 #define STR_EMPTY_DECL "empty declaration"
 #define STR_GENERAL "semantic error"
@@ -856,7 +863,7 @@ Boolean schema_check( Schema* first, Schema* second )
 	return TRUE;
 }
 
-Boolean type_check( Node* node )
+Schema* type_check( Node* node )
 {
 	switch( node->value.n_val )
 	{
@@ -874,9 +881,77 @@ Boolean type_check( Node* node )
 			break;
 
 		case N_STAT_LIST:
+		{
+			Boolean has_return = FALSE;
+			Node* current_node = node->child;
+
+			// Cycling on all children of the list
+			while( !has_return && current_node != NULL )
+			{
+				// Keeping track of the return statement
+				// has_return &= type_check( current_node );
+
+				current_node = current_node->brother;
+			}
+
+			if( !has_return )
+				yysemerror( NULL, STR_NO_RETURN );
+			else
+				if( current_node != NULL )
+					yysemerror( NULL, STR_CODE_AFTER_RETURN );
+
+			break;
+		}
+
 		case N_ASSIGN_STAT:
+		{
+			Schema* result = malloc( sizeof( Symbol ) );
+
+			switch( node->child->type )
+			{
+				case T_ID:
+					result = fetch_scope( node->child->value.s_val )->schema;
+					break;
+
+				case T_UNQUALIFIED_NONTERMINAL:
+					switch( node->child->value.n_val )
+					{
+						case N_INDEXING:
+						case N_FIELDING:
+							result = type_check( node->child );
+							break;
+
+						default:
+							yysemerror( node->child, STR_ASSIGN_TYPE );
+					}
+					break;
+
+				default:
+					yysemerror( node, STR_BUG );
+			}
+
+			
+			if( result == NULL )
+				yysemerror( node, STR_ID_NOT_DEFINED );
+			if( result != infere_expression_schema( node->brother ) )
+				yysemerror( node, STR_ASSIGN_TYPE );
+			break;
+		}
+
 		case N_FIELDING:
 		case N_INDEXING:
+		{
+			Schema* result = malloc( sizeof( Symbol ) );
+			result = type_check( node->child );
+
+			if( result->type != TS_VECTOR 
+			 	&& type_check( node->child->brother )->type != TS_INT )
+				yysemerror( node, STR_INDEXING );
+			
+
+			break;
+		}
+
 		case N_IF_STAT:
 		case N_ELSIF_STAT:
 		case N_ELSE_STAT:
@@ -906,7 +981,7 @@ Boolean type_check( Node* node )
  *
  * @param id
  *
- * @return 
+ * @return Returns the Symbol* found or NULL.
  */
 Symbol* fetch_scope( char* id )
 {
