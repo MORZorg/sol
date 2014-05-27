@@ -97,8 +97,11 @@ Symbol* check_function_subtree( Node* node, int oid_absolute )
 		} while( current_child != NULL );
 	}
 
-	// TODO: Processing body of the function
-	//create_symbol_table_element( current_node, 0 );
+	// Check that the function name matches the body and end name
+	if( element->name != current_node->child->value.s_val )
+		yysemerror( current_node, STR_GENERAL );
+
+	type_check( current_node->child->brother );
 
 	if( stacklist_pop( &scope ) )
 		return NULL;
@@ -753,6 +756,49 @@ Boolean schema_check( Schema* first, Schema* second )
 		default:
 			yysemerror( NULL, PRINT_ERROR( STR_BUG, "schema_check" ) );
 			return FALSE;
+			break;
+	}
+
+	return TRUE;
+}
+
+Boolean type_check( Node* node )
+{
+	switch( node->value.n_val )
+	{
+		case N_FUNC_DECL:
+		case N_PAR_LIST:
+		case N_DECL:
+		case N_STRUCT_DOMAIN:
+		case N_VECTOR_DOMAIN:
+		case N_TYPE_SECT:
+		case N_VAR_SECT:
+		case N_CONST_SECT:
+		case N_CONST_DECL:
+		case N_FUNC_LIST:
+		case N_FUNC_BODY:
+		case N_STAT_LIST:
+		case N_ASSIGN_STAT:
+		case N_FIELDING:
+		case N_INDEXING:
+		case N_IF_STAT:
+		case N_ELSIF_STAT:
+		case N_ELSE_STAT:
+		case N_WHILE_STAT:
+		case N_FOR_STAT:
+		case N_FOREACH_STAT:
+		case N_RETURN_STAT:
+		case N_READ_STAT:
+		case N_WRITE_STAT:
+		case N_EXPR:
+		case N_BOOL_TERM:
+		case N_REL_TERM:
+		case N_LOW_TERM:
+		case N_ELSIF_EXPR_LIST:
+		case N_FUNC_CALL:
+		case N_COND_EXPR:
+		case N_DYNAMIC_INPUT:
+		case N_DYNAMIC_OUTPUT:
 			break;
 	}
 
