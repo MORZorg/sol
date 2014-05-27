@@ -809,13 +809,14 @@ Boolean insert_unconflicted_element( Symbol* element )
 int yysemerror( Node* node, char* type )
 {
 	fprintf( stderr, "\n *** ERROR *** \n" );
-	fprintf( stderr, "Line: %d\tType: %d\n", node->line, node->type );
-	tree_print( node, 0 );
 
 	if( node->type == T_ID )
 		fprintf( stdout, "Line %d on symbol '%s': %s.\n", node->line, node->value.s_val, type );
 	else
+	{
+		tree_print( node, 0 );
 		fprintf( stdout, "Line %d: %s.\n", node->line, type );
+	}
 
 	exit( 3 );
 }
