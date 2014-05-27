@@ -562,30 +562,86 @@ Boolean simplify_expression( Node* node )
 
 Schema* infere_expression_schema( Node* node )
 {
-	// FIXME Maybe not to always be allocated
 	Schema* result = malloc( sizeof( Schema ) );
 
 	switch( node->type )
 	{
 		case T_LOGIC_EXPR:
 		case T_REL_EXPR:
-			if( !schema_check( result, infere_expression_schema( node->child->brother ) ) )
+		{
+			free(result);
+			Schema* left_argument = infere_expression_schema( node->child );
+			Schema* right_argument = infere_expression_schema( node->child->brother );
+			if( !schema_check( left_argument, right_argument ) )
 				yysemerror( node, STR_CONFLICT_TYPE );
+
+			switch( node->value.q_val )
+			{
+				/* Logic expr */
+				case Q_AND:
+				case Q_OR:
+					if( left_argument->type != TS_BOOL )
+						yysemerror( node, STR_CONFLICT_TYPE );
+					break;
+
+				/* Rel expr */
+				case Q_EQ:
+				case Q_NEQ:
+					break;
+
+				case Q_GT:
+				case Q_GEQ:
+				case Q_LT:
+				case Q_LEQ:
+					switch( left_argument->type )
+					{
+						case TS_CHAR:
+						case TS_INT:
+						case TS_REAL:
+						case TS_STRING:
+							break;
+
+						default:
+							yysemerror( node, STR_CONFLICT_TYPE );
+					}
+					break;
+
+				case Q_IN:
+					if( right_argument->type != TS_VECTOR
+						|| !schema_check( left_argument, right_argument->child ) )
+						yysemerror( node, STR_CONFLICT_TYPE );
+					break;
+
+				default:
+					yysemerror( node, PRINT_ERROR( STR_BUG, "infere rel/logic expression" ) );
+			}
 			result->type = TS_BOOL;
 			break;
+		}
 
 		case T_MATH_EXPR:
 			free(result);
 			result = infere_expression_schema( node->child );
 			if( !schema_check( result, infere_expression_schema( node->child->brother ) ) )
 				yysemerror( node, STR_CONFLICT_TYPE );
+			if( result->type != TS_INT && result->type != TS_REAL )
+				yysemerror( node, STR_CONFLICT_TYPE );
 			break;
 
 		case T_NEG_EXPR:
 			free(result);
 			result = infere_expression_schema( node->child );
-			if( result->type != TS_INT && result->type != TS_REAL && result->type != TS_BOOL )
-				yysemerror( node, STR_CONFLICT_TYPE );
+			switch( node->value.q_val )
+			{
+				case Q_MINUS:
+					if( result->type != TS_INT && result->type != TS_REAL )
+						yysemerror( node, STR_CONFLICT_TYPE );
+				case Q_NOT:
+					if( result->type != TS_BOOL )
+						yysemerror( node, STR_CONFLICT_TYPE );
+				default:
+					yysemerror( node, PRINT_ERROR( STR_BUG, "infere neg expression" ) );
+			}
 			break;
 
 		case T_INSTANCE_EXPR:
@@ -694,12 +750,45 @@ Schema* infere_expression_schema( Node* node )
 			}
 			break;
 
+		case T_UNQUALIFIED_NONTERMINAL:
+			switch( node->value.n_val )
+			{
+				case N_DYNAMIC_INPUT:
+					if( node->child->brother != NULL )
+					{
+						if( infere_expression_schema( node->child )->type != TS_STRING )
+							yysemerror( node->child, STR_CONFLICT_TYPE );
+
+						result = create_schema( node->child->brother );
+					}
+					else
+						result = create_schema( node->child );
+					break;
+
+				case N_DYNAMIC_OUTPUT:
+					if( node->child->brother != NULL )
+					{
+						if( infere_expression_schema( node->child )->type != TS_STRING )
+							yysemerror( node->child, STR_CONFLICT_TYPE );
+
+						result = infere_expression_schema( node->child->brother );
+					}
+					else
+						result = infere_expression_schema( node->child );
+					break;
+
+				default:
+					yysemerror( node, PRINT_ERROR( STR_BUG, "infere rd/wr" ) );
+			}
+			break;
+
 		default:
 			break;
 	}
 
 	return result;
 }
+
 Boolean schema_check( Schema* first, Schema* second )
 {
 	if( first->type != second->type )
@@ -777,6 +866,8 @@ Boolean type_check( Node* node )
 		case N_CONST_DECL:
 		case N_FUNC_LIST:
 		case N_FUNC_BODY:
+			break;
+
 		case N_STAT_LIST:
 		case N_ASSIGN_STAT:
 		case N_FIELDING:

@@ -348,7 +348,7 @@ high_bin_op : MULTIPLY { $$ = new_qualified_node( T_MATH_EXPR, Q_MULTIPLY ); }
             | DIVIDE { $$ = new_qualified_node( T_MATH_EXPR, Q_DIVIDE ); }
             ;
 
-factor : unary_op factor { $$ = $1; $$->child = $2; }
+factor : unary_op factor { $$ = $1; assign_brother( &($$->child), $2 ); }
        | '(' expr ')' { $$ = $2; }
        | left_hand_side { $$ = $1; }
        | atomic_const { $$ = $1; }
@@ -448,6 +448,7 @@ toreal_call : TOREAL '(' expr ')'
 dynamic_input : RD specifier_opt domain
 				{
 					$$ = new_nonterminal_node( N_DYNAMIC_INPUT );
+
                     if( $2 == NULL )
                         $$->child = $3;
                     else
@@ -461,6 +462,7 @@ dynamic_input : RD specifier_opt domain
 dynamic_output : WR specifier_opt
 				 {
 					$$ = new_nonterminal_node( N_DYNAMIC_OUTPUT );
+
 					$$->child = $2;
 				}
                ;
