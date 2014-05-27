@@ -8,18 +8,18 @@
 
 #define STR_SCHEMA_DIFFERENT "incompatible types"
 
-#define STR_VECTOR_SIZE "vectors must be of the same size!"
-#define STR_VECTOR_TYPE "vector elements must be of the same type!"
+#define STR_VECTOR_SIZE "vectors must be of the same size"
+#define STR_VECTOR_TYPE "vector elements must be of the same type"
 
-#define STR_STRUCT_NAMES "record fields must have the same name!"
-#define STR_STRUCT_TYPES "record fields must have the same type!"
+#define STR_STRUCT_NAMES "record fields must have the same name"
+#define STR_STRUCT_TYPES "record fields must have the same type"
 
-#define STR_NO_RETURN "no RETURN indicated or not all paths could end."
-#define STR_CODE_AFTER_RETURN "there is more code after the end of the program."
-#define STR_ID_NOT_DEFINED "no declaration for this id."
-#define STR_ASSIGN_TYPE "this could not be a lhs term."
-#define STR_INDEXING "this statement could not be indexed."
-#define STR_FIELDING "this statement could not be accessed as a record."
+#define STR_NO_RETURN "no RETURN indicated or not all paths could end"
+#define STR_CODE_AFTER_RETURN "there is more code after the end of the program"
+#define STR_ID_NOT_DEFINED "no declaration for this id"
+#define STR_ASSIGN_TYPE "type mismatch while assigning" //"this could not be a lhs term"
+#define STR_INDEXING "this statement could not be indexed"
+#define STR_FIELDING "this statement could not be accessed as a record"
 
 #define STR_UNDECLARED "undeclared id"
 #define STR_EMPTY_DECL "empty declaration"
@@ -810,7 +810,12 @@ Schema* infere_lhs_schema( Node* node, Boolean isAssigned )
 {
 	if( node->type == T_ID )
 	{
+		fprintf( stderr, "LHS ID '%s'\n", node->value.s_val );
 		Symbol* variable = fetch_scope( node->value.s_val );
+		
+		if( !variable )
+			yysemerror( node, STR_ID_NOT_DEFINED );
+
 		switch( variable->clazz )
 		{
 			case CS_TYPE:
@@ -830,11 +835,12 @@ Schema* infere_lhs_schema( Node* node, Boolean isAssigned )
 		}
 	}
 
-	Schema* result;
+	Schema* result = malloc( sizeof( Schema ) );
 
 	switch( node->value.n_val )
 	{
 		case N_FIELDING:
+			fprintf( stderr, "LHS FIELD\n" );
 			result = infere_lhs_schema( node->child, isAssigned );
 			if( result->type != TS_STRUCT )
 				yysemerror( node->child, PRINT_ERROR( STR_CONFLICT_TYPE, "not a struct" ) );
@@ -852,6 +858,7 @@ Schema* infere_lhs_schema( Node* node, Boolean isAssigned )
 			break;
 
 		case N_INDEXING:
+			fprintf( stderr, "LHS INDEX\n" );
 			result = infere_lhs_schema( node->child, isAssigned );
 			if( result->type != TS_VECTOR )
 				yysemerror( node->child, PRINT_ERROR( STR_CONFLICT_TYPE, "not a vector" ) );
@@ -956,6 +963,7 @@ Boolean type_check( Node* node )
 			// Cycling on all children of the list
 			while( current_node != NULL || current_node->value.n_val != N_RETURN_STAT )
 			{
+				fprintf( stderr, "Checking line %d (%d)\n", current_node->line, current_node->type );
 				// Keeping track of the return statement
 				has_return |= type_check( current_node );
 
@@ -979,34 +987,40 @@ Boolean type_check( Node* node )
 		{
 			Schema* result = malloc( sizeof( Symbol ) );
 
-			switch( node->child->type )
-			{
-				case T_ID:
-					result = fetch_scope( node->child->value.s_val )->schema;
-					break;
+		//	switch( node->child->type )
+		//	{
+		//		case T_ID:
+		//			fprintf( stderr, "Assign ID\n" );
+		//			result = fetch_scope( node->child->value.s_val )->schema;
+		//			break;
 
-				case T_UNQUALIFIED_NONTERMINAL:
-					switch( node->child->value.n_val )
-					{
-						case N_INDEXING:
-						case N_FIELDING:
-							/* result = type_check( node->child ); */
-							break;
+		//		case T_UNQUALIFIED_NONTERMINAL:
+		//			fprintf( stderr, "Assign other\n" );
+		//			switch( node->child->value.n_val )
+		//			{
+		//				case N_INDEXING:
+		//				case N_FIELDING:
+		//					/* result = type_check( node->child ); */
+		//					break;
 
-						default:
-							yysemerror( node->child, STR_ASSIGN_TYPE );
-					}
-					break;
+		//				default:
+		//					yysemerror( node->child, STR_ASSIGN_TYPE );
+		//			}
+		//			break;
 
-				default:
-					yysemerror( node, STR_BUG );
-			}
+		//		default:
+		//			yysemerror( node, STR_BUG );
+		//	}
 
+			result = infere_lhs_schema( node->child, FALSE );
 			
 			if( result == NULL )
 				yysemerror( node, STR_ID_NOT_DEFINED );
-			if( result != infere_expression_schema( node->brother ) )
+			
+			if( result->type != infere_expression_schema( node->child->brother )->type )
 				yysemerror( node, STR_ASSIGN_TYPE );
+
+
 			break;
 		}
 

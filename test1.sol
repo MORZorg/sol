@@ -20,7 +20,8 @@ func prog( a, b: int; c: string; ): int
 
 begin prog
     a = 1;
-    s[ 5 ][ 3 ] = 5.6;
+	-- s[ 5 ][ 3 ] = 5.6;
+    s[ 5 ] = "Carlito";
     q.b = "Carl";
     q.b = "Ca\trl";
     carl.lenny = 1;
