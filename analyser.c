@@ -636,11 +636,16 @@ Schema* infere_expression_schema( Node* node )
 				case Q_MINUS:
 					if( result->type != TS_INT && result->type != TS_REAL )
 						yysemerror( node, STR_CONFLICT_TYPE );
+					break;
+
 				case Q_NOT:
 					if( result->type != TS_BOOL )
 						yysemerror( node, STR_CONFLICT_TYPE );
+					break;
+
 				default:
 					yysemerror( node, PRINT_ERROR( STR_BUG, "infere neg expression" ) );
+					break;
 			}
 			break;
 
