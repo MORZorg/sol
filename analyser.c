@@ -569,14 +569,13 @@ Boolean simplify_expression( Node* node )
 
 Schema* infere_expression_schema( Node* node )
 {
-	Schema* result = malloc( sizeof( Schema ) );
+	Schema* result;
 
 	switch( node->type )
 	{
 		case T_LOGIC_EXPR:
 		case T_REL_EXPR:
 		{
-			free(result);
 			Schema* left_argument = infere_expression_schema( node->child );
 			Schema* right_argument = infere_expression_schema( node->child->brother );
 			if( !schema_check( left_argument, right_argument ) )
@@ -627,7 +626,6 @@ Schema* infere_expression_schema( Node* node )
 		}
 
 		case T_MATH_EXPR:
-			free(result);
 			result = infere_expression_schema( node->child );
 			if( !schema_check( result, infere_expression_schema( node->child->brother ) ) )
 				yysemerror( node, STR_CONFLICT_TYPE );
@@ -636,7 +634,6 @@ Schema* infere_expression_schema( Node* node )
 			break;
 
 		case T_NEG_EXPR:
-			free(result);
 			result = infere_expression_schema( node->child );
 			switch( node->value.q_val )
 			{
@@ -652,11 +649,11 @@ Schema* infere_expression_schema( Node* node )
 
 				default:
 					yysemerror( node, PRINT_ERROR( STR_BUG, "infere neg expression" ) );
-					break;
 			}
 			break;
 
 		case T_INSTANCE_EXPR:
+			result = malloc( sizeof( Schema ) );
 			switch( node->value.q_val )
 			{
 				case Q_STRUCT:
@@ -700,6 +697,7 @@ Schema* infere_expression_schema( Node* node )
 			break;
 
 		case T_BUILT_IN_CALL:
+			result = malloc( sizeof( Schema ) );
 			switch( node->value.q_val )
 			{
 				case Q_TOINT:
@@ -722,27 +720,32 @@ Schema* infere_expression_schema( Node* node )
 			break;
 
 		case T_INT_CONST:
+			result = malloc( sizeof( Schema ) );
 			result->type = TS_INT;
 			break;
 
 		case T_CHAR_CONST:
+			result = malloc( sizeof( Schema ) );
 			result->type = TS_CHAR;
 			break;
 
 		case T_REAL_CONST:
+			result = malloc( sizeof( Schema ) );
 			result->type = TS_REAL;
 			break;
 
 		case T_STR_CONST:
+			result = malloc( sizeof( Schema ) );
 			result->type = TS_STRING;
 			break;
 
 		case T_BOOL_CONST:
+			result = malloc( sizeof( Schema ) );
 			result->type = TS_BOOL;
 			break;
 
 		case T_ID:
-			free(result);
+		{
 			Symbol* variable = fetch_scope( node->value.s_val );
 			if( variable == NULL )
 				yysemerror( node, STR_UNDECLARED );
@@ -757,12 +760,14 @@ Schema* infere_expression_schema( Node* node )
 				case CS_VAR:
 				case CS_CONST:
 				case CS_PAR:
-					result = fetch_scope( node->value.s_val )->schema;
+					result = variable->schema;
 					break;
 			}
 			break;
+		}
 
 		case T_UNQUALIFIED_NONTERMINAL:
+			result = malloc( sizeof( Schema ) );
 			switch( node->value.n_val )
 			{
 				case N_DYNAMIC_INPUT:
@@ -792,6 +797,69 @@ Schema* infere_expression_schema( Node* node )
 				default:
 					yysemerror( node, PRINT_ERROR( STR_BUG, "infere rd/wr" ) );
 			}
+			break;
+
+		default:
+			break;
+	}
+
+	return result;
+}
+
+Schema* infere_lhs_schema( Node* node, Boolean isAssigned )
+{
+	if( node->type == T_ID )
+	{
+		Symbol* variable = fetch_scope( node->value.s_val );
+		switch( variable->clazz )
+		{
+			case CS_TYPE:
+			case CS_FUNC:
+				yysemerror( node, PRINT_ERROR( STR_CONFLICT_TYPE, "not a variable" ) );
+				break;
+
+			case CS_VAR:
+			case CS_PAR:
+				return variable->schema;
+
+			case CS_CONST:
+				if( isAssigned )
+					yysemerror( node, PRINT_ERROR( STR_CONFLICT_TYPE, "not a variable" ) );
+				else
+					return variable->schema;
+		}
+	}
+
+	Schema* result;
+
+	switch( node->value.n_val )
+	{
+		case N_FIELDING:
+			result = infere_lhs_schema( node->child, isAssigned );
+			if( result->type != TS_STRUCT )
+				yysemerror( node->child, PRINT_ERROR( STR_CONFLICT_TYPE, "not a struct" ) );
+
+			result = result->child;
+			while( result != NULL )
+			{
+				if( result->id == node->child->brother->value.s_val )
+					return result->child;
+
+				result = result->brother;
+			}
+
+			yysemerror( node->child->brother, PRINT_ERROR( STR_UNDECLARED, "not a struct attribute" ) );
+			break;
+
+		case N_INDEXING:
+			result = infere_lhs_schema( node->child, isAssigned );
+			if( result->type != TS_VECTOR )
+				yysemerror( node->child, PRINT_ERROR( STR_CONFLICT_TYPE, "not a vector" ) );
+
+			if( infere_expression_schema( node->child->brother )->type != TS_INT )
+				yysemerror( node->child, PRINT_ERROR( STR_CONFLICT_TYPE, "expression must be integer" ) );
+			
+			result = result->child;
 			break;
 
 		default:
@@ -863,7 +931,7 @@ Boolean schema_check( Schema* first, Schema* second )
 	return TRUE;
 }
 
-Schema* type_check( Node* node )
+Boolean type_check( Node* node )
 {
 	switch( node->value.n_val )
 	{
@@ -886,19 +954,23 @@ Schema* type_check( Node* node )
 			Node* current_node = node->child;
 
 			// Cycling on all children of the list
-			while( !has_return && current_node != NULL )
+			while( current_node != NULL || current_node->value.n_val != N_RETURN_STAT )
 			{
 				// Keeping track of the return statement
-				// has_return &= type_check( current_node );
+				has_return |= type_check( current_node );
 
 				current_node = current_node->brother;
 			}
 
-			if( !has_return )
+			if( current_node == NULL && !has_return )
 				yysemerror( NULL, STR_NO_RETURN );
 			else
-				if( current_node != NULL )
+			{
+				type_check( current_node );
+
+				if( current_node->brother != NULL )
 					yysemerror( NULL, STR_CODE_AFTER_RETURN );
+			}
 
 			break;
 		}
@@ -918,7 +990,7 @@ Schema* type_check( Node* node )
 					{
 						case N_INDEXING:
 						case N_FIELDING:
-							result = type_check( node->child );
+							/* result = type_check( node->child ); */
 							break;
 
 						default:
@@ -940,18 +1012,6 @@ Schema* type_check( Node* node )
 
 		case N_FIELDING:
 		case N_INDEXING:
-		{
-			Schema* result = malloc( sizeof( Symbol ) );
-			result = type_check( node->child );
-
-			if( result->type != TS_VECTOR 
-			 	&& type_check( node->child->brother )->type != TS_INT )
-				yysemerror( node, STR_INDEXING );
-			
-
-			break;
-		}
-
 		case N_IF_STAT:
 		case N_ELSIF_STAT:
 		case N_ELSE_STAT:

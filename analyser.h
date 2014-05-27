@@ -61,8 +61,9 @@ Boolean simplify_expression( Node* );
 Boolean insert_unconflicted_element( Symbol* );
 int associate_formals_parameters( Node*, Symbol* );
 Schema* infere_expression_schema( Node* );
+Schema* infere_lhs_schema( Node*, Boolean );
 Boolean schema_check( Schema*, Schema* );
-Schema* type_check( Node* );
+Boolean type_check( Node* );
 
 int yysemerror( Node*, char* );
 
