@@ -16,7 +16,7 @@ func prog( a, b: int; c: string; ): int
 			PINO: struct( a, b: int; ) = struct( 3, 5 );
 			NAME: T2 = "alpha";
 			VECT: vector [ 5 ] of real = vector( 2.0, 3.12, 4.67, 1.1, 23.0 );
-			MAT: vector [ 2 ] of vector [ 5 ] of real = vector( VECT, vector( x, y, toreal( z ), 10.0, x + y * toreal( -z ) ) );
+			MAT: vector [ 2 ] of vector [ 5 ] of real = vector( VECT, vector( x, y, toreal( toint( toreal( z ) ) ), 10.0, x + y * toreal( -z ) ) );
 
 begin prog
     a = 1;
