@@ -629,6 +629,7 @@ Schema* infere_expression_schema( Node* node )
 				default:
 					yysemerror( node, PRINT_ERROR( STR_BUG, "infere rel/logic expression" ) );
 			}
+			result = malloc( sizeof( Schema ) );
 			result->type = TS_BOOL;
 			break;
 		}
@@ -995,25 +996,21 @@ Boolean type_check( Node* node )
 			Node* current_node = node->child;
 
 			// Cycling on all children of the list
-			while( current_node != NULL || current_node->value.n_val != N_RETURN_STAT )
+			//while( current_node != NULL && current_node->value.n_val != N_RETURN_STAT )
+			while( current_node != NULL && !has_return )
 			{
 				fprintf( stderr, "Checking line %d (%d)\n", current_node->line, current_node->type );
 				// Keeping track of the return statement
-				// FIXME: does this really work?
 				has_return |= type_check( current_node );
 
 				current_node = current_node->brother;
 			}
 
-			if( current_node == NULL && !has_return )
-				yysemerror( NULL, STR_NO_RETURN );
+			if( !has_return )
+				yysemerror( node, STR_NO_RETURN );
 			else
-			{
-				type_check( current_node );
-
-				if( current_node->brother != NULL )
-					yysemerror( NULL, STR_CODE_AFTER_RETURN );
-			}
+				if( current_node != NULL )
+					yysemerror( current_node, STR_CODE_AFTER_RETURN );
 
 			break;
 		}
@@ -1101,6 +1098,8 @@ Boolean type_check( Node* node )
 		case N_WHILE_STAT:
 		case N_FOR_STAT:
 		case N_FOREACH_STAT:
+			break;
+
 		case N_RETURN_STAT:
 		{
 			// Looking the return type of the actual function and check if it's equal to the type of
@@ -1108,6 +1107,8 @@ Boolean type_check( Node* node )
 			// ☆*:.｡. o(≧▽≦)o .｡.:*☆ 
 			if( infere_expression_schema( node->child )->type != ( (Symbol*) scope->function )->schema->type )
 				yysemerror( node, STR_RETURN_TYPE );
+
+			has_return = TRUE;
 			break;
 		}
 
@@ -1125,7 +1126,7 @@ Boolean type_check( Node* node )
 			break;
 	}
 
-	return TRUE;
+	return has_return;
 }
 
 /**
