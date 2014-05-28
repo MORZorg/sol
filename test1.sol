@@ -11,6 +11,7 @@ func prog( a, b: int; c: string; ): int
 			s, t: T5;
             q: struct( a: int; b: T4; );
 			d: vector [ 100 ] of int;
+			carl: struct( lenny: int; );
 			
 	const 	MAX: int = 100;
 			PINO: struct( a, b: int; ) = struct( 3, 5 );
@@ -27,6 +28,7 @@ begin prog
     carl.lenny = 1;
     if q.b == "ciao" then
         q.a = 4;
+		d[0] = 1;
     elsif not false != false then
         q.a = 3;
     else

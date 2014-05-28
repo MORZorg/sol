@@ -21,6 +21,10 @@
 #define STR_INDEXING "this statement could not be indexed"
 #define STR_FIELDING "this statement could not be accessed as a record"
 
+#define STR_COND_EXPR "the if condition must be boolean"
+
+#define STR_RETURN_TYPE "the return type mismatches the type of the function"
+
 #define STR_UNDECLARED "undeclared id"
 #define STR_EMPTY_DECL "empty declaration"
 #define STR_GENERAL "semantic error"
@@ -794,6 +798,11 @@ Schema* infere_expression_schema( Node* node )
 						result = infere_expression_schema( node->child );
 					break;
 
+				case N_FIELDING:
+				case N_INDEXING:
+					result = infere_lhs_schema( node, FALSE );
+					break;
+
 				default:
 					yysemerror( node, PRINT_ERROR( STR_BUG, "infere rd/wr" ) );
 			}
@@ -940,6 +949,8 @@ Boolean schema_check( Schema* first, Schema* second )
 
 Boolean type_check( Node* node )
 {
+	Boolean has_return = FALSE;
+
 	switch( node->value.n_val )
 	{
 		case N_FUNC_DECL:
@@ -957,7 +968,6 @@ Boolean type_check( Node* node )
 
 		case N_STAT_LIST:
 		{
-			Boolean has_return = FALSE;
 			Node* current_node = node->child;
 
 			// Cycling on all children of the list
@@ -965,6 +975,7 @@ Boolean type_check( Node* node )
 			{
 				fprintf( stderr, "Checking line %d (%d)\n", current_node->line, current_node->type );
 				// Keeping track of the return statement
+				// FIXME: does this really work?
 				has_return |= type_check( current_node );
 
 				current_node = current_node->brother;
@@ -987,31 +998,6 @@ Boolean type_check( Node* node )
 		{
 			Schema* result = malloc( sizeof( Symbol ) );
 
-		//	switch( node->child->type )
-		//	{
-		//		case T_ID:
-		//			fprintf( stderr, "Assign ID\n" );
-		//			result = fetch_scope( node->child->value.s_val )->schema;
-		//			break;
-
-		//		case T_UNQUALIFIED_NONTERMINAL:
-		//			fprintf( stderr, "Assign other\n" );
-		//			switch( node->child->value.n_val )
-		//			{
-		//				case N_INDEXING:
-		//				case N_FIELDING:
-		//					/* result = type_check( node->child ); */
-		//					break;
-
-		//				default:
-		//					yysemerror( node->child, STR_ASSIGN_TYPE );
-		//			}
-		//			break;
-
-		//		default:
-		//			yysemerror( node, STR_BUG );
-		//	}
-
 			result = infere_lhs_schema( node->child, FALSE );
 			
 			if( result == NULL )
@@ -1020,19 +1006,88 @@ Boolean type_check( Node* node )
 			if( result->type != infere_expression_schema( node->child->brother )->type )
 				yysemerror( node, STR_ASSIGN_TYPE );
 
-
 			break;
 		}
 
 		case N_FIELDING:
 		case N_INDEXING:
+			// TODO: I don't get how now :(
+			break;
+
 		case N_IF_STAT:
+		{
+			// Checking if the type of the conditional expression is a boolean
+			if( infere_expression_schema( node->child )->type != TS_BOOL )
+				yysemerror( node, STR_COND_EXPR );
+
+			Node* current_node = node->child->brother;
+			while( current_node->value.n_val != N_ELSIF_STAT
+				   && current_node->value.n_val != N_ELSE_STAT )
+			{
+				has_return |= type_check( current_node );
+
+				current_node = current_node->brother;
+			}
+
+			has_return &= type_check( current_node );
+			if( current_node->brother != NULL )
+				has_return &= type_check( current_node->brother );
+
+			break;
+		}
+
 		case N_ELSIF_STAT:
+		{
+			Node* current_node = node->child;
+
+			while( current_node != NULL )
+			{
+				if( infere_expression_schema( current_node )->type != TS_BOOL )
+					yysemerror( current_node, STR_COND_EXPR );
+
+				current_node = current_node->brother;
+				// FIXME: could happen to have two consecutive cond_expr?
+				
+				while( current_node != NULL
+					   && current_node->type != T_LOGIC_EXPR
+					   && current_node->type != T_REL_EXPR
+					   && ( current_node->type != T_NEG_EXPR && current_node->value.q_val != Q_NOT )
+					 )
+				{
+					has_return |= type_check( current_node );
+					current_node = current_node->brother;
+				}
+
+				//current_node = current_node->brother;
+			}
+
+			break;
+		}
+
 		case N_ELSE_STAT:
+		{
+			Node* current_node = node->child;
+			while( current_node != NULL )
+			{
+				has_return |= type_check( current_node );
+				current_node = current_node->brother;
+			}
+			break;
+		}
+
 		case N_WHILE_STAT:
 		case N_FOR_STAT:
 		case N_FOREACH_STAT:
 		case N_RETURN_STAT:
+		{
+			// Looking the return type of the actual function and check if it's equal to the type of
+			//  of the return expression.
+			// TODO: FIXME: ☆*:.｡. o(≧▽≦)o .｡.:*☆ 
+			//if( infere_expression_schema( node->child )->type != (*scope)->schema->type )
+				//yysemerror( node, STR_RETURN_TYPE );
+			break;
+		}
+
 		case N_READ_STAT:
 		case N_WRITE_STAT:
 		case N_EXPR:
