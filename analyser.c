@@ -25,6 +25,10 @@
 
 #define STR_RETURN_TYPE "the return type mismatches the type of the function"
 
+#define STR_TOO_FEW_PARAM "not enough parameters for that function call"
+#define STR_TOO_MANY_PARAM "too many parameters for that function call"
+#define STR_PARAM_TYPE "mismatch type between actual and formal parameters"
+
 #define STR_UNDECLARED "undeclared id"
 #define STR_EMPTY_DECL "empty declaration"
 #define STR_GENERAL "semantic error"
@@ -64,7 +68,7 @@ Symbol* check_function_subtree( Node* node, int oid_absolute )
 	Symbol* element = create_symbol_table_element( node, &oid_absolute );
 
 	// Updating the scope with the new function just created
-	if( stacklist_push( &scope, (stacklist_t) element->locenv ) )
+	if( stacklist_push( &scope, (stacklist_t) element ) )
 		return NULL;
 
 	// Skipping the ID name of the function and look if there are parameters
@@ -803,8 +807,31 @@ Schema* infere_expression_schema( Node* node )
 					result = infere_lhs_schema( node, FALSE );
 					break;
 
+				case N_FUNC_CALL:
+				{
+					Symbol* function = fetch_scope( node->child->value.s_val );
+					result = function->schema;
+
+					int i;
+					Node* current_node = node->child->brother;
+					for( i = 0; i < function->formals_size; i++ )
+					{
+						if( current_node == NULL )
+							yysemerror( node, STR_TOO_FEW_PARAM );
+
+						if( !schema_check( function->formals[ i ]->schema, infere_expression_schema( current_node ) ) )
+							yysemerror( current_node, STR_PARAM_TYPE );
+
+						current_node = current_node->brother;
+					}
+
+					if( current_node != NULL )
+						yysemerror( node, STR_TOO_MANY_PARAM );
+					break;
+				}
+
 				default:
-					yysemerror( node, PRINT_ERROR( STR_BUG, "infere rd/wr" ) );
+					yysemerror( node, PRINT_ERROR( STR_BUG, "infere unknown T_UNQUALIFIED_NONTERMINAL" ) );
 			}
 			break;
 
@@ -819,7 +846,6 @@ Schema* infere_lhs_schema( Node* node, Boolean isAssigned )
 {
 	if( node->type == T_ID )
 	{
-		fprintf( stderr, "LHS ID '%s'\n", node->value.s_val );
 		Symbol* variable = fetch_scope( node->value.s_val );
 		
 		if( !variable )
@@ -849,7 +875,6 @@ Schema* infere_lhs_schema( Node* node, Boolean isAssigned )
 	switch( node->value.n_val )
 	{
 		case N_FIELDING:
-			fprintf( stderr, "LHS FIELD\n" );
 			result = infere_lhs_schema( node->child, isAssigned );
 			if( result->type != TS_STRUCT )
 				yysemerror( node->child, PRINT_ERROR( STR_CONFLICT_TYPE, "not a struct" ) );
@@ -867,7 +892,6 @@ Schema* infere_lhs_schema( Node* node, Boolean isAssigned )
 			break;
 
 		case N_INDEXING:
-			fprintf( stderr, "LHS INDEX\n" );
 			result = infere_lhs_schema( node->child, isAssigned );
 			if( result->type != TS_VECTOR )
 				yysemerror( node->child, PRINT_ERROR( STR_CONFLICT_TYPE, "not a vector" ) );
@@ -998,7 +1022,7 @@ Boolean type_check( Node* node )
 		{
 			Schema* result = malloc( sizeof( Symbol ) );
 
-			result = infere_lhs_schema( node->child, FALSE );
+			result = infere_lhs_schema( node->child, TRUE );
 			
 			if( result == NULL )
 				yysemerror( node, STR_ID_NOT_DEFINED );
@@ -1064,8 +1088,7 @@ Boolean type_check( Node* node )
 			break;
 		}
 
-		case N_ELSE_STAT:
-		{
+	case N_ELSE_STAT: {
 			Node* current_node = node->child;
 			while( current_node != NULL )
 			{
@@ -1082,9 +1105,9 @@ Boolean type_check( Node* node )
 		{
 			// Looking the return type of the actual function and check if it's equal to the type of
 			//  of the return expression.
-			// TODO: FIXME: ☆*:.｡. o(≧▽≦)o .｡.:*☆ 
-			//if( infere_expression_schema( node->child )->type != (*scope)->schema->type )
-				//yysemerror( node, STR_RETURN_TYPE );
+			// ☆*:.｡. o(≧▽≦)o .｡.:*☆ 
+			if( infere_expression_schema( node->child )->type != ( (Symbol*) scope->function )->schema->type )
+				yysemerror( node, STR_RETURN_TYPE );
 			break;
 		}
 
@@ -1117,13 +1140,17 @@ Symbol* fetch_scope( char* id )
 	Symbol* result = NULL;
 
 	stacklist current_scope = scope;
-	while( current_scope != NULL )
+	while( current_scope->next != NULL )
 	{
-		if( hashmap_get( current_scope->table, id, (any_t*) &result ) == MAP_OK )
+		if( hashmap_get( ( (Symbol*) current_scope->function )->locenv, id, (any_t*) &result ) == MAP_OK )
 			break;
 
 		current_scope = current_scope->next;
 	}
+
+	if( hashmap_get( ( (Symbol*) current_scope->function )->locenv, id, (any_t*) &result ) != MAP_OK )
+		if( ( (Symbol*) current_scope->function )->name == id )
+			result = (Symbol*) current_scope->function;
 
 	return result;
 }
@@ -1140,7 +1167,7 @@ Boolean insert_unconflicted_element( Symbol* element )
 	if( fetch_scope( element->name ) != NULL )
 		return FALSE;
 
-	hashmap_put( scope->table, element->name, element );
+	hashmap_put( ( (Symbol*) scope->function )->locenv, element->name, element );
 	return TRUE;
 }
 

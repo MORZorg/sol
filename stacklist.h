@@ -1,7 +1,7 @@
-#include <stdlib.h>
-
 #ifndef __STACKLIST_H__
 #define __STACKLIST_H__
+
+#include <stdlib.h>
 
 #define STACK_OK 0
 #define STACK_ERROR -1
@@ -11,7 +11,7 @@ typedef struct entry* stacklist;
 
 typedef struct entry
 {
-	stacklist_t table;
+	stacklist_t function;
 	struct entry* next;
 } Entry;
 

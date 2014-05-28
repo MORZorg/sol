@@ -33,7 +33,7 @@ begin prog
         q.a = 3;
     else
         q.a = b;
-        return prog(q.a, a, q.b);
+        return prog(q.a, q.a, q.b);
     endif;
 
     while q.a >= 0 do

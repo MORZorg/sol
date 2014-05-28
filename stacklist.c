@@ -1,21 +1,21 @@
 #include "stacklist.h"
 
-Entry* new_entry( stacklist_t table )
+Entry* new_entry( stacklist_t function )
 {
 	Entry* result = malloc( sizeof( Entry ) );
 
 	if( !result )
 		return NULL; 
 
-	result->table = table;
+	result->function = function;
 	result->next = NULL;
 
 	return result;
 }
 
-int stacklist_push( stacklist* stack, stacklist_t table )
+int stacklist_push( stacklist* stack, stacklist_t function )
 {
-	Entry* result = new_entry( table );
+	Entry* result = new_entry( function );
 
 	if( !result )
 		return STACK_ERROR;
