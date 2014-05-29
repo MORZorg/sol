@@ -5,6 +5,7 @@
 #define STR_CONFLICT_SCOPE "conflicting declaration (same variable defined twice in the same scope)"
 #define STR_CONFLICT_STRUCT "conflicting declaration (same field defined twice in the same struct)"
 #define STR_CONFLICT_TYPE "conflicting types"
+#define STR_WRONG_CLASS "wrong class"
 
 #define STR_SCHEMA_DIFFERENT "incompatible types"
 
@@ -16,8 +17,7 @@
 
 #define STR_NO_RETURN "no RETURN indicated or not all paths could end"
 #define STR_CODE_AFTER_RETURN "there is more code after the end of the program"
-#define STR_ID_NOT_DEFINED "no declaration for this id"
-#define STR_ASSIGN_TYPE "type mismatch while assigning" //"this could not be a lhs term"
+#define STR_ASSIGN_TYPE "type mismatch while assigning" // "this could not be a lhs term"
 #define STR_INDEXING "this statement could not be indexed"
 #define STR_FIELDING "this statement could not be accessed as a record"
 
@@ -754,26 +754,8 @@ Schema* infere_expression_schema( Node* node )
 			break;
 
 		case T_ID:
-		{
-			Symbol* variable = fetch_scope( node->value.s_val );
-			if( variable == NULL )
-				yysemerror( node, STR_UNDECLARED );
-
-			switch( variable->clazz )
-			{
-				case CS_TYPE:
-				case CS_FUNC:
-					yysemerror( node, PRINT_ERROR( STR_CONFLICT_TYPE, "not a variable" ) );
-					break;
-
-				case CS_VAR:
-				case CS_CONST:
-				case CS_PAR:
-					result = variable->schema;
-					break;
-			}
-			break;
-		}
+            result = infere_lhs_schema( node, FALSE );
+            break;
 
 		case T_UNQUALIFIED_NONTERMINAL:
 			result = malloc( sizeof( Schema ) );
@@ -848,15 +830,14 @@ Schema* infere_lhs_schema( Node* node, Boolean isAssigned )
 	if( node->type == T_ID )
 	{
 		Symbol* variable = fetch_scope( node->value.s_val );
-		
 		if( !variable )
-			yysemerror( node, STR_ID_NOT_DEFINED );
+			yysemerror( node, STR_UNDECLARED );
 
 		switch( variable->clazz )
 		{
 			case CS_TYPE:
 			case CS_FUNC:
-				yysemerror( node, PRINT_ERROR( STR_CONFLICT_TYPE, "not a variable" ) );
+				yysemerror( node, PRINT_ERROR( STR_WRONG_CLASS, "not a variable" ) );
 				break;
 
 			case CS_VAR:
@@ -865,7 +846,7 @@ Schema* infere_lhs_schema( Node* node, Boolean isAssigned )
 
 			case CS_CONST:
 				if( isAssigned )
-					yysemerror( node, PRINT_ERROR( STR_CONFLICT_TYPE, "not a variable" ) );
+					yysemerror( node, PRINT_ERROR( STR_WRONG_CLASS, "can't assign a constant" ) );
 				else
 					return variable->schema;
 		}
@@ -989,6 +970,7 @@ Boolean type_check( Node* node )
 		case N_CONST_DECL:
 		case N_FUNC_LIST:
 		case N_FUNC_BODY:
+			// TODO Remove?
 			break;
 
 		case N_STAT_LIST:
@@ -1022,7 +1004,7 @@ Boolean type_check( Node* node )
 			result = infere_lhs_schema( node->child, TRUE );
 			
 			if( result == NULL )
-				yysemerror( node, STR_ID_NOT_DEFINED );
+				yysemerror( node, STR_UNDECLARED );
 			
 			if( result->type != infere_expression_schema( node->child->brother )->type )
 				yysemerror( node, STR_ASSIGN_TYPE );
@@ -1032,7 +1014,7 @@ Boolean type_check( Node* node )
 
 		case N_FIELDING:
 		case N_INDEXING:
-			// TODO: I don't get how now :(
+			// TODO Remove?
 			break;
 
 		case N_IF_STAT:
@@ -1085,7 +1067,8 @@ Boolean type_check( Node* node )
 			break;
 		}
 
-	case N_ELSE_STAT: {
+		case N_ELSE_STAT:
+		{
 			Node* current_node = node->child;
 			while( current_node != NULL )
 			{
@@ -1096,9 +1079,66 @@ Boolean type_check( Node* node )
 		}
 
 		case N_WHILE_STAT:
-		case N_FOR_STAT:
-		case N_FOREACH_STAT:
 			break;
+
+		case N_FOR_STAT:
+		{
+			Node* current_node = node->child;
+			Symbol* iterable_variable = fetch_scope( current_node->value.s_val );
+			if( iterable_variable == NULL )
+				yysemerror( current_node, STR_UNDECLARED );
+			ClassSymbol iterable_variable_class = iterable_variable->clazz;
+			switch( iterable_variable_class )
+			{
+				case CS_VAR:
+				case CS_PAR:
+					iterable_variable->clazz = CS_CONST;
+					break;
+
+				default:
+					yysemerror( current_node, PRINT_ERROR( STR_WRONG_CLASS, "not a variable" ) );
+			}
+			if( iterable_variable->schema->type != TS_INT )
+				yysemerror( current_node, PRINT_ERROR( STR_CONFLICT_TYPE, "expected integer" ) );
+
+			if( infere_expression_schema( current_node = current_node->brother )->type != TS_INT )
+				yysemerror( current_node, PRINT_ERROR( STR_CONFLICT_TYPE, "expected integer" ) );
+			if( infere_expression_schema( current_node = current_node->brother )->type != TS_INT )
+				yysemerror( current_node, PRINT_ERROR( STR_CONFLICT_TYPE, "expected integer" ) );
+
+			for( current_node = current_node->brother; current_node != NULL; current_node = current_node->brother )
+				type_check( current_node );
+
+			iterable_variable->clazz = iterable_variable_class;
+			break;
+		}
+
+		case N_FOREACH_STAT:
+		{
+			Node* current_node = node->child;
+			Symbol* iterable_variable = fetch_scope( current_node->value.s_val );
+			if( iterable_variable == NULL )
+				yysemerror( current_node, STR_UNDECLARED );
+			// TODO Can this variable be assigned?
+			switch( iterable_variable->clazz )
+			{
+				case CS_VAR:
+				case CS_PAR:
+					break;
+
+				default:
+					yysemerror( current_node, PRINT_ERROR( STR_WRONG_CLASS, "not a variable" ) );
+			}
+
+			Schema* iterated_expression = infere_expression_schema( current_node = current_node->brother );
+			if( iterated_expression->type != TS_VECTOR || !schema_check( iterable_variable->schema, iterated_expression->child ) )
+				yysemerror( current_node, PRINT_ERROR( STR_CONFLICT_TYPE, "expected vector of the same type as the iterable variable" ) );
+
+			for( current_node = current_node->brother; current_node != NULL; current_node = current_node->brother )
+				type_check( current_node );
+
+			break;
+		}
 
 		case N_RETURN_STAT:
 		{

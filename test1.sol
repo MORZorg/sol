@@ -40,12 +40,12 @@ begin prog
         q.a = q.a + -1;
     endwhile;
 
-    for j = 4 / 2 to toint( 3 / 1 * 1 ) do
-        a[ j ] = j;
+    for j = 4 / 2 to 3 / 1 * toint( 1.1 ) do
+        d[ j ] = j;
     endfor;
 
-    foreach j in a do
-        a[ j ] = a[ j ];
+    foreach j in d do
+        d[ j ] = -d[ j ];
     endforeach;
 
     read [ "asd" ] z;
