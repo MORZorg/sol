@@ -21,7 +21,7 @@
 #define STR_INDEXING "this statement could not be indexed"
 #define STR_FIELDING "this statement could not be accessed as a record"
 
-#define STR_COND_EXPR "the if condition must be boolean"
+#define STR_COND_EXPR "the condition must be boolean"
 
 #define STR_RETURN_TYPE "the return type mismatches the type of the function"
 
@@ -1102,7 +1102,19 @@ Boolean type_check( Node* node )
 		}
 
 		case N_WHILE_STAT:
-			break;
+		{
+			if( infere_expression_schema( node->child )->type != TS_BOOL )
+				yysemerror( node, STR_COND_EXPR );
+			
+			// TODO: Check for totally trueness of condition for the return value
+			Node* current_node = node->child->brother;
+			while( current_node == NULL )
+			{
+				type_check( current_node );
+				current_node = current_node->brother;
+			}
+		    break;
+		}
 
 		case N_FOR_STAT:
 		{
