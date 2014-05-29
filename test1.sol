@@ -49,8 +49,8 @@ begin prog
     endforeach;
 
     read [ "asd" ] z;
-    write [ "asd" + "pino" ] t;
-	write if a > 3 then toint( a ) else toreal( a ) endif;
+    write [ "asdpino" ] t;
+	write if a > 3 then toreal( a ) elsif a > 2 then toreal( a + 0 ) elsif a > 1 then toreal( a + 1 - 1 ) else toreal( a * 1 ) endif;
 
     return i;
 end prog

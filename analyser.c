@@ -813,12 +813,34 @@ Schema* infere_expression_schema( Node* node )
 					break;
 				}
 
+				case N_COND_EXPR:
+				{
+					Node* current_node = node->child;
+					if( infere_expression_schema( current_node )->type != TS_BOOL )
+						yysemerror( current_node, STR_COND_EXPR );
+
+					result = infere_expression_schema( current_node = current_node->brother );
+					for( current_node = current_node->brother; current_node != NULL; current_node = current_node->brother )
+						if( !schema_check( result, infere_expression_schema( current_node ) ) )
+							yysemerror( current_node, STR_CONFLICT_TYPE );
+
+					break;
+				}
+
+				case N_ELSIF_EXPR:
+					if( infere_expression_schema( node->child )->type != TS_BOOL )
+						yysemerror( node->child, STR_COND_EXPR );
+
+					result = infere_expression_schema( node->child->brother );
+					break;
+
 				default:
 					yysemerror( node, PRINT_ERROR( STR_BUG, "infere unknown T_UNQUALIFIED_NONTERMINAL" ) );
 			}
 			break;
 
 		default:
+			yysemerror( node, PRINT_ERROR( STR_BUG, "infere unknown type" ) );
 			break;
 	}
 
@@ -885,6 +907,7 @@ Schema* infere_lhs_schema( Node* node, Boolean isAssigned )
 			break;
 
 		default:
+			yysemerror( node, PRINT_ERROR( STR_BUG, "unknown unqualified nonterminal expression" ) );
 			break;
 	}
 
@@ -1153,12 +1176,56 @@ Boolean type_check( Node* node )
 		}
 
 		case N_READ_STAT:
+		{
+			Node* id_node;
+			if( node->child->brother != NULL )
+			{
+				id_node = node->child->brother;
+
+				if( infere_expression_schema( node->child )->type != TS_STRING )
+					yysemerror( node->child, PRINT_ERROR( STR_CONFLICT_TYPE, "expected string" ) );
+			}
+			else
+				id_node = node->child;
+
+			Symbol* destination_variable = fetch_scope( id_node->value.s_val );
+			if( destination_variable == NULL )
+				yysemerror( id_node, STR_UNDECLARED );
+			switch( destination_variable->clazz )
+			{
+				case CS_VAR:
+				case CS_PAR:
+					break;
+
+				default:
+					yysemerror( id_node, PRINT_ERROR( STR_WRONG_CLASS, "not a variable" ) );
+			}
+
+			break;
+		}
+
 		case N_WRITE_STAT:
+		{
+			Node* expr_node;
+			if( node->child->brother != NULL )
+			{
+				expr_node = node->child->brother;
+
+				if( infere_expression_schema( node->child )->type != TS_STRING )
+					yysemerror( node->child, PRINT_ERROR( STR_CONFLICT_TYPE, "expected string" ) );
+			}
+			else
+				expr_node = node->child;
+
+			infere_expression_schema( expr_node );
+			break;
+		}
+
 		case N_EXPR:
 		case N_BOOL_TERM:
 		case N_REL_TERM:
 		case N_LOW_TERM:
-		case N_ELSIF_EXPR_LIST:
+		case N_ELSIF_EXPR:
 		case N_FUNC_CALL:
 		case N_COND_EXPR:
 		case N_DYNAMIC_INPUT:

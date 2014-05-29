@@ -418,11 +418,12 @@ cond_expr : IF expr THEN expr elsif_expr_list_opt ELSE expr ENDIF
 
 elsif_expr_list_opt : ELSIF expr THEN expr elsif_expr_list_opt
 					  {
-						$$ = new_nonterminal_node( N_ELSIF_EXPR_LIST );
+						$$ = new_nonterminal_node( N_ELSIF_EXPR );
 						$$->child = $2;
 						Node **current = &( $$->child->brother );
 						current = assign_brother( current, $4 );
-						current = assign_brother( current, $5 );
+						/* assign_brother( current, $5 ); */
+						$$->brother = $5;
 					  }
                     | { $$ = NULL; }
                     ;
