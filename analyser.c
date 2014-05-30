@@ -213,6 +213,7 @@ void analyse_decl_list( Node* node, int* oid, ClassSymbol clazz, Boolean hasAssi
 			domain_node = get_last_brother( type_node );
 
 		Schema* domain_schema = create_schema( domain_node );
+		simplify_expression( domain_node->brother );
 		if( hasAssignment && !schema_check( domain_schema, infere_expression_schema( domain_node->brother ) ) )
 			yysemerror( node, STR_CONFLICT_TYPE );
 		
@@ -451,6 +452,7 @@ Boolean simplify_expression( Node* node )
 		case T_BOOL_CONST:
 			return TRUE;
 
+		case T_ID_DOMAIN:
 		case T_ID:
 			return FALSE;
 
@@ -462,7 +464,7 @@ Boolean simplify_expression( Node* node )
 	Node* right_child = left_child->brother;
 	if( simplify_expression( left_child ) && simplify_expression( right_child ) )
 	{
-		if( left_child->type != right_child->type )
+		if( right_child != NULL && left_child->type != right_child->type )
 			yysemerror( node, STR_CONFLICT_TYPE );
 
 		switch( node->type )
@@ -902,6 +904,7 @@ Schema* infere_lhs_schema( Node* node, Boolean isAssigned )
 			if( result->type != TS_VECTOR )
 				yysemerror( node->child, PRINT_ERROR( STR_CONFLICT_TYPE, "not a vector" ) );
 
+			simplify_expression( node->child->brother );
 			if( infere_expression_schema( node->child->brother )->type != TS_INT )
 				yysemerror( node->child, PRINT_ERROR( STR_CONFLICT_TYPE, "expression must be integer" ) );
 			
@@ -1031,6 +1034,7 @@ Boolean type_check( Node* node )
 			if( result == NULL )
 				yysemerror( node, STR_UNDECLARED );
 			
+			simplify_expression( node->child->brother );
 			if( result->type != infere_expression_schema( node->child->brother )->type )
 				yysemerror( node, STR_ASSIGN_TYPE );
 
@@ -1045,6 +1049,7 @@ Boolean type_check( Node* node )
 		case N_IF_STAT:
 		{
 			// Checking if the type of the conditional expression is a boolean
+			simplify_expression( node->child );
 			if( infere_expression_schema( node->child )->type != TS_BOOL )
 				yysemerror( node, STR_COND_EXPR );
 
@@ -1070,6 +1075,7 @@ Boolean type_check( Node* node )
 
 			while( current_node != NULL )
 			{
+				simplify_expression( current_node );
 				if( infere_expression_schema( current_node )->type != TS_BOOL )
 					yysemerror( current_node, STR_COND_EXPR );
 
@@ -1105,6 +1111,7 @@ Boolean type_check( Node* node )
 
 		case N_WHILE_STAT:
 		{
+			simplify_expression( node->child );
 			if( infere_expression_schema( node->child )->type != TS_BOOL )
 				yysemerror( node, STR_COND_EXPR );
 			
@@ -1138,9 +1145,11 @@ Boolean type_check( Node* node )
 			if( iterable_variable->schema->type != TS_INT )
 				yysemerror( current_node, PRINT_ERROR( STR_CONFLICT_TYPE, "expected integer" ) );
 
-			if( infere_expression_schema( current_node = current_node->brother )->type != TS_INT )
+			simplify_expression( current_node = current_node->brother );
+			if( infere_expression_schema( current_node )->type != TS_INT )
 				yysemerror( current_node, PRINT_ERROR( STR_CONFLICT_TYPE, "expected integer" ) );
-			if( infere_expression_schema( current_node = current_node->brother )->type != TS_INT )
+			simplify_expression( current_node = current_node->brother );
+			if( infere_expression_schema( current_node )->type != TS_INT )
 				yysemerror( current_node, PRINT_ERROR( STR_CONFLICT_TYPE, "expected integer" ) );
 
 			for( current_node = current_node->brother; current_node != NULL; current_node = current_node->brother )
@@ -1167,7 +1176,8 @@ Boolean type_check( Node* node )
 					yysemerror( current_node, PRINT_ERROR( STR_WRONG_CLASS, "not a variable" ) );
 			}
 
-			Schema* iterated_expression = infere_expression_schema( current_node = current_node->brother );
+			simplify_expression( current_node = current_node->brother );
+			Schema* iterated_expression = infere_expression_schema( current_node );
 			if( iterated_expression->type != TS_VECTOR || !schema_check( iterable_variable->schema, iterated_expression->child ) )
 				yysemerror( current_node, PRINT_ERROR( STR_CONFLICT_TYPE, "expected vector of the same type as the iterable variable" ) );
 
@@ -1182,6 +1192,7 @@ Boolean type_check( Node* node )
 			// Looking the return type of the actual function and check if it's equal to the type of
 			//  of the return expression.
 			// ☆*:.｡. o(≧▽≦)o .｡.:*☆ 
+			simplify_expression( node->child );
 			if( infere_expression_schema( node->child )->type != ( (Symbol*) scope->function )->schema->type )
 				yysemerror( node, STR_RETURN_TYPE );
 
@@ -1196,6 +1207,7 @@ Boolean type_check( Node* node )
 			{
 				id_node = node->child->brother;
 
+				simplify_expression( node->child );
 				if( infere_expression_schema( node->child )->type != TS_STRING )
 					yysemerror( node->child, PRINT_ERROR( STR_CONFLICT_TYPE, "expected string" ) );
 			}
@@ -1225,12 +1237,14 @@ Boolean type_check( Node* node )
 			{
 				expr_node = node->child->brother;
 
+				simplify_expression( node->child );
 				if( infere_expression_schema( node->child )->type != TS_STRING )
 					yysemerror( node->child, PRINT_ERROR( STR_CONFLICT_TYPE, "expected string" ) );
 			}
 			else
 				expr_node = node->child;
 
+			simplify_expression( node->child );
 			infere_expression_schema( expr_node );
 			break;
 		}
