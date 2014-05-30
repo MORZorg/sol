@@ -110,11 +110,13 @@ Symbol* check_function_subtree( Node* node, int oid_absolute )
 
 			current_child = current_child->brother;
 		} while( current_child != NULL );
+
+		current_node = current_node->brother;
 	}
 
 	// Check that the function name matches the body and end name
 	if( element->name != current_node->child->value.s_val )
-		yysemerror( current_node, STR_GENERAL );
+		yysemerror( current_node->child, PRINT_ERROR( STR_GENERAL, "the function body name must match the function's name" ) );
 
 	type_check( current_node->child->brother );
 
@@ -1284,7 +1286,9 @@ Symbol* fetch_scope( char* id )
  */
 Boolean insert_unconflicted_element( Symbol* element )
 {
-	if( fetch_scope( element->name ) != NULL )
+	any_t useless;
+	if( ( (Symbol*) scope->function )->name == element->name
+		|| hashmap_get( ( (Symbol*) scope->function )->locenv, element->name, &useless ) == MAP_OK )
 		return FALSE;
 
 	hashmap_put( ( (Symbol*) scope->function )->locenv, element->name, element );

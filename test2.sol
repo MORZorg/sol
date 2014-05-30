@@ -9,8 +9,13 @@ func prog( primo: vector[1] of vector[3] of char; a: struct(a: int; b: string;);
     func ao( sbrai: int; sbras: string; ): vector[ 456 ] of struct( a: string; )
 		type
 			sbrat: vector[ 2 ] of bool;
-		var ri: string;
+		var ri: vector[ 456 ] of struct( b: string; );
+			i: int;
+		const fioa: string = "pfa0o";
     begin ao
+		for i = 0 to 455 - sbrai do
+			ri[ i + sbrai ].b = sbras;
+		endfor;
         return rd ri;
     end ao
 
@@ -19,11 +24,12 @@ begin prog
     write 'c';
     write '\t';
     write '\'';
-    write prog(primo, a);
-    return "a\"\ts\\d";
+	write "a\"\ts\\d";
+    write prog(primo, a, b);
     while true do
 		fioa = wr [ "pino" ] PEO;
 		break;
 	endwhile;
+    return 42;
 end prog
 

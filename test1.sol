@@ -46,6 +46,7 @@ begin prog
 
     foreach j in d do
         d[ j ] = -d[ j ];
+        j = -j;
     endforeach;
 
     read [ "asd" ] z;
