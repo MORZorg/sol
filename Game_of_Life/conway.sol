@@ -4,28 +4,28 @@ func game_of_life() : int
 			grid: vector [ 2 ] of lines;
 			-- Just a bad idea.
 			-- grid: struct( rows: lines; columns: lines; );
-	
-	var world: grid;
-	
-	-- REALLOC ERROR
-	-- const summary: string = "Welcome to ORZ's Conway's Game of Life";
-	const summary: string = "Sbra";
+
+	var		world: grid;
 
 
-	-- Rules:
-	--   Any live cell with fewer than two live neighbours dies, as if caused by under-population.
-	--   Any live cell with two or three live neighbours lives on to the next generation.
-	--   Any live cell with more than three live neighbours dies, as if by overcrowding.
-	--   Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
-	
+			-- REALLOC ERROR
+			-- const	summary: string = "Welcome to ORZ's Conway's Game of Life";
+	const	summary: string = "Sbra";
+
+
+			-- Rules:
+			--   Any live cell with fewer than two live neighbours dies, as if caused by under-population.
+			--   Any live cell with two or three live neighbours lives on to the next generation.
+			--   Any live cell with more than three live neighbours dies, as if by overcrowding.
+			--   Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
 	func next_state() : grid
-		var i, j, k, h: int;
-			neighbours: int;
-			state: grid;
+		var		i, j, k, h: int;
+				neighbours: int;
+				state: grid;
 
 	begin next_state
 
-		-- 100 or 99?
+		-- FIXME 100 or 99?
 		for i = 0 to 100 do
 			for j = 0 to 100 do
 
@@ -53,7 +53,6 @@ func game_of_life() : int
 						state[ i ][ j ] = false;
 					endif;
 				endif;
-
 			endfor;
 		endfor;
 
