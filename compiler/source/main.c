@@ -70,6 +70,19 @@ int main()
 }
 
 #else
+#ifdef GENERATOR
+
+#include "generator.h"
+
+int main()
+{
+	if( code_generation() == CODE_OK )
+		fprintf( stdout, "Generated all S-code (ﾉ◕ヮ◕)ﾉ*:・ﾟ✧\n" ); 
+
+	return 0;
+}
+
+#else
 
 #include <stdlib.h>
 
@@ -79,6 +92,7 @@ int main()
 	exit(1);
 }
 
+#endif
 #endif
 #endif
 #endif

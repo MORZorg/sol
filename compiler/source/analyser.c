@@ -67,6 +67,9 @@ Symbol* check_function_subtree( Node* node, int oid_absolute )
 
 	Symbol* element = create_symbol_table_element( node, &oid_absolute );
 
+	if( element->nesting != 0 )
+		element->nesting = ( (Symbol*) scope->function )->nesting + 1;
+
 	// Updating the scope with the new function just created
 	if( stacklist_push( &scope, (stacklist_t) element ) )
 		return NULL;
@@ -168,6 +171,10 @@ Symbol* create_symbol_table_element( Node* node, int* oid )
 				result->schema = create_schema( node->child->brother );
 
 			result->locenv = hashmap_new();
+			if( (*oid) == 1 )
+				result->nesting = 0;
+			else
+				result->nesting = -1;
 			break;
 
 		case N_PAR_LIST:
@@ -225,6 +232,7 @@ void analyse_decl_list( Node* node, int* oid, ClassSymbol clazz, Boolean hasAssi
 			(*oid)++;
 			aType->clazz = clazz;
 			aType->schema = domain_schema; 
+			aType->nesting = ( (Symbol*) scope->function )->nesting;
 
 			// Adding the new type to the locenv in the scope in which is defined
 			if( !insert_unconflicted_element( aType ) )

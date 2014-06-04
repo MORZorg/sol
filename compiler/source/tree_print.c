@@ -187,7 +187,7 @@ void table_print( Symbol* root, int indent )
 	int i;
 
     print_indent( indent );
-    printf( "%-6s %-4d %-10s ", TABLE_CLASSES[ root->clazz ], root->oid, root->name );
+    printf( "%-6s %-4d %-10s %-3d ", TABLE_CLASSES[ root->clazz ], root->oid, root->name, root->nesting );
 	schema_print( root->schema );
 	printf( "\n" );
 
