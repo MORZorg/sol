@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>102</width>
-    <height>102</height>
+    <width>200</width>
+    <height>100</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,7 +15,11 @@
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
-    <widget class="QPlainTextEdit" name="plainTextEdit"/>
+    <widget class="QPushButton" name="pushButton">
+     <property name="text">
+      <string>Complex type</string>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>

@@ -9,6 +9,7 @@ func prog( a, b: int; c: string; ): int
 			x, y: BLANDO;
 			z: T1;
 			s, t: T5;
+            useful: struct( a: struct( a: int; ); b: struct( b: int; ); );
 			q: struct( a: int; b: T4; );
 			d: vector [ 100 ] of int;
 			carl: struct( lenny: int; );
