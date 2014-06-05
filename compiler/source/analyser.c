@@ -41,6 +41,11 @@ extern Node* root;
 stacklist scope;
 Symbol* symbol_table;
 
+/**
+ * @brief Function which starts the semantic analysis of the given syntax tree.
+ *
+ * @return 
+ */
 int yysem()
 {
 	// Passing through the syntax tree to check semantic
@@ -587,6 +592,13 @@ Boolean simplify_expression( Node* node )
 	return FALSE;
 }
 
+/**
+ * @brief Function that infers the schema of an expr, given the corresponding syntax node.
+ *
+ * @param node
+ *
+ * @return Returns the schema of the expr otherwise an error will be thrown.
+ */
 Schema* infere_expression_schema( Node* node )
 {
 	Schema* result;
@@ -859,6 +871,14 @@ Schema* infere_expression_schema( Node* node )
 	return result;
 }
 
+/**
+ * @brief Function that infers the schema of a lhs node.
+ *
+ * @param node The node of the syntax tree.
+ * @param isAssigned Boolean that indicates if the lhs is an assignment (TRUE) or not.
+ *
+ * @return Returns the inferred schema of the node.
+ */
 Schema* infere_lhs_schema( Node* node, Boolean isAssigned )
 {
 	if( node->type == T_ID )
@@ -927,11 +947,19 @@ Schema* infere_lhs_schema( Node* node, Boolean isAssigned )
 	return result;
 }
 
+/**
+ * @brief Compares the two given schemas.
+ *
+ * @param first
+ * @param second
+ *
+ * @return Returns TRUE if the two schemas are the same.
+ */
 Boolean schema_check( Schema* first, Schema* second )
 {
 	if( first->type != second->type )
 	{
-		//yysemerror( NULL, STR_SCHEMA_DIFFERENT );
+		yysemerror( NULL, STR_SCHEMA_DIFFERENT );
 		return FALSE;
 	}
 
@@ -941,12 +969,12 @@ Boolean schema_check( Schema* first, Schema* second )
 			if( first->size != first->size )
 			{
 				// FIXME: I want to be prettier! (((o(*ﾟ▽ﾟ*)o))) 
-				//yysemerror( NULL, STR_VECTOR_SIZE );
+				yysemerror( NULL, STR_VECTOR_SIZE );
 				return FALSE;
 			}
 			if( !schema_check( first->child, second->child ) )
 			{
-				//yysemerror( NULL, STR_VECTOR_TYPE );
+				yysemerror( NULL, STR_VECTOR_TYPE );
 				return FALSE;
 			}
 
@@ -968,7 +996,7 @@ Boolean schema_check( Schema* first, Schema* second )
 		case TS_ATTR:
 			if( !schema_check( first->child, second->child ) )
 			{
-				//yysemerror( NULL, STR_STRUCT_TYPES );
+				yysemerror( NULL, STR_STRUCT_TYPES );
 				return FALSE;
 			}
 			break;
@@ -989,6 +1017,13 @@ Boolean schema_check( Schema* first, Schema* second )
 	return TRUE;
 }
 
+/**
+ * @brief Function that proceeds doing type checking on the whole syntax tree, also including function bodies.
+ *
+ * @param node
+ *
+ * @return Returns TRUE if there are not type errors.
+ */
 Boolean type_check( Node* node )
 {
 	Boolean has_return = FALSE;

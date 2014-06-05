@@ -4,7 +4,6 @@
 #include "def.h"
 #include "hashmap.h"
 #include "stacklist.h"
-#include "generator.h"
 
 #define SEM_OK 0
 #define SEM_ERROR -1
