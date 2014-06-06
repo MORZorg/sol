@@ -172,7 +172,7 @@ char* change_extension( char* a_path )
 			break;
 		else if( a_path[ base_len ] == '/' )
 			break;
-	if( base_len != '.' )
+	if( a_path[ base_len ] != '.' )
 		base_len = strlen( a_path );
 	else
 		base_len--;

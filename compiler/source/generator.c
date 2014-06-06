@@ -16,12 +16,70 @@ int yygen( FILE* input, FILE* output )
 	if( sem_result != 0 )
 		return sem_result;
 
-	return code_generation( root ) ? 0 : 1;
+	Code result = code_generation( root );
+
+	return 0;
 }
 
-Boolean code_generation( Node* node )
+Code code_generation( Node* node )
 {
-	return TRUE;
+	Code result;
+
+	switch( node->type )
+	{
+		case T_UNQUALIFIED_NONTERMINAL:
+			switch( node->value.n_val )
+			{
+				case N_VAR_SECT:
+				{
+					Node* current_child = node->child;
+					while( current_child != NULL )
+					{
+						Node* current_id = current_child->child;
+						while( current_id->brother != NULL )
+						{
+							result = append_code( result, make_decl( fetch_scope( current_id->value.s_val )->schema ) );
+
+							current_id = current_id->brother;
+						}
+					}
+					break;
+				}
+
+				case N_CONST_SECT:
+				{
+					Code values;
+					Node* current_child = node->child;
+					while( current_child != NULL )
+					{
+						int const_size = 0;
+						Node* current_id = current_child->child;
+						while( current_id->brother->brother != NULL )
+						{
+							result = append_code( result, make_decl( fetch_scope( current_id->value.s_val )->schema ) );
+							const_size++;
+
+							current_id = current_id->brother;
+						}
+
+						for( ; const_size > 0; const_size-- )
+							values = append_code( values, code_generation( current_id->brother ) );
+					}
+
+					result = append_code( result, values );
+					break;
+				}
+
+
+				default:
+					break;
+			}
+
+		default:
+			break;
+	}
+
+	return result;
 }
 
 Code end_code()
@@ -32,6 +90,9 @@ Code end_code()
 
 void relocate_address( Code code, int offset )
 {
+	if( offset == 0 )
+		return;
+
 	Stat* current_stat;
 	for( current_stat = code.head;
 		 current_stat != NULL;
@@ -41,6 +102,11 @@ void relocate_address( Code code, int offset )
 
 Code append_code( Code first, Code second )
 {
+	if( first.size == 0 )
+		return second;
+	if( second.size == 0 )
+		return first;
+
 	Code result;
 	relocate_address( second, first.size );
 	result.head = first.head;
@@ -141,6 +207,63 @@ Code make_lds( char* a_string )
 	result.head->args[ 0 ].s_val = a_string;
 
 	return result;
+}
+
+Code make_decl( Schema* a_schema )
+{
+	Operator op;
+	switch( a_schema->type )
+	{
+		case TS_VECTOR:
+		case TS_STRUCT:
+			op = SOL_NEWS;
+			break;
+
+		default:
+			op = SOL_NEW;
+			break;
+	}
+
+	return make_code_one_param( op, schema_size( a_schema ) );
+}
+
+int schema_size( Schema* a_schema )
+{
+	switch( a_schema->type )
+	{
+		case TS_CHAR:
+			return sizeof( char );
+
+		case TS_INT:
+			return sizeof( int );
+
+		case TS_REAL:
+			return sizeof( float );
+
+		case TS_STRING:
+			return sizeof( char* );
+
+		case TS_BOOL:
+			return sizeof( char* );
+
+		case TS_STRUCT:
+		{
+			int size = 0;
+			Schema* current_attr;
+			for( current_attr = a_schema ->child;
+				 current_attr != NULL;
+				 current_attr = current_attr->brother )
+				size += schema_size( current_attr );
+
+			return size;
+		}
+
+		case TS_VECTOR:
+			return a_schema->size * schema_size( a_schema->child );
+
+		case TS_ATTR:
+			return schema_size( a_schema->child );
+	}
 }
 
 /**

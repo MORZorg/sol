@@ -101,7 +101,7 @@ typedef struct code
 } Code;
 
 int yygen( FILE*, FILE* );
-Boolean code_generation( Node* );
+Code code_generation( Node* );
 
 void relocate_address( Code, int );
 Code append_code( Code, Code );
@@ -115,6 +115,9 @@ Code make_ldc( char );
 Code make_ldi( int );
 Code make_ldr( float );
 Code make_lds( char* );
+Code make_decl( Schema* );
+
+int schema_size( Schema* );
 
 int yygenerror( Node*, char* );
 
