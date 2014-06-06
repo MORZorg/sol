@@ -2,12 +2,15 @@ solc: lex.o parser.o analyser.o
 	$(CC) -g -o $@ $^
 
 lexer.o: lexer.c parser.h def.h
-	$(CC) -g -c $< -DDEBUG
+	$(CC) -g -c $<
 
 parser.o: parser.c def.h
 	$(CC) -g -c $<
 
 analyser.o: analyser.c analyser.h
+	$(CC) -g -c $<
+
+generator.o: generator.c generator.h
 	$(CC) -g -c $<
 
 tree_print.o: tree_print.c tree_print.h def.h
@@ -30,6 +33,9 @@ parser: main.c tree_print.o lexer.o parser.o hashmap.o
 
 analyser: main.c lexer.o parser.o analyser.o hashmap.o stacklist.o tree_print.o
 	$(CC) -g -o $@ $^ -DANALYSER
+
+generator: main.c lexer.o parser.o analyser.o generator.o hashmap.o stacklist.o tree_print.o
+	$(CC) -g -o $@ $^
 
 .PHONY : clean
 clean:

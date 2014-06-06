@@ -1,13 +1,27 @@
 #include "generator.h"
 
+extern FILE* yyin;
 extern Node* root;
 extern Symbol* symbol_table;
-/* extern int yysem(); */
+
+FILE* yyin;
 
 stacklist scope;
 
-int yygen()
+int yygen( FILE* input, FILE* output )
 {
+	yyin = input;
+
+	int sem_result = yysem();
+	if( sem_result != 0 )
+		return sem_result;
+
+	return code_generation( root ) ? 0 : 1;
+}
+
+Boolean code_generation( Node* node )
+{
+	return TRUE;
 }
 
 
@@ -17,8 +31,9 @@ int yygen()
  * @param node
  * @param type
  *
- * @return 
+ * @return
  */
 int yygenerror( Node* node, char* type )
 {
+	return 0;
 }

@@ -11,20 +11,20 @@ extern map_t lex_symbol_table;
 
 int lex_printf( any_t base, any_t value )
 {
-  printf( base, value );
-  return MAP_OK;
+	printf( base, value );
+	return MAP_OK;
 }
 
 int main()
 {
-    int result;
+	int result;
 	do
 	{
 		result = yylex();
 	} while (result > 0);
 
-    printf( "*** Lexical Symbol Table ***\n" );
-    hashmap_iterate( lex_symbol_table, lex_printf, "%s\n" );
+	printf( "*** Lexical Symbol Table ***\n" );
+	hashmap_iterate( lex_symbol_table, lex_printf, "%s\n" );
 
 	return 0;
 }
@@ -70,29 +70,121 @@ int main()
 }
 
 #else
-#ifdef GENERATOR
+
+#include <string.h>
 
 #include "generator.h"
 
-int main()
+// FIXME Put in a .h file
+char* change_extension( char* a_path );
+
+int main( int argc, char** argv )
 {
-	if( code_generation() == CODE_OK )
+	char* fileInput;
+	char* fileOutput;
+
+	int i = 0;
+	while (++i < argc)
+	{
+		if( argv[ i ][ 0 ] != '-' )
+			fileInput = argv[ i++ ];
+		else if( argv[ i ][ 1 ] == '-' )
+		{
+			argv[ i ] += 2;
+
+			if( !strcmp( argv[ i ], "help" ) )
+			{
+				/* TODO printHelp(); */
+				return 0;
+			}
+			else if( !strcmp( argv[ i ], "output" ) )
+			{
+				fileOutput = argv[ ++i ];
+			}
+		}
+		else
+		{
+			char* extended_command;
+			switch( argv[ i ][ 1 ] )
+			{
+				case 'h':
+					extended_command = "--help";
+					argv[ i-- ] = &extended_command[ 0 ];
+					break;
+
+				case 'o':
+					extended_command = "--output";
+					argv[ i-- ] = &extended_command[ 0 ];
+					break;
+
+				default:
+					fprintf( stderr, ERROR_UNDEFINED_FLAG );
+					// TODO
+					/* printHelp(); */
+					exit( 1 );
+			}
+		}
+	}
+
+	FILE* input;
+	FILE* output;
+	if( fileInput == NULL )
+	{
+		fprintf( stderr, "Reading from stdin!\n" );
+		input = stdin;
+	}
+	else
+	{
+		fprintf( stderr, "Reading from %s!\n", fileInput );
+		input = fopen( fileInput, "r" );
+	}
+	if( fileOutput == NULL )
+	{
+		if( fileInput == NULL )
+		{
+			fprintf( stderr, "Printing to stdout!\n" );
+			output = stdout;
+		}
+		else
+		{
+			fileOutput = change_extension( fileInput );
+			output = fopen( fileOutput, "w+" );
+			fprintf( stderr, "Printing to %s!\n", fileOutput );
+		}
+	}
+	else
+	{
+		fprintf( stderr, "Printing to %s!\n", fileOutput );
+		output = fopen( fileOutput, "w+" );
+	}
+
+	if( yygen( input, output ) == 0 )
 		fprintf( stdout, "Generated all S-code (ﾉ◕ヮ◕)ﾉ*:・ﾟ✧\n" ); 
 
 	return 0;
 }
 
-#else
-
-#include <stdlib.h>
-
-int main()
+char* change_extension( char* a_path )
 {
-	fprintf(stderr, "No body supplied. Exiting.");
-	exit(1);
+	int base_len;
+	for( base_len = strlen( a_path )-1; base_len > 0; base_len-- )
+		if( a_path[ base_len ] == '.' )
+		{
+			break;
+		}
+	base_len--;
+
+	char* result = malloc( ( base_len + strlen( INTERMEDIATE_CODE_EXTENSION ) )
+						   * sizeof( char ) );
+	// FIXME Could cause problems when the original extension is longer than
+	// the new one.
+	strcat( result, a_path );
+	result[ base_len+1 ] = 0;
+	strcat( result, INTERMEDIATE_CODE_EXTENSION );
+
+	return result;
 }
 
-#endif
 #endif
 #endif
 #endif

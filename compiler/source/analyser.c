@@ -151,22 +151,18 @@ Symbol* create_symbol_table_element( Node* node, int* oid )
 	switch( node->value.n_val )
 	{
 		case N_TYPE_SECT:
-			fprintf( stdout, "Processing TYPE_SECT\n" );
 			analyse_decl_list( node->child, oid, CS_TYPE, FALSE );
 			break;
 
 		case N_VAR_SECT:
-			fprintf( stdout, "Processing VAR_SECT\n" );
 			analyse_decl_list( node->child, oid, CS_VAR, FALSE );
 			break;
 
 		case N_CONST_SECT:
-			fprintf( stdout, "Processing CONST_SECT\n" );
 			analyse_decl_list( node->child, oid, CS_CONST, TRUE );
 			break;
 
 		case N_FUNC_DECL:
-			fprintf( stdout, "Processing FUNC_SECT\n" );
 			result->name = node->child->value.s_val;
 			result->clazz = CS_FUNC;
 			// Checking if the function has or not a parameter list
@@ -184,7 +180,6 @@ Symbol* create_symbol_table_element( Node* node, int* oid )
 
 		case N_PAR_LIST:
 			// FIXME The parameters should be added to the func as well
-			fprintf( stdout, "Processing PAR_LIST\n" );
 			analyse_decl_list( node->child, oid, CS_PAR, FALSE );
 			break;
 
@@ -1052,7 +1047,6 @@ Boolean type_check( Node* node )
 			//while( current_node != NULL && current_node->value.n_val != N_RETURN_STAT )
 			while( current_node != NULL && !has_return )
 			{
-				fprintf( stderr, "Checking line %d (%d)\n", current_node->line, current_node->type );
 				// Keeping track of the return statement
 				has_return |= type_check( current_node );
 

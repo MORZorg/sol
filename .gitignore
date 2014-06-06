@@ -26,11 +26,12 @@
 .*.swp
 
 # Debug executables and temporary files
+*.dSYM
 lexer
 lexer.c
 parser
 parser.c
 parser.h
 parser.output
-*.dSYM
 analyser
+generator
