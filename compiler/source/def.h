@@ -127,7 +127,6 @@ char* new_string( char* );
 void concatenate_string( char*, char* );
 char parse_escape_seq( char* );
 
-Node* new_node( TypeNode );
 Node* new_nonterminal_node( Nonterminal );
 Node* new_terminal_node( TypeNode, Value );
 Node* new_qualified_node( TypeNode, Qualifier );

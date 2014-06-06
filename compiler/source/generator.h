@@ -87,7 +87,7 @@ typedef union
 
 typedef struct stat
 {
-  int addr;
+  int address;
   Operator op;
   Lexval args[ MAX_ARGS ];
   struct stat* next;
@@ -102,6 +102,19 @@ typedef struct code
 
 int yygen( FILE*, FILE* );
 Boolean code_generation( Node* );
+
+void relocate_address( Code, int );
+Code append_code( Code, Code );
+Code end_code();
+Code concatenate_code( Code, Code, ... );
+Code make_code_no_param( Operator );
+Code make_code_one_param( Operator, int );
+Code make_code_two_param( Operator, int, int );
+Code make_push_pop( int, int, int );
+Code make_ldc( char );
+Code make_ldi( int );
+Code make_ldr( float );
+Code make_lds( char* );
 
 int yygenerror( Node*, char* );
 

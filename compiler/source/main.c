@@ -169,10 +169,13 @@ char* change_extension( char* a_path )
 	int base_len;
 	for( base_len = strlen( a_path )-1; base_len > 0; base_len-- )
 		if( a_path[ base_len ] == '.' )
-		{
 			break;
-		}
-	base_len--;
+		else if( a_path[ base_len ] == '/' )
+			break;
+	if( base_len != '.' )
+		base_len = strlen( a_path );
+	else
+		base_len--;
 
 	char* result = malloc( ( base_len + strlen( INTERMEDIATE_CODE_EXTENSION ) )
 						   * sizeof( char ) );
