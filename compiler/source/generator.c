@@ -31,6 +31,48 @@ Code generate_code( Node* node )
 
 	switch( node->type )
 	{
+		case T_INT_CONST:
+			result = make_ldi( node->value.i_val );
+			break;
+
+		case T_CHAR_CONST:
+			result = make_ldc( node->value.c_val );
+			break;
+
+		case T_REAL_CONST:
+			result = make_ldr( node->value.r_val );
+			break;
+
+		case T_STR_CONST:
+			result = make_lds( node->value.s_val );
+			break;
+
+		case T_BOOL_CONST:
+			result = make_ldc( node->value.b_val == TRUE ? '1' : '0' );
+			break;
+
+		case T_ID:
+		{
+			Symbol* referenced_id = fetch_scope( node->value.s_val );
+			result = make_code_two_param( SOL_LOD, referenced_id->nesting, referenced_id->oid );
+			break;
+		}
+
+		case T_INSTANCE_EXPR:
+		{
+			Node* current_value = node->child;
+			int size = 0;
+			while( current_value != NULL )
+			{
+				result = append_code( result, generate_code( current_value ) );
+				size++;
+
+				current_value = current_value->brother;
+			}
+
+			result = append_code( result, make_code_two_param( SOL_CAT, size, schema_size( infere_expression_schema( node ) ) ) );
+		}
+
 		case T_UNQUALIFIED_NONTERMINAL:
 			switch( node->value.n_val )
 			{
@@ -88,6 +130,7 @@ Code generate_code( Node* node )
 						while( current_id->brother != NULL )
 						{
 							result = append_code( result, make_decl( fetch_scope( current_id->value.s_val )->schema ) );
+							fprintf( stderr, "Var %s: %s.\n", current_id->value.s_val, schema_to_string( fetch_scope( current_id->value.s_val )->schema ) );
 
 							current_id = current_id->brother;
 						}
@@ -109,6 +152,7 @@ Code generate_code( Node* node )
 						{
 							result = append_code( result, make_decl( fetch_scope( current_id->value.s_val )->schema ) );
 							const_size++;
+							fprintf( stderr, "Const %s: %s.\n", current_id->value.s_val, schema_to_string( fetch_scope( current_id->value.s_val )->schema ) );
 
 							current_id = current_id->brother;
 						}
@@ -227,7 +271,7 @@ Code make_push_pop( int size, int chain, int entry )
 Code make_ldc( char a_char )
 {
 	Code result;
-	result = make_code_no_param( SOL_LDS );
+	result = make_code_no_param( SOL_LDC );
 	result.head->args[ 0 ].c_val = a_char;
 
 	return result;
@@ -236,7 +280,7 @@ Code make_ldc( char a_char )
 Code make_ldi( int an_int )
 {
 	Code result;
-	result = make_code_no_param( SOL_LDS );
+	result = make_code_no_param( SOL_LDI );
 	result.head->args[ 0 ].i_val = an_int;
 
 	return result;
@@ -245,7 +289,7 @@ Code make_ldi( int an_int )
 Code make_ldr( float a_real )
 {
 	Code result;
-	result = make_code_no_param( SOL_LDS );
+	result = make_code_no_param( SOL_LDR );
 	result.head->args[ 0 ].r_val = a_real;
 
 	return result;
@@ -295,13 +339,13 @@ size_t schema_size( Schema* a_schema )
 			return sizeof( char* );
 
 		case TS_BOOL:
-			return sizeof( char* );
+			return sizeof( char );
 
 		case TS_STRUCT:
 		{
 			size_t size = 0;
 			Schema* current_attr;
-			for( current_attr = a_schema ->child;
+			for( current_attr = a_schema->child;
 				 current_attr != NULL;
 				 current_attr = current_attr->brother )
 				size += schema_size( current_attr );
@@ -338,7 +382,20 @@ char* schema_to_string( Schema* a_schema )
 
 		case TS_STRUCT:
 		{
-			return "()";
+			char* result = malloc( 2 * sizeof( char ) );
+			result[ 0 ] = '(';
+
+			Schema* current_attr;
+			for( current_attr = a_schema->child;
+				 current_attr != NULL;
+				 current_attr = current_attr->brother )
+			{
+				char* schema = schema_to_string( current_attr->child );
+				realloc( result, ( strlen( result ) + strlen( current_attr->id ) + strlen( schema ) ) * sizeof( char ) );
+				sprintf( result, "%s%s:%s,", result, current_attr->id, schema );
+			}
+			result[ strlen( result )-1 ] = ')';
+			return result;
 		}
 
 		case TS_VECTOR:

@@ -291,10 +291,43 @@ void code_print( Code code )
 	printf( "Size: %d.\n", code.size );
 	Stat* current_stat;
 	for( current_stat = code.head; current_stat != NULL; current_stat = current_stat->next )
-		printf( "%d: %s %d %d %d\n",
-				current_stat->address,
-				CODE_OPERATORS[ current_stat->op ],
-				current_stat->args[ 0 ].i_val,
-				current_stat->args[ 1 ].i_val,
-				current_stat->args[ 2 ].i_val );
+		switch( current_stat->op )
+		{
+			case SOL_LDC:
+				printf( "%d: %s %c\n",
+						current_stat->address,
+						CODE_OPERATORS[ current_stat->op ],
+						current_stat->args[ 0 ].c_val );
+				break;
+
+			case SOL_LDS:
+				printf( "%d: %s %s\n",
+						current_stat->address,
+						CODE_OPERATORS[ current_stat->op ],
+						current_stat->args[ 0 ].s_val );
+				break;
+
+			case SOL_LDR:
+				printf( "%d: %s %f\n",
+						current_stat->address,
+						CODE_OPERATORS[ current_stat->op ],
+						current_stat->args[ 0 ].r_val );
+				break;
+
+			case SOL_LOD:
+			case SOL_CAT:
+				printf( "%d: %s %d %d\n",
+						current_stat->address,
+						CODE_OPERATORS[ current_stat->op ],
+						current_stat->args[ 0 ].i_val,
+						current_stat->args[ 1 ].i_val );
+				break;
+
+			default:
+				printf( "%d: %s %d\n",
+						current_stat->address,
+						CODE_OPERATORS[ current_stat->op ],
+						current_stat->args[ 0 ].i_val );
+				break;
+		}
 }
