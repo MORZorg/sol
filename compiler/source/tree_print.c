@@ -114,6 +114,72 @@ const char* TABLE_TYPES[] =
 	"ATTR"
 };
 
+const char* CODE_OPERATORS[] =
+{
+  "NEW",
+  "NEWS",
+  "LDC",
+  "LDI",
+  "LDR",
+  "LDS",
+  "LOD",
+  "CAT",
+  "LDA",
+  "FDA",
+  "EIL",
+  "SIL",
+  "IXA",
+  "STO",
+  "IST",
+  "JMF",
+  "JMP",
+  "EQU",
+  "NEQ",
+  "CGT",
+  "CGE",
+  "CLT",
+  "CLE",
+  "IGT",
+  "IGE",
+  "ILT",
+  "ILE",
+  "RGT",
+  "RGE",
+  "RLT",
+  "RLE",
+  "SGT",
+  "SGE",
+  "SLT",
+  "SLE",
+  "IN",
+  "IPLUS",
+  "IMINUS",
+  "ITIMES",
+  "IDIV",
+  "RPLUS",
+  "RMINUS",
+  "RTIMES",
+  "RDIV",
+  "IUMI",
+  "RUMI",
+  "NEG",
+  "WE",
+  "FWR",
+  "PUSH",
+  "GOTO",
+  "POP",
+  "RD",
+  "FRD",
+  "TOINT",
+  "TOREA",
+  "READ",
+  "FREAD",
+  "WRITE",
+  "FWRITE",
+  "FUNC",
+  "RETURN",
+};
+
 const char* SPACING = "  ";
 
 void print_indent( int indent )
@@ -218,4 +284,17 @@ void schema_print( Schema* root )
 		printf( ", " );
 		schema_print( root->brother );
 	}
+}
+
+void code_print( Code code )
+{
+	printf( "Size: %d.\n", code.size );
+	Stat* current_stat;
+	for( current_stat = code.head; current_stat != NULL; current_stat = current_stat->next )
+		printf( "%d: %s %d %d %d\n",
+				current_stat->address,
+				CODE_OPERATORS[ current_stat->op ],
+				current_stat->args[ 0 ].i_val,
+				current_stat->args[ 1 ].i_val,
+				current_stat->args[ 2 ].i_val );
 }

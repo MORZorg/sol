@@ -1,6 +1,8 @@
 #ifndef __GENERATOR_H__
 #define __GENERATOR_H__
 
+#include <string.h>
+
 #include "def.h"
 #include "stacklist.h"
 #include "analyser.h"
@@ -9,6 +11,7 @@
 
 #define ERROR_UNDEFINED_FLAG "Undefined flag."
 
+#define MAX_INT_LEN 33
 #define MAX_ARGS 3
 
 typedef enum
@@ -101,12 +104,12 @@ typedef struct code
 } Code;
 
 int yygen( FILE*, FILE* );
-Code code_generation( Node* );
+Code generate_code( Node* );
 
 void relocate_address( Code, int );
 Code append_code( Code, Code );
-Code end_code();
 Code concatenate_code( Code, Code, ... );
+Code empty_code( void );
 Code make_code_no_param( Operator );
 Code make_code_one_param( Operator, int );
 Code make_code_two_param( Operator, int, int );
@@ -117,8 +120,11 @@ Code make_ldr( float );
 Code make_lds( char* );
 Code make_decl( Schema* );
 
-int schema_size( Schema* );
+size_t schema_size( Schema* );
+char* schema_to_string( Schema* );
 
 int yygenerror( Node*, char* );
+
+#include "tree_print.h"
 
 #endif // __GENERATOR_H__

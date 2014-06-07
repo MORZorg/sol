@@ -3,10 +3,10 @@
 extern FILE* yyin;
 extern Node* root;
 extern Symbol* symbol_table;
+extern stacklist scope;
 
 FILE* yyin;
 
-stacklist scope;
 
 int yygen( FILE* input, FILE* output )
 {
@@ -16,20 +16,69 @@ int yygen( FILE* input, FILE* output )
 	if( sem_result != 0 )
 		return sem_result;
 
-	Code result = code_generation( root );
+	stacklist_push( &scope, (stacklist_t) symbol_table );
+	Code result = generate_code( root );
+
+	// TODO Replace with something like `output_code'
+	code_print( result );
 
 	return 0;
 }
 
-Code code_generation( Node* node )
+Code generate_code( Node* node )
 {
-	Code result;
+	Code result = empty_code();
 
 	switch( node->type )
 	{
 		case T_UNQUALIFIED_NONTERMINAL:
 			switch( node->value.n_val )
 			{
+				case N_FUNC_DECL:
+				{
+					Node* current_node = node->child;
+					// TODO Find a way to avoid to duplicate the base function.
+					stacklist_push( &scope, (stacklist_t) fetch_scope( current_node->value.s_val ) );
+					current_node = current_node->brother;
+					if( current_node->type == T_UNQUALIFIED_NONTERMINAL )
+					{
+						// TODO Params?
+						current_node = current_node->brother;
+					}
+					current_node = current_node->brother;
+
+					if( current_node->value.n_val == N_TYPE_SECT )
+						current_node = current_node->brother;
+					Code var_sect = empty_code();
+					if( current_node->value.n_val == N_VAR_SECT )
+					{
+						var_sect = generate_code( current_node );
+						current_node = current_node->brother;
+					}
+					Code const_sect = empty_code();
+					if( current_node->value.n_val == N_CONST_SECT )
+					{
+						const_sect = generate_code( current_node );
+						current_node = current_node->brother;
+					}
+					Code func_sect = empty_code();
+					if( current_node->value.n_val == N_FUNC_LIST )
+					{
+						Node* current_child = current_node->child;
+						do
+						{
+							func_sect = append_code( func_sect, generate_code( current_child ) );
+							current_child = current_child->brother;
+						} while( current_child != NULL );
+
+						current_node = current_node->brother;
+					}
+
+					Code body = generate_code( current_node->child->brother );
+
+					return concatenate_code( var_sect, const_sect, func_sect, body );
+				}
+
 				case N_VAR_SECT:
 				{
 					Node* current_child = node->child;
@@ -42,13 +91,15 @@ Code code_generation( Node* node )
 
 							current_id = current_id->brother;
 						}
+
+						current_child = current_child->brother;
 					}
 					break;
 				}
 
 				case N_CONST_SECT:
 				{
-					Code values;
+					Code values = empty_code();
 					Node* current_child = node->child;
 					while( current_child != NULL )
 					{
@@ -63,7 +114,9 @@ Code code_generation( Node* node )
 						}
 
 						for( ; const_size > 0; const_size-- )
-							values = append_code( values, code_generation( current_id->brother ) );
+							values = append_code( values, generate_code( current_id->brother ) );
+
+						current_child = current_child->brother;
 					}
 
 					result = append_code( result, values );
@@ -82,7 +135,7 @@ Code code_generation( Node* node )
 	return result;
 }
 
-Code end_code()
+Code empty_code( void )
 {
 	static Code code = { NULL, 0, NULL };
 	return code;
@@ -166,11 +219,9 @@ Code make_code_two_param( Operator op, int arg1, int arg2 )
 
 Code make_push_pop( int size, int chain, int entry )
 {
-	// TODO Why end_code()?
 	return concatenate_code( make_code_two_param( SOL_PUSH, size, chain ),
 							 make_code_one_param( SOL_GOTO, entry ),
-							 make_code_no_param( SOL_POP ),
-							 end_code() );
+							 make_code_no_param( SOL_POP ) );
 }
 
 Code make_ldc( char a_char )
@@ -227,7 +278,7 @@ Code make_decl( Schema* a_schema )
 	return make_code_one_param( op, schema_size( a_schema ) );
 }
 
-int schema_size( Schema* a_schema )
+size_t schema_size( Schema* a_schema )
 {
 	switch( a_schema->type )
 	{
@@ -248,7 +299,7 @@ int schema_size( Schema* a_schema )
 
 		case TS_STRUCT:
 		{
-			int size = 0;
+			size_t size = 0;
 			Schema* current_attr;
 			for( current_attr = a_schema ->child;
 				 current_attr != NULL;
@@ -263,6 +314,43 @@ int schema_size( Schema* a_schema )
 
 		case TS_ATTR:
 			return schema_size( a_schema->child );
+	}
+}
+
+char* schema_to_string( Schema* a_schema )
+{
+	switch( a_schema->type )
+	{
+		case TS_CHAR:
+			return "c";
+
+		case TS_INT:
+			return "i";
+
+		case TS_REAL:
+			return "r";
+
+		case TS_STRING:
+			return "s";
+
+		case TS_BOOL:
+			return "b";
+
+		case TS_STRUCT:
+		{
+			return "()";
+		}
+
+		case TS_VECTOR:
+		{
+			char* schema = schema_to_string( a_schema->child );
+			char* result = malloc( ( MAX_INT_LEN + strlen( schema ) + 3 * sizeof( char ) ) );
+			sprintf( result, "[%d,%s]", a_schema->size, schema );
+			return result;
+		}
+
+		case TS_ATTR:
+			return schema_to_string( a_schema->child );
 	}
 }
 
