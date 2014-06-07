@@ -1,0 +1,358 @@
+#LyX 2.0 created this file. For more info see http://www.lyx.org/
+\lyxformat 413
+\begin_document
+\begin_header
+\textclass book
+\begin_preamble
+% Table of content settings
+\usepackage{tocloft}
+\usepackage{multicol}
+
+% Language adjustments
+\renewcommand{\chaptername}{Chapter}
+
+% List of tables and figures formatting
+\makeatletter
+     \renewcommand*\l@figure{\@dottedtocline{1}{1em}{3.2em}}
+     \renewcommand*\l@table{\@dottedtocline{1}{1em}{3.2em}}
+\makeatother
+
+\addto\captionsitalian{
+  \renewcommand{\listfigurename}
+    {Lista delle figure}
+}
+
+% Just for multi-line comments
+\usepackage{verbatim}
+
+% Table stuff
+\usepackage{tabularx}
+\usepackage{array}
+
+% Images stuff
+\usepackage{bmpsize}
+\usepackage{subcaption}
+
+% Enum lists stuff
+\usepackage{enumerate}
+
+% PDF inclusion
+\usepackage{pdfpages}
+
+% Appendix
+\usepackage[toc, page]{appendix}
+
+\tocloftpagestyle{empty}
+
+% Links style
+\hypersetup{%
+  colorlinks=true,% hyperlinks will be coloured
+  linkcolor=blue,% hyperlink text will be green
+  linkbordercolor=blue,% hyperlink border will be red
+}
+
+\makeatletter
+\Hy@AtBeginDocument{%
+  \def\@pdfborder{0 0 1}% Overrides border definition set with colorlinks=true
+  \def\@pdfborderstyle{/S/U/W 1}% Overrides border style set with colorlinks=true
+                                % Hyperlink border style will be underline of width 1pt
+}
+\makeatother
+
+% Center floats by default
+\makeatletter
+\g@addto@macro\@floatboxreset\centering
+\makeatother
+\end_preamble
+\use_default_options true
+\begin_modules
+theorems-ams
+eqs-within-sections
+figs-within-sections
+\end_modules
+\maintain_unincluded_children false
+\language british
+\language_package auto
+\inputencoding auto
+\fontencoding global
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\float_placement H
+\paperfontsize 12
+\spacing single
+\use_hyperref true
+\pdf_title "SOL"
+\pdf_author "ORZ"
+\pdf_bookmarks true
+\pdf_bookmarksnumbered false
+\pdf_bookmarksopen false
+\pdf_bookmarksopenlevel 1
+\pdf_breaklinks false
+\pdf_pdfborder false
+\pdf_colorlinks false
+\pdf_backref false
+\pdf_pdfusetitle true
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 1
+\use_mhchem 1
+\use_mathdots 1
+\cite_engine basic
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\listings_params "basicstyle={\footnotesize\ttfamily},breaklines=true,captionpos=b,numbers=left"
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Standard
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{frontmatter}
+\end_layout
+
+\end_inset
+
+
+\begin_inset CommandInset include
+LatexCommand include
+filename "frontpage.lyx"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset include
+LatexCommand include
+filename "index.lyx"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{frontmatter}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{mainmatter}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Part
+Introduction to SOL
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset include
+LatexCommand include
+filename "tutorial.lyx"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset include
+LatexCommand include
+filename "syntax.lyx"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset include
+LatexCommand include
+filename "semantics.lyx"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Part
+The Compiler
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset include
+LatexCommand include
+filename "lexical_syntactical_analysis.lyx"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset include
+LatexCommand include
+filename "semantical_analysis.lyx"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset include
+LatexCommand include
+filename "code_generation.lyx"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Part
+The Virtual Machine
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset include
+LatexCommand include
+filename "pcode_execution_mechanism.lyx"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset include
+LatexCommand include
+filename "io_handling.lyx"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{mainmatter}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{backmatter}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset include
+LatexCommand include
+filename "conclusions.lyx"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{backmatter}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_body
+\end_document

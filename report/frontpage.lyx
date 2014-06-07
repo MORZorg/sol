@@ -1,0 +1,257 @@
+#LyX 2.0 created this file. For more info see http://www.lyx.org/
+\lyxformat 413
+\begin_document
+\begin_header
+\textclass book
+\use_default_options true
+\maintain_unincluded_children false
+\language italian
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 1
+\use_mhchem 1
+\use_mathdots 1
+\cite_engine basic
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Standard
+\paragraph_spacing other 0.90
+\align center
+
+\size larger
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+thispagestyle{empty} 
+\backslash
+setcounter{page}{1000}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+\align center
+
+\size huge
+Università degli Studi di Brescia
+\end_layout
+
+\begin_layout Standard
+\noindent
+\align center
+
+\size large
+Department of Information Engineering
+\end_layout
+
+\begin_layout Standard
+\noindent
+\align center
+
+\lang english
+\begin_inset Graphics
+	filename images/logo.png
+	lyxscale 25
+	width 4cm
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\paragraph_spacing other 1.8
+\noindent
+\align center
+
+\series bold
+\size largest
+A compiler for the SOL language
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace 0cm
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+Compilers' course final project
+\end_layout
+
+\begin_layout Standard
+\paragraph_spacing other 0.90
+\begin_inset VSpace 2cm
+\end_inset
+
+
+\series bold
+Professor
+\end_layout
+
+\begin_layout Standard
+
+\lang english
+\begin_inset VSpace 0.2cm
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Lamperti Gianfranco
+\end_layout
+
+\begin_layout Standard
+\align center
+
+\size large
+\lang english
+\begin_inset space \hfill{}
+\end_inset
+
+
+\series bold
+\size default
+\lang italian
+Students
+\end_layout
+
+\begin_layout Standard
+
+\lang english
+\begin_inset VSpace -0.3cm
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+
+\size large
+\lang english
+\begin_inset space \hfill{}
+\end_inset
+
+
+\size default
+Orizio Riccardo
+\end_layout
+
+\begin_layout Standard
+
+\lang english
+\begin_inset VSpace -0.3cm
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+
+\size large
+\lang english
+\begin_inset space \hfill{}
+\end_inset
+
+
+\size default
+Rizzini Mattia
+\end_layout
+
+\begin_layout Standard
+
+\lang english
+\begin_inset VSpace -0.3cm
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+
+\size large
+\lang english
+\begin_inset space \hfill{}
+\end_inset
+
+
+\size default
+Zucchelli Maurizio
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace 2.3cm
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+Academic Year 
+\lang english
+2013/2014
+\end_layout
+
+\end_body
+\end_document
