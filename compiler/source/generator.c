@@ -173,6 +173,9 @@ Code generate_code( Node* node )
 						case TS_STRING:
 							use_me = SOL_SGT;
 							break;
+
+						default:
+							break;
 					}
 					break;
 						
@@ -193,6 +196,9 @@ Code generate_code( Node* node )
 
 						case TS_STRING:
 							use_me = SOL_SGE;
+							break;
+
+						default:
 							break;
 					}
 					break;
@@ -215,6 +221,9 @@ Code generate_code( Node* node )
 						case TS_STRING:
 							use_me = SOL_ILT;
 							break;
+
+						default:
+							break;
 					}
 					break;
 						
@@ -235,6 +244,9 @@ Code generate_code( Node* node )
 
 						case TS_STRING:
 							use_me = SOL_SLE;
+							break;
+
+						default:
 							break;
 					}
 					break;
@@ -281,6 +293,9 @@ Code generate_code( Node* node )
 						case TS_REAL:
 							use_me = SOL_RPLUS;
 							break;
+
+						default:
+							break;
 					}
 					break;
 						
@@ -293,6 +308,9 @@ Code generate_code( Node* node )
 
 						case TS_REAL:
 							use_me = SOL_RMINUS;
+							break;
+
+						default:
 							break;
 					}
 					break;
@@ -307,6 +325,9 @@ Code generate_code( Node* node )
 						case TS_REAL:
 							use_me = SOL_RTIMES;
 							break;
+
+						default:
+							break;
 					}
 					break;
 
@@ -319,6 +340,9 @@ Code generate_code( Node* node )
 
 						case TS_REAL:
 							use_me = SOL_RDIV;
+							break;
+
+						default:
 							break;
 					}
 					break;
@@ -444,227 +468,227 @@ Code generate_code( Node* node )
 					{
 						result = append_code( result, generate_code( current_node ) );
 						current_node = current_node->brother;
-						}
-						if( current_node->value.n_val == N_CONST_SECT )
-						{
-							result = append_code( result, generate_code( current_node ) );
-							current_node = current_node->brother;
-						}
-						if( current_node->value.n_val == N_FUNC_LIST )
-						{
-							Node* current_child = current_node->child;
-							do
-							{
-								result = append_code( result, generate_code( current_child ) );
-								current_child = current_child->brother;
-							} while( current_child != NULL );
-
-							current_node = current_node->brother;
-						}
-
-						// FIXME Work on every statement
-						result = append_code( result, generate_code( current_node->child->brother ) );
-						break;
 					}
-
-					case N_VAR_SECT:
+					if( current_node->value.n_val == N_CONST_SECT )
 					{
-						Node* current_child = node->child;
-						while( current_child != NULL )
-						{
-							Node* current_id = current_child->child;
-							while( current_id->brother != NULL )
-							{
-								result = append_code( result, make_decl( fetch_scope( current_id->value.s_val )->schema ) );
-
-								current_id = current_id->brother;
-							}
-
-							current_child = current_child->brother;
-						}
-						break;
-					}
-
-					case N_CONST_SECT:
-					{
-						Code values = empty_code();
-						Node* current_child = node->child;
-						while( current_child != NULL )
-						{
-							int const_size = 0;
-							Node* current_id = current_child->child;
-							while( current_id->brother->brother != NULL )
-							{
-								result = append_code( result, make_decl( fetch_scope( current_id->value.s_val )->schema ) );
-								const_size++;
-
-								current_id = current_id->brother;
-							}
-
-							for( ; const_size > 0; const_size-- )
-								values = append_code( values, generate_code( current_id->brother ) );
-
-							current_child = current_child->brother;
-						}
-
-						result = append_code( result, values );
-						break;
-					}
-					
-					case N_FIELDING:
-					{
-						Node* current_node = node->child;
-						// Something like
-						Symbol* struct_table = fetch_scope( current_node->value.s_val );
-						result = make_code_two_param
-								 (
-									 SOL_LDA, 
-									 struct_table->nesting,
-									 struct_table->oid
-								 );
-						
-						// Reaching the requested filed address in the struct
-						Code load_field = empty_code();
-						Schema* field_schema = struct_table->schema;
-						current_node = current_node->brother;
-						while( field_schema != NULL && field_schema->id != current_node->value.s_val )
-						{
-							result = append_code
-									 (
-										 result,
-										 make_code_one_param
-										 (
-											 SOL_FDA,
-											 schema_size( field_schema )
-										 )
-									 );
-											
-							field_schema = field_schema->brother;
-						}
-
-						// FIXME
-						if( field_schema == NULL )
-							break;
-						
-						// I hope it works like this
-						result = append_code( result,
-											  make_code_one_param
-											  (
-												  // FIXME
-												  ( field_schema->size == 1 ? SOL_EIL : SOL_SIL ),
-												  field_schema->size * schema_size( field_schema )
-											  )
-						);
-						break;
-					}
-
-					case N_INDEXING:
-					{
-						Node* current_node = node->child;
-						
-						Symbol* array_table = fetch_scope( current_node->value.s_val );
-						result = make_code_two_param
-											(
-												SOL_LDA, 
-												array_table->nesting,
-												array_table->oid
-											);
-						
-						// Computing index value
-						current_node = current_node->brother;
 						result = append_code( result, generate_code( current_node ) );
-				
-						// Going deeply until i don't reach the final type of the array
-						Code ixa_code = empty_code();
-						Schema* index_schema = array_table->schema;
-						while( index_schema->child != NULL )
+						current_node = current_node->brother;
+					}
+					if( current_node->value.n_val == N_FUNC_LIST )
+					{
+						Node* current_child = current_node->child;
+						do
 						{
-							index_schema = index_schema->child;
-							result = append_code
-									 (
-										 result,
-										 make_code_one_param
-										 (
-											 SOL_IXA,
-											 schema_size( index_schema )
-										 )
-									 );
-						}
-						
-						result = append_code( result,
-											  make_code_one_param
-											  (
-												  SOL_EIL,
-												  schema_size( index_schema )
-											  )
-											);
-						
-						break;
+							result = append_code( result, generate_code( current_child ) );
+							current_child = current_child->brother;
+						} while( current_child != NULL );
+
+						current_node = current_node->brother;
 					}
 
-					case N_COND_EXPR:
+					// FIXME Work on every statement
+					result = append_code( result, generate_code( current_node->child->brother ) );
+					break;
+				}
+
+				case N_VAR_SECT:
+				{
+					Node* current_child = node->child;
+					while( current_child != NULL )
 					{
-						Node* current_child = node->child;
-						Code condition = generate_code( current_child );
-						Code value = generate_code( current_child = current_child->brother );
-						Code next = make_code_one_param( SOL_JMF, value.size + 2 );
-						Code exit = make_code_no_param( SOL_JMP );
-						
-						result = concatenate_code( condition, next, value, exit );
-						Code exit_list = exit;
-						
-						while( current_child->value.n_val == N_ELSIF_EXPR )
+						Node* current_id = current_child->child;
+						while( current_id->brother != NULL )
 						{
-							condition = generate_code( current_child->child );
-							value = generate_code( current_child = current_child->child->brother );
-							next = make_code_one_param( SOL_JMF, value.size + 2 );
-							exit = make_code_no_param( SOL_JMP );
-							
-							result = concatenate_code( result, condition, next, value, exit );
-							exit_list = append_code( exit_list, exit );
-							
-							current_child = current_child->brother;
+							result = append_code( result, make_decl( fetch_scope( current_id->value.s_val )->schema ) );
+
+							current_id = current_id->brother;
 						}
-						
-						result = append_code( result, generate_code( current_child ) );
-						
-						Stat* exit_stat;
-						for( exit_stat = exit_list.head; exit_stat != NULL; exit_stat = exit_stat->next )
-							exit_stat->args[ 0 ].i_val = result.size - exit_stat->address + 1;
-						
+
+						current_child = current_child->brother;
+					}
+					break;
+				}
+
+				case N_CONST_SECT:
+				{
+					Code values = empty_code();
+					Node* current_child = node->child;
+					while( current_child != NULL )
+					{
+						int const_size = 0;
+						Node* current_id = current_child->child;
+						while( current_id->brother->brother != NULL )
+						{
+							result = append_code( result, make_decl( fetch_scope( current_id->value.s_val )->schema ) );
+							const_size++;
+
+							current_id = current_id->brother;
+						}
+
+						for( ; const_size > 0; const_size-- )
+							values = append_code( values, generate_code( current_id->brother ) );
+
+						current_child = current_child->brother;
+					}
+
+					result = append_code( result, values );
+					break;
+				}
+				
+				case N_FIELDING:
+				{
+					Node* current_node = node->child;
+					// Something like
+					Symbol* struct_table = fetch_scope( current_node->value.s_val );
+					result = make_code_two_param
+							 (
+								 SOL_LDA, 
+								 struct_table->nesting,
+								 struct_table->oid
+							 );
+					
+					// Reaching the requested filed address in the struct
+					Code load_field = empty_code();
+					Schema* field_schema = struct_table->schema;
+					current_node = current_node->brother;
+					while( field_schema != NULL && field_schema->id != current_node->value.s_val )
+					{
+						result = append_code
+								 (
+									 result,
+									 make_code_one_param
+									 (
+										 SOL_FDA,
+										 schema_size( field_schema )
+									 )
+								 );
+										
+						field_schema = field_schema->brother;
+					}
+
+					// FIXME
+					if( field_schema == NULL )
 						break;
+					
+					// I hope it works like this
+					result = append_code( result,
+										  make_code_one_param
+										  (
+											  // FIXME
+											  ( field_schema->size == 1 ? SOL_EIL : SOL_SIL ),
+											  field_schema->size * schema_size( field_schema )
+										  )
+					);
+					break;
+				}
+
+				case N_INDEXING:
+				{
+					Node* current_node = node->child;
+					
+					Symbol* array_table = fetch_scope( current_node->value.s_val );
+					result = make_code_two_param
+										(
+											SOL_LDA, 
+											array_table->nesting,
+											array_table->oid
+										);
+					
+					// Computing index value
+					current_node = current_node->brother;
+					result = append_code( result, generate_code( current_node ) );
+			
+					// Going deeply until i don't reach the final type of the array
+					Code ixa_code = empty_code();
+					Schema* index_schema = array_table->schema;
+					while( index_schema->child != NULL )
+					{
+						index_schema = index_schema->child;
+						result = append_code
+								 (
+									 result,
+									 make_code_one_param
+									 (
+										 SOL_IXA,
+										 schema_size( index_schema )
+									 )
+								 );
 					}
 					
-					case N_READ_STAT:
-					{
-						Symbol* referenced_id;
-						if( node->child->brother == NULL )
-						{
-							referenced_id = fetch_scope( node->child->value.s_val );
-							result = make_code_two_param( SOL_READ, referenced_id->nesting, referenced_id->oid );
-						}
-						else
-						{
-							referenced_id = fetch_scope( node->child->brother->value.s_val );
-							result = append_code( generate_code( node->child ),
-												  make_code_two_param( SOL_READ, referenced_id->nesting, referenced_id->oid ) );
-						}
-							
-						result.tail->args[ 2 ].s_val = schema_to_string( referenced_id->schema );
-							
-						break;
-					}
-
-					default:
-
-						// FIXME Debug only
-						if( node->child != NULL )
-							result = append_code( result, generate_code( node->child ) );
-						if( node->brother != NULL )
-							result = append_code( result, generate_code( node->brother ) );
-						break;
+					result = append_code( result,
+										  make_code_one_param
+										  (
+											  SOL_EIL,
+											  schema_size( index_schema )
+										  )
+										);
+					
+					break;
 				}
-				break;
+
+				case N_COND_EXPR:
+				{
+					Node* current_child = node->child;
+					Code condition = generate_code( current_child );
+					Code value = generate_code( current_child = current_child->brother );
+					Code next = make_code_one_param( SOL_JMF, value.size + 2 );
+					Code exit = make_code_no_param( SOL_JMP );
+					
+					result = concatenate_code( condition, next, value, exit );
+					Code exit_list = exit;
+					
+					while( current_child->value.n_val == N_ELSIF_EXPR )
+					{
+						condition = generate_code( current_child->child );
+						value = generate_code( current_child = current_child->child->brother );
+						next = make_code_one_param( SOL_JMF, value.size + 2 );
+						exit = make_code_no_param( SOL_JMP );
+						
+						result = concatenate_code( result, condition, next, value, exit );
+						exit_list = append_code( exit_list, exit );
+						
+						current_child = current_child->brother;
+					}
+					
+					result = append_code( result, generate_code( current_child ) );
+					
+					Stat* exit_stat;
+					for( exit_stat = exit_list.head; exit_stat != NULL; exit_stat = exit_stat->next )
+						exit_stat->args[ 0 ].i_val = result.size - exit_stat->address + 1;
+					
+					break;
+				}
+				
+				case N_READ_STAT:
+				{
+					Symbol* referenced_id;
+					if( node->child->brother == NULL )
+					{
+						referenced_id = fetch_scope( node->child->value.s_val );
+						result = make_code_two_param( SOL_READ, referenced_id->nesting, referenced_id->oid );
+					}
+					else
+					{
+						referenced_id = fetch_scope( node->child->brother->value.s_val );
+						result = append_code( generate_code( node->child ),
+											  make_code_two_param( SOL_READ, referenced_id->nesting, referenced_id->oid ) );
+					}
+						
+					result.tail->args[ 2 ].s_val = schema_to_string( referenced_id->schema );
+						
+					break;
+				}
+
+				default:
+
+					// FIXME Debug only
+					if( node->child != NULL )
+						result = append_code( result, generate_code( node->child ) );
+					if( node->brother != NULL )
+						result = append_code( result, generate_code( node->brother ) );
+					break;
+			}
+			break;
 
 		default:
 
@@ -705,7 +729,7 @@ Code append_code( Code first, Code second )
 		return first;
 
 	Code result;
-	relocate_address( second, first.size );
+	relocate_address( second, first.size - second.head->address );
 	result.head = first.head;
 	result.tail = second.tail;
 	first.tail->next = second.head;
