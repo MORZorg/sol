@@ -55,11 +55,7 @@ Code generate_code( Node* node )
 			break;
 			
 		case T_ID:
-		{
-			Symbol* referenced_id = fetch_scope( node->value.s_val );
-			result = make_code_two_param( SOL_LOD, referenced_id->nesting, referenced_id->oid );
 			break;
-		}
 
 		case T_INSTANCE_EXPR:
 		{
@@ -388,59 +384,6 @@ Code generate_code( Node* node )
 			break;
 		}
 
-		case N_DYNAMIC_INPUT:
-		{
-			Node* child = node->child;
-
-			Operator use_me = SOL_RD;
-
-			// Determine if the WR has a specifier-opt or not
-			if( child->brother != NULL )
-			{
-				Code specifier_opt = generate_code( child );
-
-				result = append_code( result, specifier_opt );
-
-				child = child->brother;
-
-				use_me = SOL_FRD;
-			}
-			
-			result = append_code( result, make_code_no_param( use_me ) );
-			
-			// Format
-			result.tail->args[1].s_val = schema_to_string( infere_expression_schema( child ) );
-
-			break;
-		}
-
-		case N_DYNAMIC_OUTPUT:
-		{
-			Node* expr_child = node->child;
-
-			Operator use_me = SOL_WR;
-
-			// Determine if the WR has a specifier-opt or not
-			if( expr_child->brother != NULL )
-			{
-				Code specifier_opt = generate_code( expr_child );
-
-				result = append_code( result, specifier_opt );
-
-				expr_child = expr_child->brother;
-
-				use_me = SOL_FWR;
-			}
-			
-			Schema* expression_schema = infere_expression_schema( expr_child );
-			Code expr = generate_code( expr_child );
-
-			result = concatenate_code( result, expr, make_code_no_param( use_me ) );
-			
-			result.tail->args[1].s_val = schema_to_string( expression_schema );
-
-			break;
-		}
 	
 		case T_UNQUALIFIED_NONTERMINAL:
 			switch( node->value.n_val )
@@ -599,64 +542,6 @@ Code generate_code( Node* node )
 					break;
 				}
 				
-				case N_FIELDING:
-				{
-					Node* current_node = node->child;
-					// Something like
-					Symbol* struct_table = fetch_scope( current_node->value.s_val );
-					result = make_code_two_param( SOL_LDA, struct_table->nesting, struct_table->oid );
-					
-					// Reaching the requested filed address in the struct
-					Code load_field = empty_code();
-					Schema* field_schema = struct_table->schema;
-					current_node = current_node->brother;
-					while( field_schema != NULL && field_schema->id != current_node->value.s_val )
-					{
-						result = append_code( result, make_code_one_param( SOL_FDA, schema_size( field_schema ) ) );
-						
-						field_schema = field_schema->brother;
-					}
-
-					// FIXME
-					if( field_schema == NULL )
-						break;
-					
-					// I hope it works like this
-					// FIXME
-					result = append_code(
-								result, 
-								make_code_one_param( ( field_schema->size == 1 ? SOL_EIL : SOL_SIL ), field_schema->size * schema_size( field_schema ) ) );
-					break;
-				}
-
-				case N_INDEXING:
-				{
-					Node* current_node = node->child;
-					
-					Symbol* array_table = fetch_scope( current_node->value.s_val );
-					result = make_code_two_param( SOL_LDA, array_table->nesting, array_table->oid );
-					
-					// Computing index value
-					current_node = current_node->brother;
-					result = append_code( result, generate_code( current_node ) );
-			
-					// Going deeply until i don't reach the final type of the array
-					Code ixa_code = empty_code();
-					Schema* index_schema = array_table->schema;
-					while( index_schema->child != NULL )
-					{
-						index_schema = index_schema->child;
-						result = append_code(
-									result,
-									make_code_one_param( SOL_IXA, schema_size( index_schema ) ) );
-					}
-					
-					result = append_code(
-								result,
-								make_code_one_param ( SOL_EIL, schema_size( index_schema ) ) );
-					
-					break;
-				}
 
 				case N_COND_EXPR:
 				{
@@ -757,6 +642,60 @@ Code generate_code( Node* node )
 					break;
 				}
 
+				case N_DYNAMIC_INPUT:
+				{
+					Node* child = node->child;
+
+					Operator use_me = SOL_RD;
+
+					// Determine if the WR has a specifier-opt or not
+					if( child->brother != NULL )
+					{
+						Code specifier_opt = generate_code( child );
+
+						result = append_code( result, specifier_opt );
+
+						child = child->brother;
+
+						use_me = SOL_FRD;
+					}
+					
+					result = append_code( result, make_code_no_param( use_me ) );
+					
+					// Format
+					result.tail->args[1].s_val = schema_to_string( infere_expression_schema( child ) );
+
+					break;
+				}
+
+				case N_DYNAMIC_OUTPUT:
+				{
+					Node* expr_child = node->child;
+
+					Operator use_me = SOL_WR;
+
+					// Determine if the WR has a specifier-opt or not
+					if( expr_child->brother != NULL )
+					{
+						Code specifier_opt = generate_code( expr_child );
+
+						result = append_code( result, specifier_opt );
+
+						expr_child = expr_child->brother;
+
+						use_me = SOL_FWR;
+					}
+					
+					Schema* expression_schema = infere_expression_schema( expr_child );
+					Code expr = generate_code( expr_child );
+
+					result = concatenate_code( result, expr, make_code_no_param( use_me ) );
+					
+					result.tail->args[1].s_val = schema_to_string( expression_schema );
+
+					break;
+				}
+
 				case N_WRITE_STAT:
 				{
 					Operator op;
@@ -780,12 +719,135 @@ Code generate_code( Node* node )
 					break;
 				}
 
+				case N_FIELDING:
+				case N_INDEXING:
+					result = generate_lhs_code( node, TRUE );
+					break;
 				default:
 					break;
 			}
 			break;
 
 		default:
+			break;
+	}
+
+	return result;
+}
+
+/**
+ * @brief Function that generates the code for a lhs term, which could be a combination of fields and arrays.
+ *
+ * @param node 
+ * @param is_first Indicates if the node is the first or a nested one.
+ *
+ * @return The whole code of the lhs
+ */
+Code generate_lhs_code( Node* node, Boolean is_first )
+{
+	Code result = empty_code();
+
+	switch( node->type )
+	{
+		case T_ID:
+		{
+			if( is_first )
+			{
+				Symbol* referenced_id = fetch_scope( node->value.s_val );
+				result = make_code_two_param( SOL_LOD, referenced_id->nesting, referenced_id->oid );
+			}
+			else
+			{
+				// Something
+				/* result = make_code_one_param( SOL_ */
+				// Return the size of the ID
+			}
+			break;
+		}
+
+		case T_UNQUALIFIED_NONTERMINAL:
+		{
+			switch( node->value.n_val )
+			{
+				case N_FIELDING:
+				{
+					Node* current_node = node->child;
+					// Something like
+					Symbol* struct_table = fetch_scope( current_node->value.s_val );
+					result = make_code_two_param( SOL_LDA, struct_table->nesting, struct_table->oid );
+					
+					// Reaching the requested field address in the struct
+					Code load_field = empty_code();
+					Schema* field_schema = struct_table->schema;
+					current_node = current_node->brother;
+
+					while( field_schema != NULL && field_schema->id != current_node->value.s_val )
+					{
+						result = append_code( result, make_code_one_param( SOL_FDA, schema_size( field_schema ) ) );
+						/* result = append_code( result, generate_lhs_code( field_schema, FALSE ) ); */
+						
+						field_schema = field_schema->brother;
+					}
+
+					// FIXME
+					if( field_schema == NULL )
+						break;
+					
+					// I hope it works like this
+					// FIXME
+					result = append_code(
+								result, 
+								make_code_one_param( ( field_schema->size == 1 ? SOL_EIL : SOL_SIL ), field_schema->size * schema_size( field_schema ) ) );
+					break;
+				}
+
+				case N_INDEXING:
+				{
+					Node* current_node = node->child;
+					
+					Symbol* array_table = fetch_scope( current_node->value.s_val );
+					result = make_code_two_param( SOL_LDA, array_table->nesting, array_table->oid );
+					
+					// Going deeply until i don't reach the final type of the array
+					current_node = current_node->brother;
+					Schema* index_schema = array_table->schema->child;
+					Code ixa_code = empty_code();
+
+					/* while( index_schema->child != NULL ) */
+					/* { */
+					/* 	// This has to be reworked: i need the value of the expression here */
+					/* 	ixa_code = append_code( ixa_code, generate_lhs_code( current_node, index_schema ) ); */
+					/* 	ixa_code = append_code( ixa_code, make_code_two_param( SOL_IXA, schema_size( index_schema ) ); */
+					/* 	index_schema = index_schema->child; */
+					/* 	current_node = current_node->child; */
+
+					/* 	/1* // Computing index value *1/ */
+					/* 	/1* result = append_code( result, generate_code( current_node ) ); *1/ */
+			
+					/* 	/1* result = append_code( *1/ */
+					/* 	/1* 			result, *1/ */
+					/* 	/1* 			make_code_one_param( SOL_IXA, schema_size( index_schema ) ) ); *1/ */
+					/* } */
+					
+					// Calculating the index
+					ixa_code = append_code( ixa_code, generate_code( current_node ) );
+					// Writing the code for the offset
+					result = append_code( ixa_code, make_code_one_param( SOL_IXA, schema_size( index_schema ) );
+					
+					result = append_code( result, make_code_one_param( SOL_EIL, schema_size( index_schema ) ) );
+					
+					break;
+				}
+
+				default:
+					fprintf( stderr, "ERROR: lhs code unknown unqualified node\n" );
+					break;
+			}
+			break;
+		}
+
+		default:
+			fprintf( stderr, "ERROR: lhs code unknown qualified node\n" );
 			break;
 	}
 
