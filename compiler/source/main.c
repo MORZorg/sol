@@ -80,11 +80,11 @@ char* change_extension( char* a_path );
 
 int main( int argc, char** argv )
 {
-	char* fileInput;
-	char* fileOutput;
+	char* fileInput = NULL;
+	char* fileOutput = NULL;
 
 	int i = 0;
-	while (++i < argc)
+	while ( ++i < argc )
 	{
 		if( argv[ i ][ 0 ] != '-' )
 			fileInput = argv[ i++ ];
@@ -160,6 +160,9 @@ int main( int argc, char** argv )
 
 	if( yygen( input, output ) == 0 )
 		fprintf( stdout, "Generated all S-code (ﾉ◕ヮ◕)ﾉ*:・ﾟ✧\n" ); 
+
+	fclose( input );
+	fclose( output );
 
 	return 0;
 }

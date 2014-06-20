@@ -391,7 +391,7 @@ char* schema_to_string( Schema* a_schema )
 				 current_attr = current_attr->brother )
 			{
 				char* schema = schema_to_string( current_attr->child );
-				realloc( result, ( strlen( result ) + strlen( current_attr->id ) + strlen( schema ) ) * sizeof( char ) );
+				result = realloc( result, ( strlen( result ) + strlen( current_attr->id ) + strlen( schema ) ) * sizeof( char ) );
 				sprintf( result, "%s%s:%s,", result, current_attr->id, schema );
 			}
 			result[ strlen( result )-1 ] = ')';
