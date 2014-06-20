@@ -602,12 +602,7 @@ Code generate_code( Node* node )
 					Node* current_node = node->child;
 					// Something like
 					Symbol* struct_table = fetch_scope( current_node->value.s_val );
-					result = make_code_two_param
-							 (
-								 SOL_LDA, 
-								 struct_table->nesting,
-								 struct_table->oid
-							 );
+					result = make_code_two_param( SOL_LDA, struct_table->nesting, struct_table->oid );
 					
 					// Reaching the requested filed address in the struct
 					Code load_field = empty_code();
@@ -615,16 +610,8 @@ Code generate_code( Node* node )
 					current_node = current_node->brother;
 					while( field_schema != NULL && field_schema->id != current_node->value.s_val )
 					{
-						result = append_code
-								 (
-									 result,
-									 make_code_one_param
-									 (
-										 SOL_FDA,
-										 schema_size( field_schema )
-									 )
-								 );
-										
+						result = append_code( result, make_code_one_param( SOL_FDA, schema_size( field_schema ) ) );
+						
 						field_schema = field_schema->brother;
 					}
 
@@ -633,14 +620,10 @@ Code generate_code( Node* node )
 						break;
 					
 					// I hope it works like this
-					result = append_code( result,
-										  make_code_one_param
-										  (
-											  // FIXME
-											  ( field_schema->size == 1 ? SOL_EIL : SOL_SIL ),
-											  field_schema->size * schema_size( field_schema )
-										  )
-					);
+					// FIXME
+					result = append_code(
+								result, 
+								make_code_one_param( ( field_schema->size == 1 ? SOL_EIL : SOL_SIL ), field_schema->size * schema_size( field_schema ) ) );
 					break;
 				}
 
@@ -649,12 +632,7 @@ Code generate_code( Node* node )
 					Node* current_node = node->child;
 					
 					Symbol* array_table = fetch_scope( current_node->value.s_val );
-					result = make_code_two_param
-										(
-											SOL_LDA, 
-											array_table->nesting,
-											array_table->oid
-										);
+					result = make_code_two_param( SOL_LDA, array_table->nesting, array_table->oid );
 					
 					// Computing index value
 					current_node = current_node->brother;
@@ -666,24 +644,14 @@ Code generate_code( Node* node )
 					while( index_schema->child != NULL )
 					{
 						index_schema = index_schema->child;
-						result = append_code
-								 (
-									 result,
-									 make_code_one_param
-									 (
-										 SOL_IXA,
-										 schema_size( index_schema )
-									 )
-								 );
+						result = append_code(
+									result,
+									make_code_one_param( SOL_IXA, schema_size( index_schema ) ) );
 					}
 					
-					result = append_code( result,
-										  make_code_one_param
-										  (
-											  SOL_EIL,
-											  schema_size( index_schema )
-										  )
-										);
+					result = append_code(
+								result,
+								make_code_one_param ( SOL_EIL, schema_size( index_schema ) ) );
 					
 					break;
 				}
