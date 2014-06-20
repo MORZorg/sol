@@ -248,9 +248,7 @@ Code generate_code( Node* node )
 			}
 
 			// Pretty standard, really
-			result = append_code( result, expr1 );
-			result = append_code( result, expr2 );
-			result = append_code( result, make_code_no_param( use_me ) );
+			result = concatenate_code( result, expr1, expr2, make_code_no_param( use_me ) );
 
 			break;
 		}
@@ -332,9 +330,7 @@ Code generate_code( Node* node )
 			printf( "RESULTING OPERATOR: (%d)\n\n", use_me );
 
 			// Pretty standard, really
-			result = append_code( result, expr1 );
-			result = append_code( result, expr2 );
-			result = append_code( result, make_code_no_param( use_me ) );
+			result = concatenate_code( result, expr1, expr2, make_code_no_param( use_me ) );
 			
 			break;
 		}
@@ -367,8 +363,7 @@ Code generate_code( Node* node )
 			}
 
 			// Pretty standard, really
-			result = append_code( result, expr );
-			result = append_code( result, make_code_no_param( use_me ) );
+			result = concatenate_code( result, expr, make_code_no_param( use_me ) );
 			
 			break;
 		}
