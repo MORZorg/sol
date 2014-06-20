@@ -2,6 +2,7 @@
 #define __GENERATOR_H__
 
 #include <string.h>
+#include <stdarg.h>
 
 #include "def.h"
 #include "stacklist.h"
@@ -63,7 +64,7 @@ typedef enum
   SOL_IUMI,
   SOL_RUMI,
   SOL_NEG,
-  SOL_WE,
+  SOL_WR,
   SOL_FWR,
   SOL_PUSH,
   SOL_GOTO,
