@@ -294,6 +294,9 @@ void code_print( Code code )
 		switch( current_stat->op )
 		{
 			case SOL_READ:
+			case SOL_WRITE:
+			case SOL_FREAD:
+			case SOL_FWRITE:
 				printf( "%d: %s %d %d \"%s\"\n",
 						current_stat->address,
 						CODE_OPERATORS[ current_stat->op ],
