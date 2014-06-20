@@ -50,6 +50,10 @@ int yysem()
 {
 	// Passing through the syntax tree to check semantic
 	int result = yyparse();
+	
+	// DEBUGGY
+	tree_print( root, 0 );
+
 	if( result == 0 )
 	{
 		symbol_table = check_function_subtree( root, 1 );

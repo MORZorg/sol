@@ -27,6 +27,8 @@ int yygen( FILE* input, FILE* output )
 
 Code generate_code( Node* node )
 {
+	printf( "TYPE: %d\n", node->type );
+
 	Code result = empty_code();
 
 	switch( node->type )
@@ -53,6 +55,8 @@ Code generate_code( Node* node )
 
 		case T_ID:
 		{
+			printf( "CASE: ID\n" );
+			
 			Symbol* referenced_id = fetch_scope( node->value.s_val );
 			result = make_code_two_param( SOL_LOD, referenced_id->nesting, referenced_id->oid );
 			break;
@@ -73,6 +77,288 @@ Code generate_code( Node* node )
 			result = append_code( result, make_code_two_param( SOL_CAT, size, schema_size( infere_expression_schema( node ) ) ) );
 		}
 
+		case T_LOGIC_EXPR:
+		{
+			Node* current_child = node->child;
+
+			Code expr1 = generate_code( current_child );
+			Code expr2 = generate_code( current_child = current_child->brother );
+
+			switch( node->value.q_val )
+			{
+				case Q_AND:
+					// Expr1 evaluation
+					result = append_code( result, expr1 );
+					// The jump must surpass the expr2 code and the following unconditioned jump, therefore it is at size + 2 
+					result = append_code( result, make_code_one_param( SOL_JMF, expr2.size + 2 ) );
+					// Expr2 evaluation
+					result = append_code( result, expr2 );
+					// If true, surpass the ldc setting the result to false and go to the one which sets it as true
+					result = append_code( result, make_code_one_param( SOL_JMP, 2 ) );
+					// False ldc
+					result = append_code( result, make_code_one_param( SOL_LDC, 0 ) );
+					// The result is now on top of the stack (hopefully, if Lamperti is right)
+					break;
+
+				case Q_OR:
+					// Expr1 evaluation
+					result = append_code( result, expr1 );
+					// If expr1 is false, jump to expr2 evaluation
+					result = append_code( result, make_code_one_param( SOL_JMF, 3 ) );
+					// Else load true and jump after expr2 evaluation
+					result = append_code( result, make_code_one_param( SOL_LDC, 1 ) );
+					result = append_code( result, make_code_one_param( SOL_JMP, expr2.size + 1 ) );
+					// Expr2 evaluation
+					result = append_code( result, expr2 );
+					// The result is now on top of the stack (hopefully, if Lamperti is right)
+					break;
+
+				default:
+					break;
+			}
+
+			break;
+		}
+
+		case T_REL_EXPR:
+		{
+			// Process the 2 expressions, operands of the rel_expr
+			Node* current_child = node->child;
+			Code expr1 = generate_code( current_child );
+			Code expr2 = generate_code( current_child = current_child->brother );
+
+			Schema* operands_schema = infere_expression_schema( current_child );
+			Operator use_me;
+
+			// Determine the operand to use using both the qualifier and operands type
+			switch( node->value.q_val )
+			{
+				case Q_EQ:
+					use_me = SOL_EQU;
+					break;
+
+				case Q_NEQ:
+					use_me = SOL_NEQ;
+					break;
+
+				case Q_GT:
+					switch( operands_schema->type )
+					{
+						case TS_CHAR:
+							use_me = SOL_CGT;
+							break;
+
+						case TS_INT:
+							use_me = SOL_IGT;
+							break;
+
+						case TS_REAL:
+							use_me = SOL_RGT;
+							break;
+
+						case TS_STRING:
+							use_me = SOL_SGT;
+							break;
+					}
+					break;
+						
+				case Q_GEQ:
+					switch( operands_schema->type )
+					{
+						case TS_CHAR:
+							use_me = SOL_CGE;
+							break;
+
+						case TS_INT:
+							use_me = SOL_IGE;
+							break;
+
+						case TS_REAL:
+							use_me = SOL_RGE;
+							break;
+
+						case TS_STRING:
+							use_me = SOL_SGE;
+							break;
+					}
+					break;
+						
+				case Q_LT:
+					switch( operands_schema->type )
+					{
+						case TS_CHAR:
+							use_me = SOL_CLT;
+							break;
+
+						case TS_INT:
+							use_me = SOL_ILT;
+							break;
+
+						case TS_REAL:
+							use_me = SOL_RLT;
+							break;
+
+						case TS_STRING:
+							use_me = SOL_ILT;
+							break;
+					}
+					break;
+						
+				case Q_LEQ:
+					switch( operands_schema->type )
+					{
+						case TS_CHAR:
+							use_me = SOL_CLE;
+							break;
+
+						case TS_INT:
+							use_me = SOL_ILE;
+							break;
+
+						case TS_REAL:
+							use_me = SOL_RLE;
+							break;
+
+						case TS_STRING:
+							use_me = SOL_SLE;
+							break;
+					}
+					break;
+
+				case Q_IN:
+					use_me = SOL_IN;
+					break;
+						
+				default:
+					break;
+			}
+
+			// Pretty standard, really
+			result = append_code( result, expr1 );
+			result = append_code( result, expr2 );
+			result = append_code( result, make_code_no_param( use_me ) );
+
+			break;
+		}
+
+		case T_MATH_EXPR:
+		{
+			printf( "CASE: MATH_EXPR(%d)\n", node->value.q_val );
+
+			Node* current_child = node->child;
+			
+			// Similar to REL_EXPR, but with less cases
+			Code expr1 = generate_code( current_child );
+			Code expr2 = generate_code( current_child = current_child->brother );
+
+			Schema* operands_schema = infere_expression_schema( current_child );
+			Operator use_me;
+
+			printf( "OPERAND TYPE: (%d)\n", operands_schema->type );
+
+			// Determine the operand to use using both the qualifier and operands type
+			switch( node->value.q_val )
+			{
+				case Q_PLUS:
+					switch( operands_schema->type )
+					{
+						case TS_INT:
+							use_me = SOL_IPLUS;
+							break;
+
+						case TS_REAL:
+							use_me = SOL_RPLUS;
+							break;
+					}
+					break;
+						
+				case Q_MINUS:
+					switch( operands_schema->type )
+					{
+						case TS_INT:
+							use_me = SOL_IMINUS;
+							break;
+
+						case TS_REAL:
+							use_me = SOL_RMINUS;
+							break;
+					}
+					break;
+				
+				case Q_MULTIPLY:
+					switch( operands_schema->type )
+					{
+						case TS_INT:
+							use_me = SOL_ITIMES;
+							break;
+
+						case TS_REAL:
+							use_me = SOL_RTIMES;
+							break;
+					}
+					break;
+
+				case Q_DIVIDE:
+					switch( operands_schema->type )
+					{
+						case TS_INT:
+							use_me = SOL_IDIV;
+							break;
+
+						case TS_REAL:
+							use_me = SOL_RDIV;
+							break;
+					}
+					break;
+
+				default:
+					break;
+			}
+			
+			printf( "RESULTING OPERATOR: (%d)\n\n", use_me );
+
+			// Pretty standard, really
+			result = append_code( result, expr1 );
+			result = append_code( result, expr2 );
+			result = append_code( result, make_code_no_param( use_me ) );
+			
+			break;
+		}
+
+		case T_NEG_EXPR:
+		{
+			Node* current_child = node->child;
+			
+			Code expr = generate_code( current_child );
+
+			Schema* operands_schema = infere_expression_schema( current_child );
+			Operator use_me;
+
+			switch( operands_schema->type )
+			{
+				case TS_INT:
+					use_me = SOL_IUMI;
+					break;
+
+				case TS_REAL:
+					use_me = SOL_RUMI;
+					break;
+
+				case TS_BOOL:
+					use_me = SOL_NEG;
+					break;
+
+				default:
+					break;
+			}
+
+			// Pretty standard, really
+			result = append_code( result, expr );
+			result = append_code( result, make_code_no_param( use_me ) );
+			
+			break;
+		}
+		
 		case T_UNQUALIFIED_NONTERMINAL:
 			switch( node->value.n_val )
 			{
@@ -169,10 +455,18 @@ Code generate_code( Node* node )
 
 
 				default:
+					if( node->child != NULL )
+						result = append_code( result, generate_code( node->child ) );
+					if( node->brother != NULL )
+						result = append_code( result, generate_code( node->brother ) );
 					break;
 			}
 
 		default:
+			if( node->child != NULL )
+				result = append_code( result, generate_code( node->child ) );
+			if( node->brother != NULL )
+				result = append_code( result, generate_code( node->brother ) );
 			break;
 	}
 
