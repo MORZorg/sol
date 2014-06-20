@@ -294,9 +294,7 @@ void code_print( Code code )
 		switch( current_stat->op )
 		{
 			case SOL_READ:
-			case SOL_WRITE:
 			case SOL_FREAD:
-			case SOL_FWRITE:
 				printf( "%d: %s %d %d \"%s\"\n",
 						current_stat->address,
 						CODE_OPERATORS[ current_stat->op ],
@@ -312,6 +310,8 @@ void code_print( Code code )
 						current_stat->args[ 0 ].c_val );
 				break;
 
+			case SOL_WRITE:
+			case SOL_FWRITE:
 			case SOL_LDS:
 				printf( "%d: %s \"%s\"\n",
 						current_stat->address,
@@ -336,6 +336,15 @@ void code_print( Code code )
 						current_stat->args[ 1 ].i_val );
 				break;
 
+			case SOL_EQU:
+			case SOL_IGT:
+			case SOL_IGE:
+			case SOL_NEG:
+			case SOL_NEQ:
+			case SOL_IPLUS:
+			case SOL_RPLUS:
+			case SOL_RTIMES:
+			case SOL_IUMI:
 			case SOL_TOINT:
 			case SOL_TOREAL:
 				printf( "%d: %s\n",

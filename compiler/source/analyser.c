@@ -50,9 +50,6 @@ int yysem()
 {
 	// Passing through the syntax tree to check semantic
 	int result = yyparse();
-	
-	// DEBUGGY
-	tree_print( root, 0 );
 
 	if( result == 0 )
 	{
@@ -1039,16 +1036,20 @@ Boolean type_check( Node* node )
 		case N_CONST_SECT:
 		case N_CONST_DECL:
 		case N_FUNC_LIST:
-		case N_FUNC_BODY:
 			// TODO Remove?
 			break;
+
+		case N_FUNC_BODY:
+		{
+			if( !type_check( node->child->brother ) )
+				yysemerror( node, STR_NO_RETURN );
+
+			break;
+		}
 
 		case N_STAT_LIST:
 		{
 			Node* current_node = node->child;
-
-			// Cycling on all children of the list
-			//while( current_node != NULL && current_node->value.n_val != N_RETURN_STAT )
 			while( current_node != NULL && !has_return )
 			{
 				// Keeping track of the return statement
@@ -1057,12 +1058,8 @@ Boolean type_check( Node* node )
 				current_node = current_node->brother;
 			}
 
-			if( !has_return )
-				yysemerror( node, STR_NO_RETURN );
-			else
-				if( current_node != NULL )
-					yysemerror( current_node, STR_CODE_AFTER_RETURN );
-
+			if( has_return && current_node != NULL )
+				yysemerror( current_node, STR_CODE_AFTER_RETURN );
 			break;
 		}
 

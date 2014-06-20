@@ -114,17 +114,21 @@ func_body : SOL_BEGIN ID { $$ = new_terminal_node( T_ID, lexval ); } stat_list E
 
 				$$ = new_nonterminal_node( N_FUNC_BODY );
 				$$->child = $3;
-				$3->brother = new_nonterminal_node( N_STAT_LIST );
-				$3->brother->child = $4;
+				$$->child->brother = $4;
 			}
           ;
 
 stat_list : stat ';' stat_list
 		    {
-				$$ = $1;
-				$$->brother = $3;
+				$$ = new_nonterminal_node( N_STAT_LIST );
+				$$->child = $1;
+				$$->child->brother = $3->child;
 			}
-          | stat ';' { $$ = $1; }
+          | stat ';'
+			{
+				$$ = new_nonterminal_node( N_STAT_LIST );
+				$$->child = $1;
+			}
           ;
 
 stat : assign_stat { $$ = $1; }

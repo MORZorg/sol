@@ -30,8 +30,6 @@ int yygen( FILE* input, FILE* output )
 
 Code generate_code( Node* node )
 {
-	fprintf( stderr, "Working on: %d %d\n", node->type, node->value.i_val );
-
 	Code result = empty_code();
 
 	switch( node->type )
@@ -271,8 +269,6 @@ Code generate_code( Node* node )
 
 		case T_MATH_EXPR:
 		{
-			printf( "CASE: MATH_EXPR(%d)\n", node->value.q_val );
-
 			Node* current_child = node->child;
 			
 			// Similar to REL_EXPR, but with less cases
@@ -281,8 +277,6 @@ Code generate_code( Node* node )
 
 			Schema* operands_schema = infere_expression_schema( current_child );
 			Operator use_me;
-
-			printf( "OPERAND TYPE: (%d)\n", operands_schema->type );
 
 			// Determine the operand to use using both the qualifier and operands type
 			switch( node->value.q_val )
@@ -355,8 +349,6 @@ Code generate_code( Node* node )
 					break;
 			}
 			
-			printf( "RESULTING OPERATOR: (%d)\n\n", use_me );
-
 			// Pretty standard, really
 			result = concatenate_code( result, expr1, expr2, make_code_no_param( use_me ) );
 			
@@ -453,6 +445,17 @@ Code generate_code( Node* node )
 		case T_UNQUALIFIED_NONTERMINAL:
 			switch( node->value.n_val )
 			{
+				case N_STAT_LIST:
+				{
+					Node* current_child;
+					for( current_child = node->child; current_child != NULL; current_child = current_child->brother )
+					{
+						result = append_code( result, generate_code( current_child ) );
+					}
+
+					break;
+				}
+
 				case N_FUNC_DECL:
 				{
 					Node* current_node = node->child;
@@ -502,7 +505,6 @@ Code generate_code( Node* node )
 						current_node = current_node->brother;
 					}
 
-					// FIXME Work on every statement
 					result = append_code( result, generate_code( current_node->child->brother ) );
 					
 					// Create new entry in func_map with the function's oid as key
@@ -663,19 +665,20 @@ Code generate_code( Node* node )
 					Code value = generate_code( current_child = current_child->brother );
 					Code next = make_code_one_param( SOL_JMF, value.size + 2 );
 					Code exit = make_code_no_param( SOL_JMP );
-					
 					result = concatenate_code( condition, next, value, exit );
-					Code exit_list = exit;
+					
+					stacklist exit_list = NULL;
+					stacklist_push( &exit_list, (void*) exit.head );
 					
 					while( current_child->value.n_val == N_ELSIF_EXPR )
 					{
 						condition = generate_code( current_child->child );
-						value = generate_code( current_child = current_child->child->brother );
+						value = generate_code( current_child->child->brother );
 						next = make_code_one_param( SOL_JMF, value.size + 2 );
 						exit = make_code_no_param( SOL_JMP );
-						
 						result = concatenate_code( result, condition, next, value, exit );
-						exit_list = append_code( exit_list, exit );
+						
+						stacklist_push( &exit_list, (void*) exit.head );
 						
 						current_child = current_child->brother;
 					}
@@ -683,8 +686,53 @@ Code generate_code( Node* node )
 					result = append_code( result, generate_code( current_child ) );
 					
 					Stat* exit_stat;
-					for( exit_stat = exit_list.head; exit_stat != NULL; exit_stat = exit_stat->next )
-						exit_stat->args[ 0 ].i_val = result.size - exit_stat->address + 1;
+					while( exit_list != NULL )
+					{
+						exit_stat = exit_list->function;
+						exit_stat->args[ 0 ].i_val = result.size - exit_stat->address;
+
+						stacklist_pop( &exit_list );
+					}
+					
+					break;
+				}
+
+				case N_IF_STAT:
+				{
+					Node* current_child = node->child;
+					Code condition = generate_code( current_child );
+					Code value = generate_code( current_child = current_child->brother );
+					Code next = make_code_one_param( SOL_JMF, value.size + 2 );
+					Code exit = make_code_no_param( SOL_JMP );
+					result = concatenate_code( condition, next, value, exit );
+
+					stacklist exit_list = NULL;
+					stacklist_push( &exit_list, (void*) exit.head );
+					
+					while( ( current_child = current_child->brother ) != NULL
+						   && current_child->value.n_val == N_ELSIF_STAT )
+					{
+						condition = generate_code( current_child->child );
+						value = generate_code( current_child->child->brother );
+						next = make_code_one_param( SOL_JMF, value.size + 2 );
+						exit = make_code_no_param( SOL_JMP );
+						result = concatenate_code( result, condition, next, value, exit );
+						
+						stacklist_push( &exit_list, (void*) exit.head );
+					}
+					
+					if( current_child != NULL )
+						result = append_code( result, generate_code( current_child->child ) );
+					
+					Stat* exit_stat;
+					while( exit_list != NULL )
+					{
+						exit_stat = exit_list->function;
+						exit_stat->args[ 0 ].i_val = result.size - exit_stat->address;
+						printf("I'm a JMP at %d for an if this big: %d\n", exit_stat->address, result.size );
+
+						stacklist_pop( &exit_list );
+					}
 					
 					break;
 				}
@@ -709,24 +757,35 @@ Code generate_code( Node* node )
 					break;
 				}
 
-				default:
+				case N_WRITE_STAT:
+				{
+					Operator op;
+					Schema* output_schema;
+					if( node->child->brother == NULL )
+					{
+						output_schema = infere_expression_schema( node->child );
+						result = append_code( generate_code( node->child ),
+											  make_code_no_param( SOL_WRITE ) );
+					}
+					else
+					{
+						output_schema = infere_expression_schema( node->child->brother );
+						result = concatenate_code( generate_code( node->child ),
+												   generate_code( node->child->brother ),
+												   make_code_no_param( SOL_FWRITE ) );
+					}
+						
+					result.tail->args[ 0 ].s_val = schema_to_string( output_schema );
+						
+					break;
+				}
 
-					// FIXME Debug only
-					if( node->child != NULL )
-						result = append_code( result, generate_code( node->child ) );
-					if( node->brother != NULL )
-						result = append_code( result, generate_code( node->brother ) );
+				default:
 					break;
 			}
 			break;
 
 		default:
-
-			// FIXME Debug only
-			if( node->child != NULL )
-				result = append_code( result, generate_code( node->child ) );
-			if( node->brother != NULL )
-				result = append_code( result, generate_code( node->brother ) );
 			break;
 	}
 
@@ -792,7 +851,7 @@ Stat* new_stat( Operator op )
 Code make_code_no_param( Operator op )
 {
 	Code result;
-	result.head = result.tail = new_stat(op);
+	result.head = result.tail = new_stat( op );
 	result.size = 1;
 
 	return result;
