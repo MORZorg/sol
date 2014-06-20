@@ -171,7 +171,7 @@ const char* CODE_OPERATORS[] =
   "RD",
   "FRD",
   "TOINT",
-  "TOREA",
+  "TOREAL",
   "READ",
   "FREAD",
   "WRITE",
@@ -293,15 +293,24 @@ void code_print( Code code )
 	for( current_stat = code.head; current_stat != NULL; current_stat = current_stat->next )
 		switch( current_stat->op )
 		{
+			case SOL_READ:
+				printf( "%d: %s %d %d \"%s\"\n",
+						current_stat->address,
+						CODE_OPERATORS[ current_stat->op ],
+						current_stat->args[ 0 ].i_val,
+						current_stat->args[ 1 ].i_val,
+						current_stat->args[ 2 ].s_val );
+				break;
+
 			case SOL_LDC:
-				printf( "%d: %s %c\n",
+				printf( "%d: %s '%c'\n",
 						current_stat->address,
 						CODE_OPERATORS[ current_stat->op ],
 						current_stat->args[ 0 ].c_val );
 				break;
 
 			case SOL_LDS:
-				printf( "%d: %s %s\n",
+				printf( "%d: %s \"%s\"\n",
 						current_stat->address,
 						CODE_OPERATORS[ current_stat->op ],
 						current_stat->args[ 0 ].s_val );
@@ -316,11 +325,19 @@ void code_print( Code code )
 
 			case SOL_LOD:
 			case SOL_CAT:
+			case SOL_LDA:
 				printf( "%d: %s %d %d\n",
 						current_stat->address,
 						CODE_OPERATORS[ current_stat->op ],
 						current_stat->args[ 0 ].i_val,
 						current_stat->args[ 1 ].i_val );
+				break;
+
+			case SOL_TOINT:
+			case SOL_TOREAL:
+				printf( "%d: %s\n",
+						current_stat->address,
+						CODE_OPERATORS[ current_stat->op ] );
 				break;
 
 			default:

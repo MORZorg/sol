@@ -40,7 +40,7 @@ typedef enum
 	N_BOOL_TERM,
 	N_REL_TERM,
 	N_LOW_TERM,
-    N_ELSIF_EXPR,
+	N_ELSIF_EXPR,
 	N_FUNC_CALL,
 	N_COND_EXPR,
 	N_DYNAMIC_INPUT,
@@ -50,7 +50,7 @@ typedef enum
 typedef enum
 {
 	T_ATOMIC_DOMAIN,
-    T_ID_DOMAIN,
+	T_ID_DOMAIN,
 
 	T_LOGIC_EXPR,
 	T_REL_EXPR,
@@ -59,15 +59,15 @@ typedef enum
 	T_INSTANCE_EXPR,
 	T_BUILT_IN_CALL,
 
-    T_BREAK_STAT,
+	T_BREAK_STAT,
 
 	T_INT_CONST,
 	T_CHAR_CONST,
 	T_REAL_CONST,
 	T_STR_CONST,
 	T_BOOL_CONST,
-    T_ID,
-    T_UNQUALIFIED_NONTERMINAL
+	T_ID,
+	T_UNQUALIFIED_NONTERMINAL
 } TypeNode;
 
 typedef enum
@@ -99,14 +99,14 @@ typedef enum
 	Q_TOINT,
 	Q_TOREAL,
 
-    Q_STRUCT,
-    Q_VECTOR
+	Q_STRUCT,
+	Q_VECTOR
 } Qualifier;
 
 typedef union
 {
 	int i_val;
-    char c_val;
+	char c_val;
 	char* s_val;
 	double r_val;
 	Boolean b_val;
@@ -117,10 +117,10 @@ typedef union
 typedef struct snode
 {
 	int line;
-    Value value;
-    TypeNode type;
-    struct snode* child;
-    struct snode* brother;
+	Value value;
+	TypeNode type;
+	struct snode* child;
+	struct snode* brother;
 } Node;
 
 char* new_string( char* );

@@ -71,7 +71,7 @@ typedef enum
   SOL_RD,
   SOL_FRD,
   SOL_TOINT,
-  SOL_TOREA,
+  SOL_TOREAL,
   SOL_READ,
   SOL_FREAD,
   SOL_WRITE,
