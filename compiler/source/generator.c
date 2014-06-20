@@ -16,6 +16,10 @@ int yygen( FILE* input, FILE* output )
 		return sem_result;
 
 	stacklist_push( &scope, (stacklist_t) symbol_table );
+
+	// Instantiate an hashmap, used to track the function definitions inside the p-code
+	func_map = hashmap_new();
+
 	Code result = generate_code( root );
 
 	// TODO Replace with something like `output_code'
@@ -452,8 +456,11 @@ Code generate_code( Node* node )
 				case N_FUNC_DECL:
 				{
 					Node* current_node = node->child;
+
+					Symbol* func_scope = fetch_scope( current_node->value.s_val );
+
 					// TODO Find a way to avoid to duplicate the base function.
-					stacklist_push( &scope, (stacklist_t) fetch_scope( current_node->value.s_val ) );
+					stacklist_push( &scope, (stacklist_t) func_scope );
 					current_node = current_node->brother;
 					if( current_node->type == T_UNQUALIFIED_NONTERMINAL )
 					{
@@ -474,20 +481,75 @@ Code generate_code( Node* node )
 						result = append_code( result, generate_code( current_node ) );
 						current_node = current_node->brother;
 					}
+
+					Stat* function_body_start;
+
 					if( current_node->value.n_val == N_FUNC_LIST )
 					{
 						Node* current_child = current_node->child;
+
+						Code body_code = empty_code();
 						do
 						{
-							result = append_code( result, generate_code( current_child ) );
+							body_code = append_code( body_code, generate_code( current_child ) );
 							current_child = current_child->brother;
 						} while( current_child != NULL );
+
+						function_body_start = body_code.head;
+
+						result = append_code( result, body_code );
 
 						current_node = current_node->brother;
 					}
 
 					// FIXME Work on every statement
 					result = append_code( result, generate_code( current_node->child->brother ) );
+					
+					// Create new entry in func_map with the function's oid as key
+					// FIXME derive length correctly
+					char key[20];
+					sprintf( key, "%d", func_scope->oid );
+
+					FuncDesc* description = malloc( sizeof( FuncDesc ) );
+
+					// FIXME not sure, may not be the number of parameters
+					description->size = func_scope->formals_size;
+					description->scope = func_scope->nesting;
+					description->entry = function_body_start->address;
+
+					hashmap_put( func_map, key, description );
+					
+					break;
+				}
+
+				case N_FUNC_CALL:
+				{
+					Node* current_child = node->child;
+
+					int func_oid = ( fetch_scope( current_child->value.s_val ) )->oid;
+					char key[20];
+
+					sprintf( key, "%d", func_oid );
+
+					// Retrieve and compute all the parameters
+					while( ( current_child = current_child->brother ) != NULL )
+						result = append_code( result, generate_code( current_child ) );
+
+					FuncDesc* description;
+
+					hashmap_get( func_map, key, (any_t*) &description );
+
+					// The number of objects defined in the function's activation record
+					int size = description->size;
+					// Since description->scope contains the nesting in which the function is defined, theoretically the following value should represent the distance between the actual call nesting and the definition nesting
+					int chain = ( (Symbol*) scope->function )->nesting - description->scope;
+					// The address of the first instruction of the function's body
+					int entry = description->entry;
+
+					result = append_code( result, make_code_two_param( SOL_PUSH, size, chain ) );
+					result = append_code( result, make_code_one_param( SOL_GOTO, entry ) );
+					result = append_code( result, make_code_no_param( SOL_POP ) );
+
 					break;
 				}
 

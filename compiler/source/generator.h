@@ -104,6 +104,13 @@ typedef struct code
   Stat* tail;
 } Code;
 
+typedef struct func_location
+{
+  int size; // # of objects in the activation record of this function
+  int scope; // level containing the function declaration, used to calculate the chain in func_call
+  int entry; // Address of the function body's start
+} FuncDesc;
+
 int yygen( FILE*, FILE* );
 Code generate_code( Node* );
 
@@ -125,6 +132,8 @@ size_t schema_size( Schema* );
 char* schema_to_string( Schema* );
 
 int yygenerror( Node*, char* );
+
+map_t func_map;
 
 #include "tree_print.h"
 
