@@ -55,7 +55,7 @@ Code generate_code( Node* node )
 			break;
 			
 		case T_ID:
-			result = generate_lhs_code( node, TRUE );
+			result = generate_lhs_code( node, NULL, TRUE );
 			break;
 
 		case T_INSTANCE_EXPR:
@@ -548,7 +548,7 @@ Code generate_code( Node* node )
 				
 				case N_ASSIGN_STAT:
 					// FIXME Specify it's an assignment
-					result = append_code( generate_code( node->child->brother ), generate_lhs_code( node->child, TRUE ) );
+					result = append_code( generate_code( node->child->brother ), generate_lhs_code( node->child, NULL, TRUE ) );
 
 					break;
 
@@ -853,7 +853,7 @@ Code generate_code( Node* node )
 
 				case N_FIELDING:
 				case N_INDEXING:
-					result = generate_lhs_code( node, TRUE );
+					result = generate_lhs_code( node, NULL, TRUE );
 					break;
 				default:
 					break;
@@ -875,7 +875,7 @@ Code generate_code( Node* node )
  *
  * @return The whole code of the lhs
  */
-Code generate_lhs_code( Node* node, Boolean is_first )
+Code generate_lhs_code( Node* node, Schema** id_schema, Boolean is_first )
 {
 	Code result = empty_code();
 
@@ -883,17 +883,18 @@ Code generate_lhs_code( Node* node, Boolean is_first )
 	{
 		case T_ID:
 		{
-			if( is_first )
+			fprintf( stderr, "$$$ ID %s $$$\n", node->value.s_val );
+			Symbol* referenced_id = fetch_scope( node->value.s_val );
+			result = make_code_two_param( SOL_LOD, referenced_id->nesting, referenced_id->oid );
+
+			if( !is_first )
 			{
-				Symbol* referenced_id = fetch_scope( node->value.s_val );
-				result = make_code_two_param( SOL_LOD, referenced_id->nesting, referenced_id->oid );
+				*(id_schema) = referenced_id->schema;
+				fprintf( stderr, "Found ID %s\t", node->value.s_val );
+				schema_print( referenced_id->schema );
+				fprintf( stdout, "\n" );
 			}
-			else
-			{
-				// Something
-				/* result = make_code_one_param( SOL_ */
-				// Return the size of the ID
-			}
+
 			break;
 		}
 
@@ -903,71 +904,72 @@ Code generate_lhs_code( Node* node, Boolean is_first )
 			{
 				case N_FIELDING:
 				{
+					fprintf( stderr, "*** %d: FIELDING %s ***\n", node->line, node->child->brother->value.s_val );
 					Node* current_node = node->child;
-					// Something like
-					Symbol* struct_table = fetch_scope( current_node->value.s_val );
-					result = make_code_two_param( SOL_LDA, struct_table->nesting, struct_table->oid );
-					
-					// Reaching the requested field address in the struct
-					Code load_field = empty_code();
-					Schema* field_schema = struct_table->schema;
+					// Recursivity on the first child
+					Schema* child_schema = NULL;
+					result = generate_lhs_code( current_node, &(child_schema), FALSE );
+
+					child_schema = child_schema->child;
 					current_node = current_node->brother;
 
-					while( field_schema != NULL && field_schema->id != current_node->value.s_val )
+					// Finding the field of the struct that we are looking for, adding the shift for the previous fields
+					while( child_schema->brother != NULL && child_schema->id != current_node->value.s_val )
 					{
-						result = append_code( result, make_code_one_param( SOL_FDA, schema_size( field_schema ) ) );
-						/* result = append_code( result, generate_lhs_code( field_schema, FALSE ) ); */
-						
-						field_schema = field_schema->brother;
+						result = append_code( result, make_code_one_param( SOL_FDA, schema_size( child_schema ) ) );
+						child_schema = child_schema->brother;
 					}
 
-					// FIXME
-					if( field_schema == NULL )
-						break;
-					
-					// I hope it works like this
-					// FIXME
-					result = append_code(
-								result, 
-								make_code_one_param( ( field_schema->size == 1 ? SOL_EIL : SOL_SIL ), field_schema->size * schema_size( field_schema ) ) );
+					int operator = ( child_schema->size == 0 ? SOL_EIL : SOL_SIL );
+					int shift = schema_size( child_schema );
+					if( operator == SOL_SIL )
+						shift *= child_schema->size;
+
+					result = append_code( result, make_code_one_param( operator, shift ) );
+
+					code_print( result );
+					fprintf( stderr, "*** END ***\n" );
+
 					break;
 				}
 
 				case N_INDEXING:
 				{
+					fprintf( stderr, "+++ %d: INDEXING %d +++\n", node->line, node->child->brother->value.i_val );
 					Node* current_node = node->child;
-					
-					Symbol* array_table = fetch_scope( current_node->value.s_val );
-					result = make_code_two_param( SOL_LDA, array_table->nesting, array_table->oid );
-					
-					// Going deeply until i don't reach the final type of the array
+
+					// Recursivity on the first child
+					Schema* array_schema = NULL;
+					result = generate_lhs_code( current_node, &(array_schema), FALSE );
+
+					/* fprintf( stderr, "Found schema: " ); */
+					/* schema_print( array_schema ); */
+					/* fprintf( stdout, "\n" ); */
+
 					current_node = current_node->brother;
-					Schema* index_schema = array_table->schema->child;
-					Code ixa_code = empty_code();
+					result = append_code( result, generate_code( current_node ) );
 
-					/* while( index_schema->child != NULL ) */
-					/* { */
-					/* 	// This has to be reworked: i need the value of the expression here */
-					/* 	ixa_code = append_code( ixa_code, generate_lhs_code( current_node, index_schema ) ); */
-					/* 	ixa_code = append_code( ixa_code, make_code_two_param( SOL_IXA, schema_size( index_schema ) ); */
-					/* 	index_schema = index_schema->child; */
-					/* 	current_node = current_node->child; */
+					while( array_schema->child != NULL )
+					{
+						fprintf( stdout, "children\t" );
+						schema_print( array_schema );
+						fprintf( stdout, "\n" );
 
-					/* 	/1* // Computing index value *1/ */
-					/* 	/1* result = append_code( result, generate_code( current_node ) ); *1/ */
-			
-					/* 	/1* result = append_code( *1/ */
-					/* 	/1* 			result, *1/ */
-					/* 	/1* 			make_code_one_param( SOL_IXA, schema_size( index_schema ) ) ); *1/ */
-					/* } */
-					
-					// Calculating the index
-					ixa_code = append_code( ixa_code, generate_code( current_node ) );
-					// Writing the code for the offset
-					result = append_code( ixa_code, make_code_one_param( SOL_IXA, schema_size( index_schema ) ) );
-					
-					result = append_code( result, make_code_one_param( SOL_EIL, schema_size( index_schema ) ) );
-					
+						result = append_code( result, make_code_one_param(
+									SOL_IXA,
+									( array_schema->size > 0 ? array_schema->size : 1 ) * schema_size( array_schema ) ) );
+
+						array_schema = array_schema->child;
+					}
+
+
+					result = append_code( result, make_code_one_param(
+							SOL_EIL,
+							schema_size( array_schema ) ) );
+
+					code_print( result );
+					fprintf( stderr, "+++ END +++\n" );
+
 					break;
 				}
 

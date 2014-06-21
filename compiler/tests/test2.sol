@@ -4,6 +4,7 @@ func prog( primo: vector[1] of vector[3] of char; a: struct(a: int; b: string;);
 		from_slides: vector [10] of struct( la: int; lala: vector[20] of vector [5] of real; );
 	var
 		fioa: int;
+		struttura: struct( a: int; b: real; c: struct( a: int; b: real; c: struct( a: int; b: real; ); ); );
 	const
 		PEO: int = 3 + 3 + 4;
 
@@ -16,6 +17,8 @@ func prog( primo: vector[1] of vector[3] of char; a: struct(a: int; b: string;);
 				i: int;
 		const fioa: string = "pfa0o";
 	begin ao
+		write struttura.c.c.a;
+		write primo[1][2];
 		for i = 0 to 455 - sbrai do
 			ri[ i + sbrai ].b = sbras;
 		endfor;
