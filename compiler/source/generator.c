@@ -472,10 +472,9 @@ Code generate_code( Node* node )
 				{
 					Node* current_child = node->child;
 
-					int func_oid = ( fetch_scope( current_child->value.s_val ) )->oid;
-					char key[20];
+					char key[ MAX_INT_LEN ];
 
-					sprintf( key, "%d", func_oid );
+					sprintf( key, "%d", fetch_scope( current_child->value.s_val )->oid );
 
 					// Retrieve and compute all the parameters
 					while( ( current_child = current_child->brother ) != NULL )
@@ -485,16 +484,20 @@ Code generate_code( Node* node )
 
 					hashmap_get( func_map, key, (any_t*) &description );
 
-					// The number of objects defined in the function's activation record
-					int size = description->size;
-					// Since description->scope contains the nesting in which the function is defined, theoretically the following value should represent the distance between the actual call nesting and the definition nesting
-					int chain = ( (Symbol*) scope->function )->nesting - description->scope;
-					// The address of the first instruction of the function's body
-					int entry = description->entry;
+					// FIXME Shouldn't be checked, only done to avoid debugging crashes
+					if( description != NULL )
+					{
+						// The number of objects defined in the function's activation record
+						int size = description->size;
+						// Since description->scope contains the nesting in which the function is defined, theoretically the following value should represent the distance between the actual call nesting and the definition nesting
+						int chain = ( (Symbol*) scope->function )->nesting - description->scope;
+						// The address of the first instruction of the function's body
+						int entry = description->entry;
 
-					result = append_code( result, make_code_two_param( SOL_PUSH, size, chain ) );
-					result = append_code( result, make_code_one_param( SOL_GOTO, entry ) );
-					result = append_code( result, make_code_no_param( SOL_POP ) );
+						result = append_code( result, make_code_two_param( SOL_PUSH, size, chain ) );
+						result = append_code( result, make_code_one_param( SOL_GOTO, entry ) );
+						result = append_code( result, make_code_no_param( SOL_POP ) );
+					}
 
 					break;
 				}
@@ -543,6 +546,11 @@ Code generate_code( Node* node )
 					break;
 				}
 				
+				case N_ASSIGN_STAT:
+					// FIXME Specify it's an assignment
+					result = append_code( generate_code( node->child->brother ), generate_lhs_code( node->child, TRUE ) );
+
+					break;
 
 				case N_COND_EXPR:
 				{
@@ -583,6 +591,12 @@ Code generate_code( Node* node )
 
 				case N_IF_STAT:
 				{
+					// NOTE: If the code generated for the contained statement
+					// is null, this method doesn't work because of how
+					// concatenate_code checks whether there's more code to be
+					// appended.
+					// This should have the chance to happen only while
+					// debugging the unfinished compiler.
 					Node* current_child = node->child;
 					Code condition = generate_code( current_child );
 					Code value = generate_code( current_child = current_child->brother );
