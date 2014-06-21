@@ -55,6 +55,7 @@ Code generate_code( Node* node )
 			break;
 			
 		case T_ID:
+			result = generate_lhs_code( node, TRUE );
 			break;
 
 		case T_INSTANCE_EXPR:
@@ -460,7 +461,7 @@ Code generate_code( Node* node )
 					// FIXME not sure, may not be the number of parameters
 					description->size = func_scope->formals_size;
 					description->scope = func_scope->nesting;
-					description->entry = function_body_start->address;
+					/* description->entry = function_body_start->address; */
 
 					hashmap_put( func_map, key, description );
 					
@@ -555,7 +556,7 @@ Code generate_code( Node* node )
 					stacklist exit_list = NULL;
 					stacklist_push( &exit_list, (void*) exit.head );
 					
-					while( current_child->value.n_val == N_ELSIF_EXPR )
+					while( ( current_child = current_child->brother )->value.n_val == N_ELSIF_EXPR )
 					{
 						condition = generate_code( current_child->child );
 						value = generate_code( current_child->child->brother );
@@ -564,8 +565,6 @@ Code generate_code( Node* node )
 						result = concatenate_code( result, condition, next, value, exit );
 						
 						stacklist_push( &exit_list, (void*) exit.head );
-						
-						current_child = current_child->brother;
 					}
 					
 					result = append_code( result, generate_code( current_child ) );
@@ -614,7 +613,6 @@ Code generate_code( Node* node )
 					{
 						exit_stat = exit_list->function;
 						exit_stat->args[ 0 ].i_val = result.size - exit_stat->address;
-						printf("I'm a JMP at %d for an if this big: %d\n", exit_stat->address, result.size );
 
 						stacklist_pop( &exit_list );
 					}
@@ -832,7 +830,7 @@ Code generate_lhs_code( Node* node, Boolean is_first )
 					// Calculating the index
 					ixa_code = append_code( ixa_code, generate_code( current_node ) );
 					// Writing the code for the offset
-					result = append_code( ixa_code, make_code_one_param( SOL_IXA, schema_size( index_schema ) );
+					result = append_code( ixa_code, make_code_one_param( SOL_IXA, schema_size( index_schema ) ) );
 					
 					result = append_code( result, make_code_one_param( SOL_EIL, schema_size( index_schema ) ) );
 					
@@ -891,11 +889,15 @@ Code append_code( Code first, Code second )
 
 Code concatenate_code( Code code1, Code code2, ... )
 {
+	va_list argp;
+	va_start( argp, code2 );
 	Code result = code1;
 
-	Code* current_code;
-	for( current_code = &code2; current_code != NULL; current_code++ )
-		result = append_code( result, *current_code );
+	Code current_code;
+	for( current_code = code2; current_code.head != NULL; current_code = va_arg( argp, Code ) )
+		result = append_code( result, current_code );
+
+	va_end( argp );
 
 	return result;
 }

@@ -343,6 +343,7 @@ void code_print( Code code )
 			case SOL_NEQ:
 			case SOL_IPLUS:
 			case SOL_RPLUS:
+			case SOL_ITIMES:
 			case SOL_RTIMES:
 			case SOL_IUMI:
 			case SOL_TOINT:

@@ -57,7 +57,7 @@ begin prog
 
 	read [ "asd" ] z;
 	write [ "asdpino" ] t;
-	write if a > 3 then toreal( a ) elsif a > 2 then toreal( a + 0 ) elsif a > 1 then toreal( a + 1 - 1 ) else toreal( a * 1 ) endif;
+	write if a > 3 then toreal( a * 1 ) elsif a > 2 then toreal( toint( 0.1 ) ) elsif a > 1 then toreal( 1 ) else toreal( a * 2 ) endif;
 
 	return i;
 end prog
