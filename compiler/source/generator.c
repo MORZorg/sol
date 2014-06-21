@@ -591,12 +591,6 @@ Code generate_code( Node* node )
 
 				case N_IF_STAT:
 				{
-					// NOTE: If the code generated for the contained statement
-					// is null, this method doesn't work because of how
-					// concatenate_code checks whether there's more code to be
-					// appended.
-					// This should have the chance to happen only while
-					// debugging the unfinished compiler.
 					Node* current_child = node->child;
 					Code condition = generate_code( current_child );
 					Code value = generate_code( current_child = current_child->brother );
@@ -631,6 +625,131 @@ Code generate_code( Node* node )
 						stacklist_pop( &exit_list );
 					}
 					
+					break;
+				}
+
+				case N_WHILE_STAT:
+				{
+					Code exit = make_code_no_param( SOL_JMF );
+					Code up = make_code_no_param( SOL_JMP );
+
+					result = concatenate_code( 4,
+											   generate_code( node->child ), exit,
+											   generate_code( node->child->brother ), up );
+
+					exit.head->args[ 0 ].i_val = result.size - exit.head->address;
+					up.head->args[ 0 ].i_val = -up.head->address;
+					break;
+				}
+
+				case N_FOR_STAT:
+				{
+					tree_print( node, 0 );
+
+					// TODO Make sure the name is generated correctly
+					// Also the nesting
+					Symbol* temp_var = malloc( sizeof( Symbol ) );
+					temp_var->name = malloc( MAX_INT_LEN * sizeof( char ) );
+					sprintf( temp_var->name, "%d", hashmap_length( ( (Symbol*) scope->function )->locenv ) );
+					temp_var->oid = hashmap_length( ( (Symbol*) scope->function )->locenv );
+					temp_var->nesting = ( (Symbol*) scope->function )->nesting;
+					temp_var->clazz = CS_VAR;
+					temp_var->schema = fetch_scope( node->child->value.s_val )->schema;
+					insert_unconflicted_element( temp_var );
+
+					Node* init_node = new_nonterminal_node( N_ASSIGN_STAT );
+					init_node->child = new_terminal_node( T_ID, node->child->value );
+					init_node->child->brother = node->child->brother;
+
+					Value temp_val = { .s_val = temp_var->name };
+					Node* temp_def_node = new_nonterminal_node( N_ASSIGN_STAT );
+					temp_def_node->child = new_terminal_node( T_ID, temp_val );
+					temp_def_node->child->brother = node->child->brother->brother;
+					init_node->brother = temp_def_node;
+
+					Node* while_node = new_nonterminal_node( N_WHILE_STAT );
+					while_node->child = new_qualified_node( T_REL_EXPR, Q_LT );
+					while_node->child->child = new_terminal_node( T_ID, node->child->value );
+					while_node->child->child->brother = new_terminal_node( T_ID, temp_val );
+					while_node->child->brother = node->child->brother->brother->brother;
+					temp_def_node->brother = while_node;
+
+					Value increment = { .i_val = 1 };
+					Node* loop_node = new_nonterminal_node( N_ASSIGN_STAT );
+					loop_node->child = new_terminal_node( T_ID, node->child->value );
+					loop_node->child->brother = new_qualified_node( T_MATH_EXPR, Q_PLUS );
+					loop_node->child->brother->child = new_terminal_node( T_ID, node->child->value );
+					loop_node->child->brother->child->brother = new_terminal_node( T_INT_CONST, increment );
+					assign_brother( &( node->child->brother->brother->brother->child ), loop_node );
+
+					node->value.n_val = N_STAT_LIST;
+					node->child->brother->brother->brother = NULL;
+					node->child->brother->brother = NULL;
+					node->child->brother = NULL;
+					node->child = init_node;
+
+					tree_print( node, 0 );
+
+					result = generate_code( node );
+					break;
+				}
+
+				case N_FOREACH_STAT:
+				{
+					tree_print( node, 0 );
+
+					// TODO Make sure the name is generated correctly
+					// Also the nesting
+					Symbol* temp_var = malloc( sizeof( Symbol ) );
+					temp_var->name = malloc( MAX_INT_LEN * sizeof( char ) );
+					sprintf( temp_var->name, "%d", hashmap_length( ( (Symbol*) scope->function )->locenv ) );
+					temp_var->oid = hashmap_length( ( (Symbol*) scope->function )->locenv );
+					temp_var->nesting = ( (Symbol*) scope->function )->nesting;
+					temp_var->clazz = CS_VAR;
+					temp_var->schema = infere_expression_schema( node->child->brother );
+					insert_unconflicted_element( temp_var );
+
+					Symbol* loop_var = malloc( sizeof( Symbol ) );
+					loop_var->name = malloc( MAX_INT_LEN * sizeof( char ) );
+					sprintf( loop_var->name, "%d", hashmap_length( ( (Symbol*) scope->function )->locenv ) );
+					loop_var->oid = hashmap_length( ( (Symbol*) scope->function )->locenv );
+					loop_var->nesting = ( (Symbol*) scope->function )->nesting;
+					loop_var->clazz = CS_VAR;
+					loop_var->schema = malloc( sizeof( Schema ) );
+					loop_var->schema->type = TS_INT;
+					insert_unconflicted_element( loop_var );
+
+					Value temp_val = { .s_val = temp_var->name };
+					Value loop_val = { .s_val = loop_var->name };
+					Value loop_from = { .i_val = 0 };
+					Value loop_to = { .i_val = temp_var->schema->size };
+
+					Node* init_node = new_nonterminal_node( N_ASSIGN_STAT );
+					init_node->child = new_terminal_node( T_ID, temp_val );
+					init_node->child->brother = node->child->brother;
+
+					Node* for_node = new_nonterminal_node( N_FOR_STAT );
+					for_node->child = new_terminal_node( T_ID, loop_val );
+					for_node->child->brother = new_terminal_node( T_INT_CONST, loop_from );
+					for_node->child->brother->brother = new_terminal_node( T_INT_CONST, loop_to );
+					for_node->child->brother->brother->brother = node->child->brother->brother;
+					init_node->brother = for_node;
+
+					Node* loop_node = new_nonterminal_node( N_ASSIGN_STAT );
+					loop_node->child = new_terminal_node( T_ID, node->child->value );
+					loop_node->child->brother = new_nonterminal_node( N_FIELDING );
+					loop_node->child->brother->child = new_terminal_node( T_ID, temp_val );
+					loop_node->child->brother->child->brother = new_terminal_node( T_ID, loop_val );
+					loop_node->brother = node->child->brother->brother->child;
+					node->child->brother->brother->child = loop_node;
+
+					node->value.n_val = N_STAT_LIST;
+					node->child->brother->brother->brother = NULL;
+					node->child->brother->brother = NULL;
+					node->child->brother = NULL;
+					node->child = init_node;
+
+					result = generate_code( node );
 					break;
 				}
 				
