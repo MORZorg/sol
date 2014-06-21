@@ -15,6 +15,8 @@ int yygen( FILE* input, FILE* output )
 	if( sem_result != 0 )
 		return sem_result;
 
+	tree_print( root, 0 );
+
 	stacklist_push( &scope, (stacklist_t) symbol_table );
 
 	// Instantiate an hashmap, used to track the function definitions inside the p-code
@@ -385,7 +387,6 @@ Code generate_code( Node* node )
 			break;
 		}
 
-	
 		case T_UNQUALIFIED_NONTERMINAL:
 			switch( node->value.n_val )
 			{
@@ -405,51 +406,54 @@ Code generate_code( Node* node )
 					Node* current_node = node->child;
 
 					Symbol* func_scope = fetch_scope( current_node->value.s_val );
+					
+					result = append_code( result, make_code_no_param( SOL_FUNC ) );
+					result.tail->args[0].s_val = current_node->value.s_val;
 
 					// TODO Find a way to avoid to duplicate the base function.
 					stacklist_push( &scope, (stacklist_t) func_scope );
 					current_node = current_node->brother;
-					if( current_node->type == T_UNQUALIFIED_NONTERMINAL )
+
+					if( current_node->value.n_val == N_PAR_LIST )
 					{
-						// TODO Params?
+						result = append_code( result, generate_code( current_node ) );
 						current_node = current_node->brother;
 					}
+					// Skip the return type
 					current_node = current_node->brother;
 
+					// No generation needed
 					if( current_node->value.n_val == N_TYPE_SECT )
 						current_node = current_node->brother;
+					
 					if( current_node->value.n_val == N_VAR_SECT )
 					{
 						result = append_code( result, generate_code( current_node ) );
 						current_node = current_node->brother;
 					}
+					
 					if( current_node->value.n_val == N_CONST_SECT )
 					{
 						result = append_code( result, generate_code( current_node ) );
 						current_node = current_node->brother;
 					}
 
-					Stat* function_body_start;
-
 					if( current_node->value.n_val == N_FUNC_LIST )
 					{
 						Node* current_child = current_node->child;
 
-						Code body_code = empty_code();
 						do
 						{
-							body_code = append_code( body_code, generate_code( current_child ) );
+							result = append_code( result, generate_code( current_child ) );
 							current_child = current_child->brother;
 						} while( current_child != NULL );
 
-						function_body_start = body_code.head;
-
-						result = append_code( result, body_code );
-
 						current_node = current_node->brother;
 					}
+					
+					Code body_code = generate_code( current_node->child->brother );
 
-					result = append_code( result, generate_code( current_node->child->brother ) );
+					result = append_code( result, body_code );
 					
 					// Create new entry in func_map with the function's oid as key
 					// FIXME derive length correctly
@@ -458,10 +462,16 @@ Code generate_code( Node* node )
 
 					FuncDesc* description = malloc( sizeof( FuncDesc ) );
 
-					// FIXME not sure, may not be the number of parameters
-					description->size = func_scope->formals_size;
+					description->size = hashmap_length( func_scope->locenv );
 					description->scope = func_scope->nesting;
-					/* description->entry = function_body_start->address; */
+
+					// FIXME should never happen
+					if( body_code.head != NULL )
+						description->entry = body_code.head->address;
+					else
+						description->entry = -1;
+
+					printf( "***Func decl %d %d %d\n", description->size, description->scope, description->entry );
 
 					hashmap_put( func_map, key, description );
 					
@@ -493,11 +503,43 @@ Code generate_code( Node* node )
 						int chain = ( (Symbol*) scope->function )->nesting - description->scope;
 						// The address of the first instruction of the function's body
 						int entry = description->entry;
+					
+						printf( "***Func call %d %d %d\n", size, chain, entry );
 
 						result = append_code( result, make_code_two_param( SOL_PUSH, size, chain ) );
 						result = append_code( result, make_code_one_param( SOL_GOTO, entry ) );
 						result = append_code( result, make_code_no_param( SOL_POP ) );
 					}
+
+					break;
+				}
+				
+				// FIXME somehow generate double STOs
+				case N_PAR_LIST:
+				{
+					Node* current_child = node->child;
+					
+					Code news_code = empty_code();
+					Code stos_code = empty_code();
+
+					while( current_child != NULL )
+					{
+						Node* current_par = current_child->child;
+
+						while( current_par->brother != NULL )
+						{
+							news_code = append_code( news_code, make_decl( fetch_scope( current_par->value.s_val )->schema ) );
+
+							stos_code = append_code( stos_code, make_code_one_param( SOL_STO, fetch_scope( current_par->value.s_val )->nesting ) );
+							stos_code.tail->args[1].s_val = current_par->value.s_val;
+
+							current_par = current_par->brother;
+						}
+
+						current_child = current_child->brother;
+					}
+
+					result = concatenate_code( 3, result, news_code, stos_code );
 
 					break;
 				}
@@ -520,6 +562,7 @@ Code generate_code( Node* node )
 					break;
 				}
 
+				// FIXME again, double STOs
 				case N_CONST_SECT:
 				{
 					Code values = empty_code();
@@ -527,17 +570,30 @@ Code generate_code( Node* node )
 					while( current_child != NULL )
 					{
 						int const_size = 0;
+						stacklist const_list;
+
 						Node* current_id = current_child->child;
 						while( current_id->brother->brother != NULL )
 						{
 							result = append_code( result, make_decl( fetch_scope( current_id->value.s_val )->schema ) );
 							const_size++;
 
+							stacklist_push( &const_list, (stacklist_t) current_id->value.s_val );
+
 							current_id = current_id->brother;
 						}
 
 						for( ; const_size > 0; const_size-- )
+						{
 							values = append_code( values, generate_code( current_id->brother ) );
+							
+							char* current_const = (char*) const_list->function;
+							stacklist_pop( &const_list );
+
+							// FIXME again, is the second parameter assigned correctly?
+							values = append_code( values, make_code_one_param( SOL_STO, fetch_scope( current_const )->nesting ) );
+							values.tail->args[1].s_val = current_const;
+						}
 
 						current_child = current_child->brother;
 					}
@@ -546,6 +602,47 @@ Code generate_code( Node* node )
 					break;
 				}
 				
+				case N_FUNC_LIST:
+				{
+					Node* current_child = node->child;
+
+					while( current_child != NULL )
+					{
+						result = append_code( result, generate_code( current_child ) );
+
+						current_child = current_child->brother;
+					}
+
+					break;
+				}
+
+				// Ignore the id, from there on, it's just a stat list
+				case N_FUNC_BODY:
+				{
+					Node* current_stat = node->child->brother->child;
+
+					while( current_stat != NULL )
+					{
+						result = append_code( result, generate_code( current_stat ) );
+
+						current_stat = current_stat->brother;
+					}
+
+					break;
+				}
+				
+				case N_RETURN_STAT:
+				{
+					Code returned_stuff = empty_code();
+
+					if( node->child != NULL )
+						returned_stuff = append_code( returned_stuff, generate_code( node->child ) );
+
+					result = concatenate_code( 3, result, returned_stuff, make_code_no_param( SOL_RETURN ) );
+
+					break;
+				}
+
 				case N_ASSIGN_STAT:
 					// FIXME Specify it's an assignment
 					result = append_code( generate_code( node->child->brother ), generate_lhs_code( node->child, TRUE ) );
@@ -952,6 +1049,29 @@ Code make_code_two_param( Operator op, int arg1, int arg2 )
 	Code result = make_code_no_param(op);
 	result.head->args[ 0 ].i_val = arg1;
 	result.head->args[ 1 ].i_val = arg2;
+
+	return result;
+}
+
+Code make_code_one_param_proper( Operator op, Value arg )
+{
+	Code result = make_code_no_param(op);
+
+	result.head->args[ 0 ].i_val = arg.i_val;
+	result.head->args[ 0 ].s_val = arg.s_val;
+
+	return result;
+}
+
+Code make_code_two_param_proper( Operator op, Value arg1, Value arg2 )
+{
+	Code result = make_code_no_param(op);
+
+	result.head->args[ 0 ].i_val = arg1.i_val;
+	result.head->args[ 0 ].s_val = arg1.s_val;
+
+	result.head->args[ 1 ].i_val = arg2.i_val;
+	result.head->args[ 1 ].s_val = arg2.s_val;
 
 	return result;
 }

@@ -310,6 +310,7 @@ void code_print( Code code )
 						current_stat->args[ 0 ].c_val );
 				break;
 
+			case SOL_FUNC:
 			case SOL_WRITE:
 			case SOL_FWRITE:
 			case SOL_LDS:
@@ -326,6 +327,7 @@ void code_print( Code code )
 						current_stat->args[ 0 ].r_val );
 				break;
 
+			case SOL_PUSH:
 			case SOL_LOD:
 			case SOL_CAT:
 			case SOL_LDA:
@@ -336,6 +338,8 @@ void code_print( Code code )
 						current_stat->args[ 1 ].i_val );
 				break;
 
+			case SOL_RETURN:
+			case SOL_POP:
 			case SOL_EQU:
 			case SOL_IGT:
 			case SOL_IGE:
@@ -352,6 +356,13 @@ void code_print( Code code )
 						current_stat->address,
 						CODE_OPERATORS[ current_stat->op ] );
 				break;
+
+			case SOL_STO:
+				printf( "%d: %s %d %s\n",
+						current_stat->address,
+						CODE_OPERATORS[ current_stat->op ],
+						current_stat->args[ 0 ].i_val,
+						current_stat->args[ 1 ].s_val );
 
 			default:
 				printf( "%d: %s %d\n",

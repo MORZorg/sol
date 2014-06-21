@@ -122,6 +122,8 @@ Code empty_code( void );
 Code make_code_no_param( Operator );
 Code make_code_one_param( Operator, int );
 Code make_code_two_param( Operator, int, int );
+Code make_code_one_param_proper( Operator, Value );
+Code make_code_two_param_proper( Operator, Value, Value );
 Code make_push_pop( int, int, int );
 Code make_ldc( char );
 Code make_ldi( int );
