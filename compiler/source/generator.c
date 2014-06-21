@@ -259,7 +259,7 @@ Code generate_code( Node* node )
 			}
 
 			// Pretty standard, really
-			result = concatenate_code( result, expr1, expr2, make_code_no_param( use_me ) );
+			result = concatenate_code( 4, result, expr1, expr2, make_code_no_param( use_me ) );
 
 			break;
 		}
@@ -347,7 +347,7 @@ Code generate_code( Node* node )
 			}
 			
 			// Pretty standard, really
-			result = concatenate_code( result, expr1, expr2, make_code_no_param( use_me ) );
+			result = concatenate_code( 4, result, expr1, expr2, make_code_no_param( use_me ) );
 			
 			break;
 		}
@@ -380,7 +380,7 @@ Code generate_code( Node* node )
 			}
 
 			// Pretty standard, really
-			result = concatenate_code( result, expr, make_code_no_param( use_me ) );
+			result = concatenate_code( 3, result, expr, make_code_no_param( use_me ) );
 			
 			break;
 		}
@@ -559,7 +559,7 @@ Code generate_code( Node* node )
 					Code value = generate_code( current_child = current_child->brother );
 					Code next = make_code_one_param( SOL_JMF, value.size + 2 );
 					Code exit = make_code_no_param( SOL_JMP );
-					result = concatenate_code( condition, next, value, exit );
+					result = concatenate_code( 4, condition, next, value, exit );
 					
 					stacklist exit_list = NULL;
 					stacklist_push( &exit_list, (void*) exit.head );
@@ -570,7 +570,7 @@ Code generate_code( Node* node )
 						value = generate_code( current_child->child->brother );
 						next = make_code_one_param( SOL_JMF, value.size + 2 );
 						exit = make_code_no_param( SOL_JMP );
-						result = concatenate_code( result, condition, next, value, exit );
+						result = concatenate_code( 5, result, condition, next, value, exit );
 						
 						stacklist_push( &exit_list, (void*) exit.head );
 					}
@@ -602,7 +602,7 @@ Code generate_code( Node* node )
 					Code value = generate_code( current_child = current_child->brother );
 					Code next = make_code_one_param( SOL_JMF, value.size + 2 );
 					Code exit = make_code_no_param( SOL_JMP );
-					result = concatenate_code( condition, next, value, exit );
+					result = concatenate_code( 4, condition, next, value, exit );
 
 					stacklist exit_list = NULL;
 					stacklist_push( &exit_list, (void*) exit.head );
@@ -614,7 +614,7 @@ Code generate_code( Node* node )
 						value = generate_code( current_child->child->brother );
 						next = make_code_one_param( SOL_JMF, value.size + 2 );
 						exit = make_code_no_param( SOL_JMP );
-						result = concatenate_code( result, condition, next, value, exit );
+						result = concatenate_code( 5, result, condition, next, value, exit );
 						
 						stacklist_push( &exit_list, (void*) exit.head );
 					}
@@ -701,7 +701,7 @@ Code generate_code( Node* node )
 					Schema* expression_schema = infere_expression_schema( expr_child );
 					Code expr = generate_code( expr_child );
 
-					result = concatenate_code( result, expr, make_code_no_param( use_me ) );
+					result = concatenate_code( 3, result, expr, make_code_no_param( use_me ) );
 					
 					result.tail->args[1].s_val = schema_to_string( expression_schema );
 
@@ -721,7 +721,8 @@ Code generate_code( Node* node )
 					else
 					{
 						output_schema = infere_expression_schema( node->child->brother );
-						result = concatenate_code( generate_code( node->child ),
+						result = concatenate_code( 3,
+												   generate_code( node->child ),
 												   generate_code( node->child->brother ),
 												   make_code_no_param( SOL_FWRITE ) );
 					}
@@ -891,6 +892,9 @@ Code append_code( Code first, Code second )
 	if( second.size == 0 )
 		return first;
 
+	if( second.head == NULL )
+		fprintf( stderr, "TESTA VUOTA\n" );
+
 	Code result;
 	relocate_address( second, first.size - second.head->address );
 	result.head = first.head;
@@ -901,15 +905,15 @@ Code append_code( Code first, Code second )
 	return result;
 }
 
-Code concatenate_code( Code code1, Code code2, ... )
+Code concatenate_code( int size, Code code1, Code code2, ... )
 {
 	va_list argp;
 	va_start( argp, code2 );
-	Code result = code1;
+	Code result = append_code( code1, code2 );
 
-	Code current_code;
-	for( current_code = code2; current_code.head != NULL; current_code = va_arg( argp, Code ) )
-		result = append_code( result, current_code );
+	int i;
+	for( i = 2; i < size; i++ )
+		result = append_code( result, va_arg( argp, Code ) );
 
 	va_end( argp );
 
@@ -954,7 +958,8 @@ Code make_code_two_param( Operator op, int arg1, int arg2 )
 
 Code make_push_pop( int size, int chain, int entry )
 {
-	return concatenate_code( make_code_two_param( SOL_PUSH, size, chain ),
+	return concatenate_code( 3,
+							 make_code_two_param( SOL_PUSH, size, chain ),
 							 make_code_one_param( SOL_GOTO, entry ),
 							 make_code_no_param( SOL_POP ) );
 }

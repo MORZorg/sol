@@ -117,7 +117,7 @@ Code generate_lhs_code( Node*, Boolean );
 
 void relocate_address( Code, int );
 Code append_code( Code, Code );
-Code concatenate_code( Code, Code, ... );
+Code concatenate_code( int, Code, Code, ... );
 Code empty_code( void );
 Code make_code_no_param( Operator );
 Code make_code_one_param( Operator, int );
