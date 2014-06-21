@@ -202,14 +202,14 @@ Symbol* create_symbol_table_element( Node* node, int* oid )
  * @param oid
  * @param clazz
  */
-void analyse_decl_list( Node* node, int* oid, ClassSymbol clazz, Boolean hasAssignment )
+void analyse_decl_list( Node* node, int* oid, ClassSymbol clazz, Boolean has_assignment )
 {
 	// Entering the decl list
 	while( node != NULL )
 	{
 		Node* type_node = node->child;
 		Node* domain_node;
-		if( hasAssignment )
+		if( has_assignment )
 		{
 			domain_node = type_node->brother;
 			while( domain_node->brother->brother != NULL )
@@ -222,21 +222,21 @@ void analyse_decl_list( Node* node, int* oid, ClassSymbol clazz, Boolean hasAssi
 
 		Schema* domain_schema = create_schema( domain_node );
 		simplify_expression( domain_node->brother );
-		if( hasAssignment && !schema_check( domain_schema, infere_expression_schema( domain_node->brother ) ) )
+		if( has_assignment && !schema_check( domain_schema, infere_expression_schema( domain_node->brother ) ) )
 			yysemerror( node, STR_CONFLICT_TYPE );
 		
 		while( type_node != domain_node )
 		{
-			Symbol* aType = malloc( sizeof( Symbol ) );
-			aType->name = type_node->value.s_val;
-			aType->oid = (*oid);
+			Symbol* a_type = malloc( sizeof( Symbol ) );
+			a_type->name = type_node->value.s_val;
+			a_type->oid = (*oid);
 			(*oid)++;
-			aType->clazz = clazz;
-			aType->schema = domain_schema; 
-			aType->nesting = ( (Symbol*) scope->function )->nesting;
+			a_type->clazz = clazz;
+			a_type->schema = domain_schema; 
+			a_type->nesting = ( (Symbol*) scope->function )->nesting;
 
 			// Adding the new type to the locenv in the scope in which is defined
-			if( !insert_unconflicted_element( aType ) )
+			if( !insert_unconflicted_element( a_type ) )
 				yysemerror( type_node, STR_CONFLICT_SCOPE );
 
 			type_node = type_node->brother;

@@ -113,7 +113,7 @@ typedef struct func_location
 
 int yygen( FILE*, FILE* );
 Code generate_code( Node* );
-Code generate_lhs_code( Node*, Boolean );
+Code generate_lhs_code( Node*, Schema**, Boolean );
 
 void relocate_address( Code, int );
 Code append_code( Code, Code );
