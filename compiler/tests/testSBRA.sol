@@ -12,6 +12,7 @@ func prog( a, n: int; c: int; ): int
 		var k: int;
 
 		const sbras: string = "sbra, what else?";
+			  sta: int = 4;
 
 	begin sbra
 		return k;
