@@ -57,7 +57,7 @@ Code generate_code( Node* node )
 			break;
 			
 		case T_ID:
-			result = generate_lhs_code( node, NULL, TRUE );
+			result = generate_lhs_code( node, NULL, FALSE );
 			break;
 
 		case T_INSTANCE_EXPR:
@@ -741,8 +741,6 @@ Code generate_code( Node* node )
 
 				case N_FOR_STAT:
 				{
-					tree_print( node, 0 );
-
 					// TODO Make sure the name is generated correctly
 					// Also the nesting
 					Symbol* temp_var = malloc( sizeof( Symbol ) );
@@ -785,16 +783,12 @@ Code generate_code( Node* node )
 					node->child->brother = NULL;
 					node->child = init_node;
 
-					tree_print( node, 0 );
-
 					result = generate_code( node );
 					break;
 				}
 
 				case N_FOREACH_STAT:
 				{
-					tree_print( node, 0 );
-
 					// TODO Make sure the name is generated correctly
 					// Also the nesting
 					Symbol* temp_var = malloc( sizeof( Symbol ) );
@@ -950,7 +944,7 @@ Code generate_code( Node* node )
 
 				case N_FIELDING:
 				case N_INDEXING:
-					result = generate_lhs_code( node, NULL, TRUE );
+					result = generate_lhs_code( node, NULL, FALSE );
 					break;
 				default:
 					break;
@@ -972,7 +966,7 @@ Code generate_code( Node* node )
  *
  * @return The whole code of the lhs
  */
-Code generate_lhs_code( Node* node, Schema** id_schema, Boolean is_first )
+Code generate_lhs_code( Node* node, Schema** id_schema, Boolean is_assigned )
 {
 	Code result = empty_code();
 
@@ -980,16 +974,17 @@ Code generate_lhs_code( Node* node, Schema** id_schema, Boolean is_first )
 	{
 		case T_ID:
 		{
-			fprintf( stderr, "$$$ ID %s $$$\n", node->value.s_val );
 			Symbol* referenced_id = fetch_scope( node->value.s_val );
-			result = make_code_two_param( SOL_LOD, referenced_id->nesting, referenced_id->oid );
 
-			if( !is_first )
+			if( id_schema == NULL )
 			{
+				if( !is_assigned )
+					result = make_code_two_param( SOL_LOD, referenced_id->nesting, referenced_id->oid );
+			}
+			else
+			{
+				result = make_code_two_param( SOL_LDA, referenced_id->nesting, referenced_id->oid );
 				*(id_schema) = referenced_id->schema;
-				fprintf( stderr, "Found ID %s\t", node->value.s_val );
-				schema_print( referenced_id->schema );
-				fprintf( stdout, "\n" );
 			}
 
 			break;
@@ -1001,43 +996,49 @@ Code generate_lhs_code( Node* node, Schema** id_schema, Boolean is_first )
 			{
 				case N_FIELDING:
 				{
-					fprintf( stderr, "*** %d: FIELDING %s ***\n", node->line, node->child->brother->value.s_val );
 					Node* current_node = node->child;
 					// Recursivity on the first child
 					Schema* child_schema = NULL;
-					result = generate_lhs_code( current_node, &(child_schema), FALSE );
+					result = generate_lhs_code( current_node, &(child_schema), is_assigned );
 
 					child_schema = child_schema->child;
 					current_node = current_node->brother;
 
 					// Finding the field of the struct that we are looking for, adding the shift for the previous fields
+					int fda_shift = 0;
 					while( child_schema->brother != NULL && child_schema->id != current_node->value.s_val )
 					{
-						result = append_code( result, make_code_one_param( SOL_FDA, schema_size( child_schema ) ) );
+						fda_shift += schema_size( child_schema );
 						child_schema = child_schema->brother;
 					}
+					if( fda_shift > 0 )
+						result = append_code( result, make_code_one_param( SOL_FDA, fda_shift ) );
 
-					int operator = ( child_schema->size == 0 ? SOL_EIL : SOL_SIL );
-					int shift = schema_size( child_schema );
-					if( operator == SOL_SIL )
-						shift *= child_schema->size;
+					if( id_schema == NULL )
+					{
+						if( !is_assigned )
+						{
+							int operator = ( child_schema->size == 0 ? SOL_EIL : SOL_SIL );
+							int shift = schema_size( child_schema );
+							if( operator == SOL_SIL )
+								shift *= child_schema->size;
 
-					result = append_code( result, make_code_one_param( operator, shift ) );
-
-					code_print( result );
-					fprintf( stderr, "*** END ***\n" );
+							result = append_code( result, make_code_one_param( operator, shift ) );
+						}
+					}
+					else
+						*id_schema = child_schema->child;
 
 					break;
 				}
 
 				case N_INDEXING:
 				{
-					fprintf( stderr, "+++ %d: INDEXING %d +++\n", node->line, node->child->brother->value.i_val );
 					Node* current_node = node->child;
 
 					// Recursivity on the first child
 					Schema* array_schema = NULL;
-					result = generate_lhs_code( current_node, &(array_schema), FALSE );
+					result = generate_lhs_code( current_node, &(array_schema), is_assigned );
 
 					/* fprintf( stderr, "Found schema: " ); */
 					/* schema_print( array_schema ); */
@@ -1046,26 +1047,19 @@ Code generate_lhs_code( Node* node, Schema** id_schema, Boolean is_first )
 					current_node = current_node->brother;
 					result = append_code( result, generate_code( current_node ) );
 
-					while( array_schema->child != NULL )
-					{
-						fprintf( stdout, "children\t" );
-						schema_print( array_schema );
-						fprintf( stdout, "\n" );
-
-						result = append_code( result, make_code_one_param(
-									SOL_IXA,
-									( array_schema->size > 0 ? array_schema->size : 1 ) * schema_size( array_schema ) ) );
-
-						array_schema = array_schema->child;
-					}
-
-
 					result = append_code( result, make_code_one_param(
-							SOL_EIL,
-							schema_size( array_schema ) ) );
+							SOL_IXA,
+							schema_size( array_schema->child ) ) );
 
-					code_print( result );
-					fprintf( stderr, "+++ END +++\n" );
+					if( id_schema == NULL )
+					{
+						if( !is_assigned )
+							result = append_code( result, make_code_one_param(
+									SOL_EIL,
+									schema_size( array_schema ) ) );
+					}
+					else
+						*id_schema = array_schema->child;
 
 					break;
 				}

@@ -871,11 +871,11 @@ Schema* infere_expression_schema( Node* node )
  * @brief Function that infers the schema of a lhs node.
  *
  * @param node The node of the syntax tree.
- * @param isAssigned Boolean that indicates if the lhs is an assignment (TRUE) or not.
+ * @param is_assigned Boolean that indicates if the lhs is an assignment (TRUE) or not.
  *
  * @return Returns the inferred schema of the node.
  */
-Schema* infere_lhs_schema( Node* node, Boolean isAssigned )
+Schema* infere_lhs_schema( Node* node, Boolean is_assigned )
 {
 	if( node->type == T_ID )
 	{
@@ -895,7 +895,7 @@ Schema* infere_lhs_schema( Node* node, Boolean isAssigned )
 				return variable->schema;
 
 			case CS_CONST:
-				if( isAssigned )
+				if( is_assigned )
 					yysemerror( node, PRINT_ERROR( STR_WRONG_CLASS, "can't assign a constant" ) );
 				else
 					return variable->schema;
@@ -907,7 +907,7 @@ Schema* infere_lhs_schema( Node* node, Boolean isAssigned )
 	switch( node->value.n_val )
 	{
 		case N_FIELDING:
-			result = infere_lhs_schema( node->child, isAssigned );
+			result = infere_lhs_schema( node->child, is_assigned );
 			if( result->type != TS_STRUCT )
 				yysemerror( node->child, PRINT_ERROR( STR_CONFLICT_TYPE, "not a struct" ) );
 
@@ -924,7 +924,7 @@ Schema* infere_lhs_schema( Node* node, Boolean isAssigned )
 			break;
 
 		case N_INDEXING:
-			result = infere_lhs_schema( node->child, isAssigned );
+			result = infere_lhs_schema( node->child, is_assigned );
 			if( result->type != TS_VECTOR )
 				yysemerror( node->child, PRINT_ERROR( STR_CONFLICT_TYPE, "not a vector" ) );
 
