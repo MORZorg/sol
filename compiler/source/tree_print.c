@@ -293,8 +293,8 @@ void code_print( Code code )
 	for( current_stat = code.head; current_stat != NULL; current_stat = current_stat->next )
 		switch( current_stat->op )
 		{
-			case SOL_READ:
 			case SOL_FREAD:
+			case SOL_READ:
 				printf( "%d: %s %d %d \"%s\"\n",
 						current_stat->address,
 						CODE_OPERATORS[ current_stat->op ],
@@ -310,10 +310,13 @@ void code_print( Code code )
 						current_stat->args[ 0 ].c_val );
 				break;
 
-			case SOL_FUNC:
-			case SOL_WRITE:
+			case SOL_FRD:
+			case SOL_FWR:
 			case SOL_FWRITE:
 			case SOL_LDS:
+			case SOL_RD:
+			case SOL_WR:
+			case SOL_WRITE:
 				printf( "%d: %s \"%s\"\n",
 						current_stat->address,
 						CODE_OPERATORS[ current_stat->op ],
@@ -327,10 +330,11 @@ void code_print( Code code )
 						current_stat->args[ 0 ].r_val );
 				break;
 
-			case SOL_PUSH:
-			case SOL_LOD:
 			case SOL_CAT:
 			case SOL_LDA:
+			case SOL_LOD:
+			case SOL_PUSH:
+			case SOL_STO:
 				printf( "%d: %s %d %d\n",
 						current_stat->address,
 						CODE_OPERATORS[ current_stat->op ],
@@ -338,31 +342,25 @@ void code_print( Code code )
 						current_stat->args[ 1 ].i_val );
 				break;
 
-			case SOL_RETURN:
-			case SOL_POP:
 			case SOL_EQU:
-			case SOL_IGT:
 			case SOL_IGE:
+			case SOL_IGT:
+			case SOL_IPLUS:
+			case SOL_IST:
+			case SOL_ITIMES:
+			case SOL_IUMI:
 			case SOL_NEG:
 			case SOL_NEQ:
-			case SOL_IPLUS:
+			case SOL_POP:
+			case SOL_RETURN:
 			case SOL_RPLUS:
-			case SOL_ITIMES:
 			case SOL_RTIMES:
-			case SOL_IUMI:
 			case SOL_TOINT:
 			case SOL_TOREAL:
 				printf( "%d: %s\n",
 						current_stat->address,
 						CODE_OPERATORS[ current_stat->op ] );
 				break;
-
-			case SOL_STO:
-				printf( "%d: %s %d %s\n",
-						current_stat->address,
-						CODE_OPERATORS[ current_stat->op ],
-						current_stat->args[ 0 ].i_val,
-						current_stat->args[ 1 ].s_val );
 
 			default:
 				printf( "%d: %s %d\n",

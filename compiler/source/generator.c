@@ -15,8 +15,6 @@ int yygen( FILE* input, FILE* output )
 	if( sem_result != 0 )
 		return sem_result;
 
-	tree_print( root, 0 );
-
 	stacklist_push( &scope, (stacklist_t) symbol_table );
 
 	// Instantiate an hashmap, used to track the function definitions inside the p-code
@@ -407,20 +405,24 @@ Code generate_code( Node* node )
 
 					Symbol* func_scope = fetch_scope( current_node->value.s_val );
 					
-					result = append_code( result, make_code_no_param( SOL_FUNC ) );
-					result.tail->args[0].s_val = current_node->value.s_val;
+					result = make_code_one_param( SOL_FUNC, func_scope->oid );
 
 					// TODO Find a way to avoid to duplicate the base function.
 					stacklist_push( &scope, (stacklist_t) func_scope );
 					current_node = current_node->brother;
 
-					if( current_node->value.n_val == N_PAR_LIST )
+					// If PAR_LIST is missing, current_node will be the domain
+					// node, better to check also the type to avoid collisions
+					// between n_val and q_val.
+					if( current_node->type == T_UNQUALIFIED_NONTERMINAL
+						&& current_node->value.n_val == N_PAR_LIST )
 					{
 						result = append_code( result, generate_code( current_node ) );
 						current_node = current_node->brother;
 					}
 					// Skip the return type
 					current_node = current_node->brother;
+
 
 					// No generation needed
 					if( current_node->value.n_val == N_TYPE_SECT )
@@ -451,7 +453,7 @@ Code generate_code( Node* node )
 						current_node = current_node->brother;
 					}
 					
-					Code body_code = generate_code( current_node->child->brother );
+					Code body_code = generate_code( current_node );
 
 					result = append_code( result, body_code );
 					
@@ -467,7 +469,7 @@ Code generate_code( Node* node )
 
 					// FIXME should never happen
 					if( body_code.head != NULL )
-						description->entry = body_code.head->address;
+						description->entry = body_code.head->address; // FIXME Addresses change. Use an offset instead
 					else
 						description->entry = -1;
 
@@ -514,7 +516,6 @@ Code generate_code( Node* node )
 					break;
 				}
 				
-				// FIXME somehow generate double STOs
 				case N_PAR_LIST:
 				{
 					Node* current_child = node->child;
@@ -530,8 +531,8 @@ Code generate_code( Node* node )
 						{
 							news_code = append_code( news_code, make_decl( fetch_scope( current_par->value.s_val )->schema ) );
 
-							stos_code = append_code( stos_code, make_code_one_param( SOL_STO, fetch_scope( current_par->value.s_val )->nesting ) );
-							stos_code.tail->args[1].s_val = current_par->value.s_val;
+							stos_code = append_code( stos_code,
+													 generate_lhs_code( current_par, NULL, TRUE ) );
 
 							current_par = current_par->brother;
 						}
@@ -562,7 +563,6 @@ Code generate_code( Node* node )
 					break;
 				}
 
-				// FIXME again, double STOs
 				case N_CONST_SECT:
 				{
 					Code values = empty_code();
@@ -578,21 +578,19 @@ Code generate_code( Node* node )
 							result = append_code( result, make_decl( fetch_scope( current_id->value.s_val )->schema ) );
 							const_size++;
 
-							stacklist_push( &const_list, (stacklist_t) current_id->value.s_val );
+							stacklist_push( &const_list, (stacklist_t) current_id );
 
 							current_id = current_id->brother;
 						}
 
 						for( ; const_size > 0; const_size-- )
 						{
-							values = append_code( values, generate_code( current_id->brother ) );
+							values = concatenate_code( 3,
+													   values,
+													   generate_code( current_id->brother ),
+													   generate_lhs_code( (Node*) const_list->function, NULL, TRUE ) );
 							
-							char* current_const = (char*) const_list->function;
 							stacklist_pop( &const_list );
-
-							// FIXME again, is the second parameter assigned correctly?
-							values = append_code( values, make_code_one_param( SOL_STO, fetch_scope( current_const )->nesting ) );
-							values.tail->args[1].s_val = current_const;
 						}
 
 						current_child = current_child->brother;
@@ -619,14 +617,7 @@ Code generate_code( Node* node )
 				// Ignore the id, from there on, it's just a stat list
 				case N_FUNC_BODY:
 				{
-					Node* current_stat = node->child->brother->child;
-
-					while( current_stat != NULL )
-					{
-						result = append_code( result, generate_code( current_stat ) );
-
-						current_stat = current_stat->brother;
-					}
+					result = generate_code( node->child->brother );
 
 					break;
 				}
@@ -644,10 +635,32 @@ Code generate_code( Node* node )
 				}
 
 				case N_ASSIGN_STAT:
-					// FIXME Specify it's an assignment
-					result = append_code( generate_code( node->child->brother ), generate_lhs_code( node->child, NULL, TRUE ) );
+				{
+					Code assignment = generate_lhs_code( node->child, NULL, TRUE );
+					if( assignment.size == 1 )
+						result = append_code( generate_code( node->child->brother ), assignment );
+					else
+					{
+						Stat* pre_tail;
+						for( pre_tail = assignment.head;
+							 pre_tail->next != assignment.tail;
+							 pre_tail = pre_tail->next );
 
+						Code tail = empty_code();
+						tail.head = tail.tail = assignment.tail;
+						tail.size = 1;
+
+						assignment.tail = pre_tail;
+						assignment.size -= 1;
+						pre_tail->next = NULL;
+
+						result = concatenate_code( 3,
+												   assignment,
+												   generate_code( node->child->brother ),
+												   tail );
+					}
 					break;
+				}
 
 				case N_COND_EXPR:
 				{
@@ -741,6 +754,7 @@ Code generate_code( Node* node )
 
 				case N_FOR_STAT:
 				{
+					// Transform the FOR into a WHILE, then delegate
 					// TODO Make sure the name is generated correctly
 					// Also the nesting
 					Symbol* temp_var = malloc( sizeof( Symbol ) );
@@ -789,6 +803,7 @@ Code generate_code( Node* node )
 
 				case N_FOREACH_STAT:
 				{
+					// Transform the FOREACH into a FOR, then delegate
 					// TODO Make sure the name is generated correctly
 					// Also the nesting
 					Symbol* temp_var = malloc( sizeof( Symbol ) );
@@ -873,19 +888,14 @@ Code generate_code( Node* node )
 					// Determine if the WR has a specifier-opt or not
 					if( child->brother != NULL )
 					{
-						Code specifier_opt = generate_code( child );
-
-						result = append_code( result, specifier_opt );
+						result = append_code( result, generate_code( child ) );
 
 						child = child->brother;
 
 						use_me = SOL_FRD;
 					}
 					
-					result = append_code( result, make_code_no_param( use_me ) );
-					
-					// Format
-					result.tail->args[1].s_val = schema_to_string( infere_expression_schema( child ) );
+					result = append_code( result, make_code_string_param( use_me, schema_to_string( infere_expression_schema( node ) ) ) );
 
 					break;
 				}
@@ -899,21 +909,16 @@ Code generate_code( Node* node )
 					// Determine if the WR has a specifier-opt or not
 					if( expr_child->brother != NULL )
 					{
-						Code specifier_opt = generate_code( expr_child );
-
-						result = append_code( result, specifier_opt );
+						result = append_code( result, generate_code( expr_child ) );
 
 						expr_child = expr_child->brother;
 
 						use_me = SOL_FWR;
 					}
 					
-					Schema* expression_schema = infere_expression_schema( expr_child );
 					Code expr = generate_code( expr_child );
 
-					result = concatenate_code( 3, result, expr, make_code_no_param( use_me ) );
-					
-					result.tail->args[1].s_val = schema_to_string( expression_schema );
+					result = concatenate_code( 3, result, expr, make_code_string_param( use_me, schema_to_string( infere_expression_schema( node ) ) ) );
 
 					break;
 				}
@@ -925,19 +930,19 @@ Code generate_code( Node* node )
 					if( node->child->brother == NULL )
 					{
 						output_schema = infere_expression_schema( node->child );
-						result = append_code( generate_code( node->child ),
-											  make_code_no_param( SOL_WRITE ) );
+						op = SOL_WRITE;
+						result =generate_code( node->child );
 					}
 					else
 					{
 						output_schema = infere_expression_schema( node->child->brother );
-						result = concatenate_code( 3,
-												   generate_code( node->child ),
-												   generate_code( node->child->brother ),
-												   make_code_no_param( SOL_FWRITE ) );
+						op = SOL_FWRITE;
+						result = append_code( generate_code( node->child ),
+											  generate_code( node->child->brother ) );
 					}
-						
-					result.tail->args[ 0 ].s_val = schema_to_string( output_schema );
+
+					result = append_code( result,
+										  make_code_string_param( op, schema_to_string( output_schema ) ) );
 						
 					break;
 				}
@@ -976,16 +981,21 @@ Code generate_lhs_code( Node* node, Schema** id_schema, Boolean is_assigned )
 		{
 			Symbol* referenced_id = fetch_scope( node->value.s_val );
 
+			Operator op;
 			if( id_schema == NULL )
 			{
-				if( !is_assigned )
-					result = make_code_two_param( SOL_LOD, referenced_id->nesting, referenced_id->oid );
+				if( is_assigned )
+					op = SOL_STO;
+				else
+					op = SOL_LOD;
 			}
 			else
 			{
-				result = make_code_two_param( SOL_LDA, referenced_id->nesting, referenced_id->oid );
+				op = SOL_LDA;
 				*(id_schema) = referenced_id->schema;
 			}
+
+			result = make_code_two_param( op, referenced_id->nesting, referenced_id->oid );
 
 			break;
 		}
@@ -1016,15 +1026,21 @@ Code generate_lhs_code( Node* node, Schema** id_schema, Boolean is_assigned )
 
 					if( id_schema == NULL )
 					{
-						if( !is_assigned )
-						{
-							int operator = ( child_schema->size == 0 ? SOL_EIL : SOL_SIL );
-							int shift = schema_size( child_schema );
-							if( operator == SOL_SIL )
-								shift *= child_schema->size;
+						Operator op;
+						if( is_assigned )
+							op = SOL_IST;
+						else
+							switch( child_schema->type )
+							{
+								case TS_STRUCT:
+								case TS_VECTOR:
+									op = SOL_SIL;
 
-							result = append_code( result, make_code_one_param( operator, shift ) );
-						}
+								default:
+									op = SOL_EIL;
+							}
+
+						result = append_code( result, make_code_one_param( op, schema_size( child_schema ) ) );
 					}
 					else
 						*id_schema = child_schema->child;
@@ -1053,10 +1069,26 @@ Code generate_lhs_code( Node* node, Schema** id_schema, Boolean is_assigned )
 
 					if( id_schema == NULL )
 					{
-						if( !is_assigned )
-							result = append_code( result, make_code_one_param(
-									SOL_EIL,
-									schema_size( array_schema ) ) );
+						if( is_assigned )
+						{
+							result = append_code( result, make_code_no_param( SOL_IST ) );
+						}
+						else
+						{
+							Operator op;
+							switch( array_schema->type )
+							{
+								case TS_STRUCT:
+								case TS_VECTOR:
+									op = SOL_SIL;
+
+								default:
+									op = SOL_EIL;
+							}
+
+							result = append_code( result,
+												  make_code_one_param( op, schema_size( array_schema ) ) );
+						}
 					}
 					else
 						*id_schema = array_schema->child;
@@ -1153,7 +1185,7 @@ Code make_code_no_param( Operator op )
 
 Code make_code_one_param( Operator op, int arg )
 {
-	Code result = make_code_no_param(op);
+	Code result = make_code_no_param( op );
 	result.head->args[ 0 ].i_val = arg;
 
 	return result;
@@ -1161,16 +1193,17 @@ Code make_code_one_param( Operator op, int arg )
 
 Code make_code_two_param( Operator op, int arg1, int arg2 )
 {
-	Code result = make_code_no_param(op);
+	Code result = make_code_no_param( op );
 	result.head->args[ 0 ].i_val = arg1;
 	result.head->args[ 1 ].i_val = arg2;
 
 	return result;
 }
 
+// TODO Remove if not used
 Code make_code_one_param_proper( Operator op, Value arg )
 {
-	Code result = make_code_no_param(op);
+	Code result = make_code_no_param( op );
 
 	result.head->args[ 0 ].i_val = arg.i_val;
 	result.head->args[ 0 ].s_val = arg.s_val;
@@ -1178,15 +1211,25 @@ Code make_code_one_param_proper( Operator op, Value arg )
 	return result;
 }
 
+// TODO Remove if not used
 Code make_code_two_param_proper( Operator op, Value arg1, Value arg2 )
 {
-	Code result = make_code_no_param(op);
+	Code result = make_code_no_param( op );
 
 	result.head->args[ 0 ].i_val = arg1.i_val;
 	result.head->args[ 0 ].s_val = arg1.s_val;
 
 	result.head->args[ 1 ].i_val = arg2.i_val;
 	result.head->args[ 1 ].s_val = arg2.s_val;
+
+	return result;
+}
+
+Code make_code_string_param( Operator op, char* arg1 )
+{
+	Code result = make_code_no_param( op );
+
+	result.head->args[ 0 ].s_val = arg1;
 
 	return result;
 }
@@ -1313,7 +1356,7 @@ char* schema_to_string( Schema* a_schema )
 
 		case TS_STRUCT:
 		{
-			char* result = malloc( 2 * sizeof( char ) );
+			char* result = calloc( 2, sizeof( char ) );
 			result[ 0 ] = '(';
 
 			Schema* current_attr;
@@ -1322,7 +1365,11 @@ char* schema_to_string( Schema* a_schema )
 				 current_attr = current_attr->brother )
 			{
 				char* schema = schema_to_string( current_attr->child );
+
+				int current_length = strlen( result );
 				result = realloc( result, ( strlen( result ) + strlen( current_attr->id ) + strlen( schema ) ) * sizeof( char ) );
+				result[ current_length ] = '\0';
+
 				sprintf( result, "%s%s:%s,", result, current_attr->id, schema );
 			}
 			result[ strlen( result )-1 ] = ')';

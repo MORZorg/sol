@@ -14,7 +14,7 @@ func prog( primo: vector[1] of vector[3] of char; a: struct(a: int; b: string;);
 		type
 			sbrat: vector[ 2 ] of bool;
 		var ri: vector[ 456 ] of struct( b: string; );
-				i: int;
+			i: int;
 		const fioa: string = "pfa0o";
 	begin ao
 		write struttura.c.c.a;
