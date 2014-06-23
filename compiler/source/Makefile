@@ -1,5 +1,6 @@
 solc: main.c lexer.o parser.o analyser.o generator.o hashmap.o stacklist.o tree_print.o
 	$(CC) -o $@ $^
+	cp $@ ../../virtual\ machine/$@
 
 lexer.o: lexer.c parser.h def.h
 	$(CC) -g -c $<

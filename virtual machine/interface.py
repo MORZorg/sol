@@ -2,12 +2,20 @@
 
 import sys
 import math
+import os
 from collections import deque
+from subprocess import Popen, PIPE
 
 from PyQt4 import QtCore, QtGui, uic
 
+EXT_SOURCE = ".sol"
+EXT_SCODE = ".ohana"
+
 
 class MainWindow(QtGui.QMainWindow):
+    STR_START = "No file selected: open a file to start."
+    STR_COMPILABLE = "The file must be compiled."
+    STR_EXECUTABLE = "The file can be executed."
 
     def __init__(self):
         QtGui.QMainWindow.__init__(self)
@@ -18,6 +26,16 @@ class MainWindow(QtGui.QMainWindow):
                      self,
                      QtCore.SLOT('open()'))
 
+        self.connect(self.ui.actionCompile,
+                     QtCore.SIGNAL('triggered()'),
+                     self,
+                     QtCore.SLOT('compile()'))
+
+        self.connect(self.ui.actionRun,
+                     QtCore.SIGNAL('triggered()'),
+                     self,
+                     QtCore.SLOT('run()'))
+
         self.connect(self.ui.pushButton,
                      QtCore.SIGNAL('clicked()'),
                      self,
@@ -25,8 +43,50 @@ class MainWindow(QtGui.QMainWindow):
 
     @QtCore.pyqtSlot()
     def open(self):
-        fileDialog = QtGui.QFileDialog(self, "Open file")
-        fileDialog.show()
+        fileName = QtGui.QFileDialog.getOpenFileName(
+            self,
+            "Open file",
+            filter="*{}; *{}".format(EXT_SOURCE, EXT_SCODE))
+
+        if fileName != "":
+            self.ui.outputText.setText(fileName)
+            self.fileName, fileExtension = os.path.splitext(str(fileName))
+
+            if fileExtension == EXT_SOURCE:
+                self.ui.outputText.append(self.STR_COMPILABLE)
+
+                self.ui.actionCompile.setEnabled(True)
+                self.ui.actionRun.setEnabled(False)
+            else:
+                self.ui.outputText.append(self.STR_EXECUTABLE)
+                self.ui.actionCompile.setEnabled(False)
+                self.ui.actionRun.setEnabled(True)
+        else:
+            self.ui.outputText.setText(self.STR_START)
+
+            self.ui.actionCompile.setEnabled(False)
+            self.ui.actionRun.setEnabled(False)
+
+    @QtCore.pyqtSlot()
+    def compile(self):
+        proc = Popen(["./solc", "{}{}".format(self.fileName, EXT_SOURCE)],
+                     stdout=PIPE)
+        output, _ = proc.communicate()
+        self.ui.outputText.append(output)
+
+        if proc.returncode == 0:
+            self.ui.outputText.append(self.STR_EXECUTABLE)
+
+            self.ui.actionRun.setEnabled(True)
+
+    @QtCore.pyqtSlot()
+    def run(self):
+        proc = Popen(["./vm", "{}{}".format(self.fileName, EXT_SCODE)],
+                     stdout=PIPE)
+        # TODO Iterative output (or no output in the vm?)
+        output, _ = proc.communicate()
+
+        self.ui.outputText.append(output)
 
     @QtCore.pyqtSlot()
     def requestInput(self):
