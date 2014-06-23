@@ -29,8 +29,8 @@ int yygen( FILE* input, FILE* output )
 
 	while( actual_call != NULL )
 	{
-		int oid = actual_call->args[0].i_val;
-		char key[20];
+		int oid = actual_call->args[ 0 ].i_val;
+		char key[ MAX_INT_LEN ];
 
 		sprintf( key, "%d", oid );
 
@@ -38,7 +38,8 @@ int yygen( FILE* input, FILE* output )
 
 		hashmap_get( func_map, key, (any_t*) &descriptor );
 
-		actual_call->args[0].i_val = descriptor->body_head->address;
+		// FIXME
+		/* actual_call->args[ 0 ].i_val = descriptor->body_head->address; */
 
 		stacklist_pop( &func_call_list );
 		actual_call = (Stat*) func_call_list;
@@ -452,7 +453,7 @@ Code generate_code( Node* node )
 					
 					// Create new entry in func_map with the function's oid as key
 					// FIXME derive length correctly
-					char key[20];
+					char key[ MAX_INT_LEN ];
 					sprintf( key, "%d", func_scope->oid );
 
 					FuncDesc* description = malloc( sizeof( FuncDesc ) );
