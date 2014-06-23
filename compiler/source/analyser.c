@@ -223,7 +223,7 @@ void analyse_decl_list( Node* node, int* oid, ClassSymbol clazz, Boolean has_ass
 		Schema* domain_schema = create_schema( domain_node );
 		simplify_expression( domain_node->brother );
 		if( has_assignment && !schema_check( domain_schema, infere_expression_schema( domain_node->brother ) ) )
-			yysemerror( node, STR_CONFLICT_TYPE );
+			yysemerror( node, PRINT_ERROR( STR_CONFLICT_TYPE, "decl_list" ) );
 		
 		while( type_node != domain_node )
 		{
@@ -465,6 +465,20 @@ Boolean simplify_expression( Node* node )
 		case T_ID:
 			return FALSE;
 
+		case T_INSTANCE_EXPR:
+		{
+			Boolean result = TRUE;
+			
+			Node* current_node = node->child;
+			while( current_node != NULL ) 
+			{
+				result &= simplify_expression( current_node );
+				current_node = current_node->brother;
+			}
+
+			return result;
+		}
+
 		default:
 			break;
 	}
@@ -474,7 +488,7 @@ Boolean simplify_expression( Node* node )
 	if( simplify_expression( left_child ) && simplify_expression( right_child ) )
 	{
 		if( right_child != NULL && left_child->type != right_child->type )
-			yysemerror( node, STR_CONFLICT_TYPE );
+			yysemerror( node, PRINT_ERROR( STR_CONFLICT_TYPE, "simplify" ) );
 
 		switch( node->type )
 		{
@@ -607,7 +621,7 @@ Schema* infere_expression_schema( Node* node )
 			Schema* left_argument = infere_expression_schema( node->child );
 			Schema* right_argument = infere_expression_schema( node->child->brother );
 			if( !schema_check( left_argument, right_argument ) )
-				yysemerror( node, STR_CONFLICT_TYPE );
+				yysemerror( node, PRINT_ERROR( STR_CONFLICT_TYPE, "infere" ) );
 
 			switch( node->value.q_val )
 			{
@@ -615,7 +629,7 @@ Schema* infere_expression_schema( Node* node )
 				case Q_AND:
 				case Q_OR:
 					if( left_argument->type != TS_BOOL )
-						yysemerror( node, STR_CONFLICT_TYPE );
+						yysemerror( node, PRINT_ERROR( STR_CONFLICT_TYPE, "logic" ) );
 					break;
 
 				/* Rel expr */
@@ -636,14 +650,14 @@ Schema* infere_expression_schema( Node* node )
 							break;
 
 						default:
-							yysemerror( node, STR_CONFLICT_TYPE );
+							yysemerror( node, PRINT_ERROR( STR_CONFLICT_TYPE, "GT" ) );
 					}
 					break;
 
 				case Q_IN:
 					if( right_argument->type != TS_VECTOR
 						|| !schema_check( left_argument, right_argument->child ) )
-						yysemerror( node, STR_CONFLICT_TYPE );
+						yysemerror( node, PRINT_ERROR( STR_CONFLICT_TYPE, "IN" ) );
 					break;
 
 				default:
@@ -657,9 +671,9 @@ Schema* infere_expression_schema( Node* node )
 		case T_MATH_EXPR:
 			result = infere_expression_schema( node->child );
 			if( !schema_check( result, infere_expression_schema( node->child->brother ) ) )
-				yysemerror( node, STR_CONFLICT_TYPE );
+				yysemerror( node, PRINT_ERROR( STR_CONFLICT_TYPE, "math" ) );
 			if( result->type != TS_INT && result->type != TS_REAL )
-				yysemerror( node, STR_CONFLICT_TYPE );
+				yysemerror( node, PRINT_ERROR( STR_CONFLICT_TYPE, "math 2" ) );
 			break;
 
 		case T_NEG_EXPR:
@@ -668,12 +682,12 @@ Schema* infere_expression_schema( Node* node )
 			{
 				case Q_MINUS:
 					if( result->type != TS_INT && result->type != TS_REAL )
-						yysemerror( node, STR_CONFLICT_TYPE );
+						yysemerror( node, PRINT_ERROR( STR_CONFLICT_TYPE, "neg" ) );
 					break;
 
 				case Q_NOT:
 					if( result->type != TS_BOOL )
-						yysemerror( node, STR_CONFLICT_TYPE );
+						yysemerror( node, PRINT_ERROR( STR_CONFLICT_TYPE, "not" ) );
 					break;
 
 				default:
@@ -712,7 +726,7 @@ Schema* infere_expression_schema( Node* node )
 					while( current_child != NULL )
 					{
 						if( !schema_check( result->child, infere_expression_schema( current_child ) ) )
-							yysemerror( current_child, STR_CONFLICT_TYPE );
+							yysemerror( current_child, PRINT_ERROR( STR_CONFLICT_TYPE, "vector" ) );
 
 						result->size++;
 						current_child = current_child->brother;
@@ -731,14 +745,14 @@ Schema* infere_expression_schema( Node* node )
 			{
 				case Q_TOINT:
 					if( infere_expression_schema( node->child )->type != TS_REAL )
-						yysemerror( node, STR_CONFLICT_TYPE );
+						yysemerror( node, PRINT_ERROR( STR_CONFLICT_TYPE, "toint" ) );
 
 					result->type = TS_INT;
 					break;
 
 				case Q_TOREAL:
 					if( infere_expression_schema( node->child )->type != TS_INT )
-						yysemerror( node, STR_CONFLICT_TYPE );
+						yysemerror( node, PRINT_ERROR( STR_CONFLICT_TYPE, "toreal" ) );
 
 					result->type = TS_REAL;
 					break;
@@ -785,7 +799,7 @@ Schema* infere_expression_schema( Node* node )
 					if( node->child->brother != NULL )
 					{
 						if( infere_expression_schema( node->child )->type != TS_STRING )
-							yysemerror( node->child, STR_CONFLICT_TYPE );
+							yysemerror( node->child, PRINT_ERROR( STR_CONFLICT_TYPE, "dynamic input" ) );
 
 						result = create_schema( node->child->brother );
 					}
@@ -797,7 +811,7 @@ Schema* infere_expression_schema( Node* node )
 					if( node->child->brother != NULL )
 					{
 						if( infere_expression_schema( node->child )->type != TS_STRING )
-							yysemerror( node->child, STR_CONFLICT_TYPE );
+							yysemerror( node->child, PRINT_ERROR( STR_CONFLICT_TYPE, "dynamic output" ) );
 
 						result = infere_expression_schema( node->child->brother );
 					}
@@ -842,7 +856,7 @@ Schema* infere_expression_schema( Node* node )
 					result = infere_expression_schema( current_node = current_node->brother );
 					for( current_node = current_node->brother; current_node != NULL; current_node = current_node->brother )
 						if( !schema_check( result, infere_expression_schema( current_node ) ) )
-							yysemerror( current_node, STR_CONFLICT_TYPE );
+							yysemerror( current_node, PRINT_ERROR( STR_CONFLICT_TYPE, "cond expr" ) );
 
 					break;
 				}
@@ -954,25 +968,15 @@ Schema* infere_lhs_schema( Node* node, Boolean is_assigned )
 Boolean schema_check( Schema* first, Schema* second )
 {
 	if( first->type != second->type )
-	{
-		yysemerror( NULL, STR_SCHEMA_DIFFERENT );
 		return FALSE;
-	}
 
 	switch( first->type )
 	{
 		case TS_VECTOR:
 			if( first->size != first->size )
-			{
-				// FIXME: I want to be prettier! (((o(*ﾟ▽ﾟ*)o))) 
-				yysemerror( NULL, STR_VECTOR_SIZE );
 				return FALSE;
-			}
 			if( !schema_check( first->child, second->child ) )
-			{
-				yysemerror( NULL, STR_VECTOR_TYPE );
 				return FALSE;
-			}
 
 			break;
 
@@ -991,10 +995,7 @@ Boolean schema_check( Schema* first, Schema* second )
 
 		case TS_ATTR:
 			if( !schema_check( first->child, second->child ) )
-			{
-				yysemerror( NULL, STR_STRUCT_TYPES );
 				return FALSE;
-			}
 			break;
 
 		case TS_CHAR:
@@ -1005,9 +1006,7 @@ Boolean schema_check( Schema* first, Schema* second )
 			break;
 
 		default:
-			yysemerror( NULL, PRINT_ERROR( STR_BUG, "schema_check" ) );
 			return FALSE;
-			break;
 	}
 
 	return TRUE;

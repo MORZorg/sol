@@ -135,7 +135,7 @@ int main( int argc, char** argv )
 	}
 	else
 	{
-		fprintf( stderr, "Reading from %s!\n", fileInput );
+		fprintf( stderr, "Reading from '%s'!\n", fileInput );
 		input = fopen( fileInput, "r" );
 	}
 	if( fileOutput == NULL )
@@ -149,12 +149,12 @@ int main( int argc, char** argv )
 		{
 			fileOutput = change_extension( fileInput );
 			output = fopen( fileOutput, "w+" );
-			fprintf( stderr, "Printing to %s!\n", fileOutput );
+			fprintf( stderr, "Printing to '%s'!\n", fileOutput );
 		}
 	}
 	else
 	{
-		fprintf( stderr, "Printing to %s!\n", fileOutput );
+		fprintf( stderr, "Printing to '%s'!\n", fileOutput );
 		output = fopen( fileOutput, "w+" );
 	}
 
@@ -171,21 +171,19 @@ char* change_extension( char* a_path )
 {
 	int base_len;
 	for( base_len = strlen( a_path )-1; base_len > 0; base_len-- )
-		if( a_path[ base_len ] == '.' )
+		if( a_path[ base_len ] == '.' || a_path[ base_len ] == '/' )
 			break;
-		else if( a_path[ base_len ] == '/' )
-			break;
-	if( a_path[ base_len ] != '.' )
-		base_len = strlen( a_path );
-	else
-		base_len--;
 
-	char* result = malloc( ( base_len + strlen( INTERMEDIATE_CODE_EXTENSION ) )
-						   * sizeof( char ) );
+	if( a_path[ base_len ] != '.' )
+		base_len = strlen( a_path ) + 1;
+
+	char* result = calloc( ( base_len + strlen( INTERMEDIATE_CODE_EXTENSION ) + 1 ),
+						   sizeof( char ) );
+
 	// FIXME Could cause problems when the original extension is longer than
 	// the new one.
 	strcat( result, a_path );
-	result[ base_len+1 ] = 0;
+	result[ base_len ] = 0;
 	strcat( result, INTERMEDIATE_CODE_EXTENSION );
 
 	return result;

@@ -126,7 +126,7 @@ char* new_string( char* s )
 
 void concatenate_string( char* base, char* addition )
 {
-	base = realloc( base, sizeof( strlen( base ) + strlen( addition ) + 1 ) );
+	base = realloc( base, sizeof( char ) * ( strlen( base ) + strlen( addition ) + 1 ) ); 
 	strcat( base, addition );
 }
 
