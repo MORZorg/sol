@@ -1,5 +1,5 @@
-solc: lex.o parser.o analyser.o
-	$(CC) -g -o $@ $^
+solc: main.c lexer.o parser.o analyser.o generator.o hashmap.o stacklist.o tree_print.o
+	$(CC) -o $@ $^
 
 lexer.o: lexer.c parser.h def.h
 	$(CC) -g -c $<
@@ -42,5 +42,5 @@ clean:
 	rm -f \
 	  lexer lexer.c \
 	  parser parser.c parser.h parser.output *.o \
-	  analyser
+	  analyser generator solc
 	rm -rf *.dSYM
