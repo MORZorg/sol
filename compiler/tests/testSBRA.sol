@@ -15,7 +15,7 @@ func prog( a, n: int; c: int; ): int
 			  sta: int = 4;
 
 	begin sbra
-		return k;
+		return prog( k, k, k );
 	end sbra
 
 begin prog
