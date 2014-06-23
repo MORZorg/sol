@@ -1,6 +1,6 @@
 /*
  * File: machine.c
- * Description: Virtual machine to execute the p-code generated from sol
+ * Description: Virtual machine to execute the s-code generated from sol
  * Date: 140623
  * Author: Mattia Rizzini
  * Group: ORZ
