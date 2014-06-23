@@ -178,6 +178,8 @@ const char* CODE_OPERATORS[] =
   "FWRITE",
   "FUNC",
   "RETURN",
+  "SCODE",
+  "HALT",
 };
 
 const char* SPACING = "  ";
@@ -357,6 +359,7 @@ void code_print( Code code )
 			case SOL_RTIMES:
 			case SOL_TOINT:
 			case SOL_TOREAL:
+			case SOL_HALT:
 				printf( "%d: %s\n",
 						current_stat->address,
 						CODE_OPERATORS[ current_stat->op ] );

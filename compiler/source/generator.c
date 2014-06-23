@@ -4,6 +4,7 @@ extern FILE* yyin;
 extern Node* root;
 extern Symbol* symbol_table;
 extern stacklist scope;
+extern const char* CODE_OPERATORS[];
 
 FILE* yyin;
 
@@ -21,31 +22,38 @@ int yygen( FILE* input, FILE* output )
 	// the p-code
 	func_map = hashmap_new();
 
-	Code result = append_code( generate_intro_code( symbol_table ),
-							   generate_code( root ) );
+	// The intro code is generated afterwards because it needs the updated
+	// symbol table including the additional temporary variables.
+	Code result = generate_code( root );
+	result = append_code( generate_intro_code( symbol_table ),
+						  result );
 
-	// TODO Replace with something like `output_code'
-	// tree_print( root, 0 );
-	code_print( result );
+	output_code( output, result );
 
 	return 0;
 }
 
 Code generate_intro_code( Symbol* base_function )
 {
-	Code readings = empty_code();
+	Code result = empty_code();
 
 	int i;
 	for( i = 0; i < base_function->formals_size; i++ )
 	{
-		readings = append_code( readings,
+		result = append_code( result,
 								make_code_string_param( SOL_RD, schema_to_string( base_function->formals[ i ]->schema ) ) );
 	}
 
-	// TODO Check if it's needed to use PUSH, GOTO and POP or it's alright like
-	// this.
-	return append_code( readings,
-						make_code_one_param( SOL_JMP, 2 ) );
+	Code goto_stat = make_code_no_param( SOL_GOTO );
+	result = concatenate_code( 5,
+							   result,
+							   make_code_two_param( SOL_PUSH, hashmap_length( base_function->locenv ), -1 ),
+							   goto_stat,
+							   make_code_no_param( SOL_POP ),
+							   make_code_no_param( SOL_HALT ) );
+	goto_stat.head->args[ 0 ].i_val = result.size;
+
+	return result;
 }
 
 Code generate_code( Node* node )
@@ -527,10 +535,11 @@ Code generate_code( Node* node )
 						// The address of the function's body start
 						int entry = description->entry;
 					
-						result = append_code( result, make_code_two_param( SOL_PUSH, size, chain ) );
-						result = append_code( result, make_code_one_param( SOL_GOTO, entry ) );
-
-						result = append_code( result, make_code_no_param( SOL_POP ) );
+						result = concatenate_code( 4,
+												   result,
+												   make_code_two_param( SOL_PUSH, size, chain ),
+												   make_code_one_param( SOL_GOTO, entry ),
+												   make_code_no_param( SOL_POP ) );
 					}
 
 					break;
@@ -1409,15 +1418,82 @@ char* schema_to_string( Schema* a_schema )
 	}
 }
 
-/**
- * @brief Error function called in case of error while generating code.
- *
- * @param node
- * @param type
- *
- * @return
- */
-int yygenerror( Node* node, char* type )
+void output_code( FILE* output, Code code )
 {
-	return 0;
+	code = append_code( make_code_one_param( SOL_SCODE, code.size ), code );
+
+	Stat* current_stat;
+	for( current_stat = code.head; current_stat != NULL; current_stat = current_stat->next )
+		switch( current_stat->op )
+		{
+			case SOL_FREAD:
+			case SOL_READ:
+				fprintf( output, "%s %d %d \"%s\"\n",
+						CODE_OPERATORS[ current_stat->op ],
+						current_stat->args[ 0 ].i_val,
+						current_stat->args[ 1 ].i_val,
+						current_stat->args[ 2 ].s_val );
+				break;
+
+			case SOL_LDC:
+				fprintf( output, "%s '%c'\n",
+						CODE_OPERATORS[ current_stat->op ],
+						current_stat->args[ 0 ].c_val );
+				break;
+
+			case SOL_FRD:
+			case SOL_FWR:
+			case SOL_FWRITE:
+			case SOL_LDS:
+			case SOL_RD:
+			case SOL_WR:
+			case SOL_WRITE:
+				fprintf( output, "%s \"%s\"\n",
+						CODE_OPERATORS[ current_stat->op ],
+						current_stat->args[ 0 ].s_val );
+				break;
+
+			case SOL_LDR:
+				fprintf( output, "%s %f\n",
+						CODE_OPERATORS[ current_stat->op ],
+						current_stat->args[ 0 ].r_val );
+				break;
+
+			case SOL_CAT:
+			case SOL_LDA:
+			case SOL_LOD:
+			case SOL_PUSH:
+			case SOL_STO:
+				fprintf( output, "%s %d %d\n",
+						CODE_OPERATORS[ current_stat->op ],
+						current_stat->args[ 0 ].i_val,
+						current_stat->args[ 1 ].i_val );
+				break;
+
+			case SOL_EQU:
+			case SOL_IGE:
+			case SOL_IGT:
+			case SOL_IPLUS:
+			case SOL_IST:
+			case SOL_ITIMES:
+			case SOL_IUMI:
+			case SOL_NEG:
+			case SOL_NEQ:
+			case SOL_POP:
+			case SOL_RETURN:
+			case SOL_RPLUS:
+			case SOL_RTIMES:
+			case SOL_TOINT:
+			case SOL_TOREAL:
+			case SOL_HALT:
+				fprintf( output, "%s\n",
+						CODE_OPERATORS[ current_stat->op ] );
+				break;
+
+			default:
+				fprintf( output, "%s %d\n",
+						CODE_OPERATORS[ current_stat->op ],
+						current_stat->args[ 0 ].i_val );
+				break;
+		}
 }
