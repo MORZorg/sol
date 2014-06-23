@@ -17,7 +17,8 @@ int yygen( FILE* input, FILE* output )
 
 	stacklist_push( &scope, (stacklist_t) symbol_table );
 
-	// Instantiate an hashmap, used to track the function definitions inside the p-code
+	// Instantiate an hashmap, used to track the function definitions inside
+	// the p-code
 	func_map = hashmap_new();
 
 	Code result = generate_code( root );

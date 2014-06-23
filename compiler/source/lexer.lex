@@ -108,19 +108,19 @@ break               { SPAM( "BREAK" ); return( BREAK ); }
 
 char* new_string( char* s )
 {
-    if( lex_symbol_table == NULL )
-      lex_symbol_table = hashmap_new();
+	if( lex_symbol_table == NULL )
+		lex_symbol_table = hashmap_new();
 
 	char* result;
 
-    if( hashmap_get( lex_symbol_table, s, (any_t*) &result ) == MAP_MISSING )
-    {
-      result = malloc( sizeof( strlen( s ) + 1 ) );
-      strcpy( result, s );
+	if( hashmap_get( lex_symbol_table, s, (any_t*) &result ) == MAP_MISSING )
+	{
+		result = malloc( ( strlen( s ) + 1 ) * sizeof( char ) );
+		sprintf( result, "%s", s );
 
-      hashmap_put( lex_symbol_table, result, result );
-    }
-	
+		hashmap_put( lex_symbol_table, result, result );
+	}
+
 	return result;
 }
 
@@ -132,71 +132,71 @@ void concatenate_string( char* base, char* addition )
 
 char parse_escape_seq( char* s )
 {
-  char result;
+	char result;
 
-  if( s[ 0 ] == '\\' )
-    switch( s[ 1 ] )
-    {
-		case 'a':
-			result = '\a';
-			break;
+	if( s[ 0 ] == '\\' )
+		switch( s[ 1 ] )
+		{
+			case 'a':
+				result = '\a';
+				break;
 
-		case 'b':
-			result = '\b';
-			break;
+			case 'b':
+				result = '\b';
+				break;
 
-		case 'f':
-			result = '\f';
-			break;
+			case 'f':
+				result = '\f';
+				break;
 
-		case 'n':
-			result = '\n';
-			break;
+			case 'n':
+				result = '\n';
+				break;
 
-		case 'r':
-			result = '\r';
-			break;
+			case 'r':
+				result = '\r';
+				break;
 
-		case 't':
-			result = '\t';
-			break;
+			case 't':
+				result = '\t';
+				break;
 
-		case 'v':
-			result = '\v';
-			break;
+			case 'v':
+				result = '\v';
+				break;
 
-		case '\\':
-			result = '\\';
-			break;
+			case '\\':
+				result = '\\';
+				break;
 
-		case '\'':
-			result = '\'';
-			break;
+			case '\'':
+				result = '\'';
+				break;
 
-		case '"':
-			result = '\"';
-			break;
+			case '"':
+				result = '\"';
+				break;
 
-		case '?':
-			result = '\?';
-			break;
+			case '?':
+				result = '\?';
+				break;
 
-		case '0':
-			if( s[ 2 ] == 0 )
-				result = '\0';
-			else
-			break;
+			case '0':
+				if( s[ 2 ] == 0 )
+					result = '\0';
+				else
+					break;
 
-		// TODO: Add support for octal, hexadecimal and unicode.
-    }
-  else
-    result = s[ 0 ];
+				// TODO: Add support for octal, hexadecimal and unicode.
+		}
+	else
+		result = s[ 0 ];
 
-  return result;
+	return result;
 }
 
 int yyerror( char* type )
 {
-  fprintf( stdout, "Line %d: %s on symbol \"%s\".\n", line, type, yytext );
-  exit( 2 );
+	fprintf( stdout, "Line %d: %s on symbol \"%s\".\n", line, type, yytext );
+	exit( 2 );
 }
