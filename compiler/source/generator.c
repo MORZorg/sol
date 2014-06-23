@@ -530,8 +530,12 @@ Code generate_code( Node* node )
 					{
 						// The number of objects defined in the function's activation record
 						int size = description->size;
-						// Since description->scope contains the nesting in which the function is defined, theoretically the following value should represent the distance between the actual call nesting and the definition nesting
-						int chain = ( (Symbol*) scope->function )->nesting - description->scope;
+                        // Since description->scope contains the nesting in
+                        // which the function is defined, theoretically the
+                        // following value should represent the distance
+                        // between the actual call nesting and the definition
+                        // nesting
+						int chain = ( (Symbol*) scope->function )->nesting - description->scope + 1;
 						// The address of the function's body start
 						int entry = description->entry;
 					
@@ -894,13 +898,13 @@ Code generate_code( Node* node )
 					if( node->child->brother == NULL )
 					{
 						referenced_id = fetch_scope( node->child->value.s_val );
-						result = make_code_two_param( SOL_READ, referenced_id->nesting, referenced_id->oid );
+						result = make_code_two_param( SOL_READ, ( (Symbol*) scope->function )->nesting - referenced_id->nesting, referenced_id->oid );
 					}
 					else
 					{
 						referenced_id = fetch_scope( node->child->brother->value.s_val );
 						result = append_code( generate_code( node->child ),
-											  make_code_two_param( SOL_READ, referenced_id->nesting, referenced_id->oid ) );
+											  make_code_two_param( SOL_READ, ( (Symbol*) scope->function )->nesting - referenced_id->nesting, referenced_id->oid ) );
 					}
 						
 					result.tail->args[ 2 ].s_val = schema_to_string( referenced_id->schema );
@@ -1024,7 +1028,7 @@ Code generate_lhs_code( Node* node, Schema** id_schema, Boolean is_assigned )
 				*(id_schema) = referenced_id->schema;
 			}
 
-			result = make_code_two_param( op, referenced_id->nesting, referenced_id->oid );
+			result = make_code_two_param( op, ( (Symbol*) scope->function )->nesting - referenced_id->nesting, referenced_id->oid );
 
 			break;
 		}

@@ -22,7 +22,7 @@ func prog( a, b: int; c: string; ): int
 
 	func asd(): int
 	begin asd
-		return 1;
+		return 1 + i;
 	end asd
 
 begin prog
