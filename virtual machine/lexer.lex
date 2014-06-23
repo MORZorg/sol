@@ -38,6 +38,7 @@ sugar			[()\[\]{}.,;]
 EOF                 { return 0; }
 \n					{ SPAM( "\n" ); line++; }
 {spacing}			;
+SCODE				{ SPAM( "SCODE\n" ); return( SCODE ); };
 NEW					{ SPAM( "NEW\n" ); lexval.op_val = SOL_NEW; return( OP ); }
 NEWS				{ SPAM( "NEWS\n" ); lexval.op_val = SOL_NEWS; return( OP ); }
 LDC					{ SPAM( "LDC\n" ); lexval.op_val = SOL_LDC; return( OP ); }
@@ -100,16 +101,15 @@ WRITE				{ SPAM( "WRITE\n" ); lexval.op_val = SOL_WRITE; return( OP ); }
 FWRITE				{ SPAM( "FWRITE\n" ); lexval.op_val = SOL_FWRITE; return( OP ); }
 FUNC				{ SPAM( "FUNC\n" ); lexval.op_val = SOL_FUNC; return( OP ); }
 RETURN				{ SPAM( "RETURN\n" ); lexval.op_val = SOL_RETURN; return( OP ); }
-SCODE				{ SPAM( "SCODE\n" ); lexval.op_val = SOL_SCODE; return( OP ); }
 HALT				{ SPAM( "HALT\n" ); lexval.op_val = SOL_HALT; return( OP ); }
 
-{intconst}			{ SPAM( "INT_CONST" ); lexval.i_val = atoi( yytext ); return( INT_CONST ); }
-{realconst}			{ SPAM( "REAL_CONST" ); lexval.r_val = atof( yytext ); return( REAL_CONST ); }
+{intconst}			{ SPAM( "INT_CONST" ); lexval.i_val = atoi( yytext ); return( CONST ); }
+{realconst}			{ SPAM( "REAL_CONST" ); lexval.r_val = atof( yytext ); return( CONST ); }
 "\""	           	{ BEGIN strconst; strbuf = malloc( sizeof( char ) ); }
 <strconst>[^\\"\n]*	{ concatenate_string( strbuf, yytext ); }
 <strconst>\\.		{ char temp[] = { parse_escape_seq( yytext ), '\0' }; concatenate_string( strbuf, temp ); }
-<strconst>\"		{ lexval.s_val = new_string( strbuf ); BEGIN 0; SPAM( "STR_CONST" ); return STR_CONST; }
-{charconst}			{ SPAM( "CHAR_CONST" ); lexval.c_val = parse_escape_seq( yytext + 1 ); return( CHAR_CONST ); }
+<strconst>\"		{ lexval.s_val = new_string( strbuf ); BEGIN 0; SPAM( "STR_CONST" ); return CONST; }
+{charconst}			{ SPAM( "CHAR_CONST" ); lexval.c_val = parse_escape_seq( yytext + 1 ); return( CONST ); }
 {sugar}				{ SPAM( yytext ); return( yytext[ 0 ] ); }
 .					{ yyerror( STR_ERROR ); }
 %%

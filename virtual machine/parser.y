@@ -1,9 +1,10 @@
 %{
 #include <string.h>
+#include <stdarg.h>
 
 #include "def.h"
 
-#define YYSTYPE Node*
+#define YYSTYPE Value
 extern FILE* yyin;
 extern char* yytext;
 extern Value lexval;
@@ -12,14 +13,14 @@ extern int line;
 extern int yylex();
 extern int yyerror( char* );
 
-Node* root = NULL;
+Stat* program;
 %}
 
-%token OP INT_CONST CHAR_CONST REAL_CONST STR_CONST BOOL_CONST
+%token SCODE OP CONST
 
 %%
 
-program : stat_list
+program : scode stat_list
 		;
 
 stat_list : stat stat_list
@@ -28,136 +29,47 @@ stat_list : stat stat_list
 
 stat : no_param
 	 | one_param
-	 | string_param
 	 | two_param
-	 | read
-	 | ldc
-	 | ldr
+	 | three_param
 	 ;
 
-no_param : OP
+op : OP { $$ = lexval; }
+   ;
+
+const : CONST { $$ = lexval; }
+	  ;
+
+scode : SCODE const { program = malloc( sizeof( Stat ) * $2.i_val ); }
+	  ;
+
+no_param : op { program[ line - 1 ] = new_stat( 0, $1.op_val ); }
 		 ;
 
-one_param : OP INT_CONST
+one_param : op const { program[ line - 1 ] = new_stat( 1, $1.op_val, $2 ); }
 		  ;
 
-string_param : OP STR_CONST
-			 ;
-
-two_param : OP INT_CONST INT_CONST
+two_param : op const const { program[ line - 1 ] = new_stat( 2, $1.op_val, $2, $3 ); }
 		  ;
 
-read : OP INT_CONST INT_CONST STR_CONST
-	 ;
-
-ldc : OP CHAR_CONST
-	;
-
-ldr : OP REAL_CONST
-	;
+three_param : op const const const { program[ line - 1 ] = new_stat( 3, $1.op_val, $2, $3, $4 ); }
+			;
 
 %%
 
-// Node* new_node( TypeNode type )
-// {
-// 	Node* result = malloc( sizeof( Node ) );
-// 	result->type = type;
-// 	result->child = result->brother = NULL;
-// 	result->line = line;
-// 
-// 	return result;
-// }
-// 
-// Node* new_nonterminal_node( Nonterminal value )
-// {
-// 	Node* result = new_node( T_UNQUALIFIED_NONTERMINAL );
-// 	result->value.n_val = value;
-// 
-// 	return result;
-// }
-// 
-// Node* new_terminal_node( TypeNode type, Value value )
-// {
-// 	Node* result = new_node( type );
-// 	
-// 	switch( type )
-// 	{
-// 		case T_INT_CONST:
-// 			result->value.i_val = value.i_val;
-// 			break;
-// 
-//         case T_CHAR_CONST:
-//             result->value.c_val = value.c_val;
-//             break;
-// 
-//         case T_REAL_CONST:
-//             result->value.r_val = value.r_val;
-//             break;
-// 
-//         case T_BOOL_CONST:
-//             result->value.b_val = value.b_val;
-//             break;
-// 
-//         case T_STR_CONST:
-// 		case T_ID:
-//         case T_ID_DOMAIN:
-// 			result->value.s_val = value.s_val;
-// 			break;
-// 
-// 		default:
-// 			break;
-// 	}
-// 
-// 	return result;
-// }
-// 
-// Node* new_qualified_node( TypeNode type, Qualifier qualifier )
-// {
-// 	Node* result = new_node( type );
-// 	result->value.q_val = qualifier;
-// 
-// 	return result;
-// }
-// 
-// /**
-//  * @brief Assigns to the given pointer to a tree node (Node*) the given tree
-//  *        node or its last brother.
-//  * @note Can be optimized if brother can't be NULL.
-//  *
-//  * @param initial
-//  * @param brother
-//  *
-//  * @return A pointer to the given tree node's brother in case of success,
-//  *	the given pointer to a tree node otherwise.
-//  */
-// Node** assign_brother( Node** initial, Node* brother )
-// {
-// 	while( *initial != NULL )
-// 	{
-// 		initial = &( (*initial)->brother );
-// 	}
-// 
-// 	if( brother != NULL )
-// 	{
-// 		*initial = brother;
-// 		return &( brother->brother );
-// 	}
-// 
-// 	return initial;
-// }
-// 
-// Node* get_last_brother( Node* node )
-// {
-//     Node* current_node = node;
-//     while( current_node->brother != NULL )
-//         current_node = current_node->brother;
-// 
-//     return current_node;
-// }
-// 
-// void print_node( Node* node )
-// {
-// 	fprintf( stderr, "\n *** NODE *** \t" );
-// 	fprintf( stderr, "Line: %d\t", node->line );
-// 	fprintf( stderr, "TypeNode: %d\t\n", node->type );
-// }
+Stat new_stat( int argc, Operator op, ... )
+{
+	va_list argv;
+	va_start( argv, op );
+
+	Stat result;
+	result.op = op;
+
+	int i;
+	for( i = 0; i < argc; i++ )
+		result.args[ i ] = va_arg( argv, Value );
+
+	va_end( argv );
+
+	return result;
+}
+
