@@ -21,7 +21,8 @@ int yygen( FILE* input, FILE* output )
 	// the p-code
 	func_map = hashmap_new();
 
-	Code result = generate_code( root );
+	Code result = append_code( generate_intro_code( symbol_table ),
+							   generate_code( root ) );
 
 	// Change every goto oid in the function calls in goto body start
 	Stat* actual_call = (Stat*) func_call_list->function;
@@ -47,6 +48,23 @@ int yygen( FILE* input, FILE* output )
 	code_print( result );
 
 	return 0;
+}
+
+Code generate_intro_code( Symbol* base_function )
+{
+	Code readings = empty_code();
+
+	int i;
+	for( i = 0; i < base_function->formals_size; i++ )
+	{
+		readings = append_code( readings,
+								make_code_string_param( SOL_RD, schema_to_string( base_function->formals[ i ]->schema ) ) );
+	}
+
+	// TODO Check if it's needed to use PUSH, GOTO and POP or it's alright like
+	// this.
+	return append_code( readings,
+						make_code_one_param( SOL_JMP, 2 ) );
 }
 
 Code generate_code( Node* node )

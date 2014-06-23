@@ -45,8 +45,8 @@ typedef struct symtab
 	ClassSymbol clazz;
 	Schema* schema;
 	map_t locenv;
-	int formals_size;
 	int nesting;
+	int formals_size;
 	struct symtab** formals;
 } Symbol;
 

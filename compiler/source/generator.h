@@ -113,6 +113,7 @@ typedef struct func_location
 } FuncDesc;
 
 int yygen( FILE*, FILE* );
+Code generate_intro_code( Symbol* );
 Code generate_code( Node* );
 Code generate_lhs_code( Node*, Schema**, Boolean );
 
