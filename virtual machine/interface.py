@@ -123,13 +123,18 @@ class InputDialog(QtGui.QDialog):
             return StringWidget()
         elif element == "b":
             return BooleanWidget()
-        elif nesting > 1.5:
-            schema.appendleft(element)
-            return NestedWidget(schema)
         elif element == "[":
-            return VectorWidget(schema, nesting)
+            if nesting > .5:
+                schema.appendleft(element)
+                return NestedWidget(schema)
+            else:
+                return VectorWidget(schema, nesting)
         elif element == "(":
-            return StructWidget(schema, nesting)
+            if nesting > 0:
+                schema.appendleft(element)
+                return NestedWidget(schema)
+            else:
+                return StructWidget(schema, nesting)
         else:
             return InputDialog.resolveSchema(schema, nesting)
 
