@@ -24,28 +24,8 @@ int yygen( FILE* input, FILE* output )
 	Code result = append_code( generate_intro_code( symbol_table ),
 							   generate_code( root ) );
 
-	// Change every goto oid in the function calls in goto body start
-	Stat* actual_call = (Stat*) func_call_list->function;
-
-	while( actual_call != NULL )
-	{
-		int oid = actual_call->args[ 0 ].i_val;
-		char key[ MAX_INT_LEN ];
-
-		sprintf( key, "%d", oid );
-
-		FuncDesc* descriptor;
-
-		hashmap_get( func_map, key, (any_t*) &descriptor );
-
-		// FIXME
-		/* actual_call->args[ 0 ].i_val = descriptor->body_head->address; */
-
-		stacklist_pop( &func_call_list );
-		actual_call = (Stat*) func_call_list;
-	}
-
 	// TODO Replace with something like `output_code'
+	// tree_print( root, 0 );
 	code_print( result );
 
 	return 0;
@@ -451,21 +431,6 @@ Code generate_code( Node* node )
 					stacklist_push( &scope, (stacklist_t) func_scope );
 					current_node = current_node->brother;
 					
-					// Create new entry in func_map with the function's oid as key
-					// FIXME derive length correctly
-					char key[ MAX_INT_LEN ];
-					sprintf( key, "%d", func_scope->oid );
-
-					FuncDesc* description = malloc( sizeof( FuncDesc ) );
-
-					description->size = hashmap_length( func_scope->locenv );
-					description->scope = func_scope->nesting;
-					// Save oid of declared function instead of body start address
-					// The body_code.head generated is then saved into the same hashmap so that the code can be updated with the address of the code, really useful
-					description->oid = func_scope->oid;
-					
-					hashmap_put( func_map, key, description );
-					
 					// If PAR_LIST is missing, current_node will be the domain
 					// node, better to check also the type to avoid collisions
 					// between n_val and q_val.
@@ -494,15 +459,12 @@ Code generate_code( Node* node )
 						current_node = current_node->brother;
 					}
 
+					Node* function_list = NULL;
+
+					// The FUNC_LIST processing is done after the body, so that I know what the body.head address is
 					if( current_node->value.n_val == N_FUNC_LIST )
 					{
-						Node* current_child = current_node->child;
-
-						do
-						{
-							result = append_code( result, generate_code( current_child ) );
-							current_child = current_child->brother;
-						} while( current_child != NULL );
+						function_list = current_node;
 
 						current_node = current_node->brother;
 					}
@@ -511,8 +473,31 @@ Code generate_code( Node* node )
 
 					result = append_code( result, body_code );
 
-					description->body_head = body_code.head;
+					// Create new entry in func_map with the function's oid as key
+					// FIXME derive length correctly
+					char key[ MAX_INT_LEN ];
+					sprintf( key, "%d", func_scope->oid );
+
+					FuncDesc* description = malloc( sizeof( FuncDesc ) );
+
+					description->size = hashmap_length( func_scope->locenv );
+					description->scope = func_scope->nesting;
+					description->entry = body_code.head->address;
 					
+					hashmap_put( func_map, key, description );
+					
+					if( function_list != NULL )
+					{
+						Node* current_child = function_list->child;
+
+						while( current_child != NULL )
+						{
+							
+							result = append_code( result, generate_code( current_child ) );
+							current_child = current_child->brother;
+						}
+					}
+
 					break;
 				}
 
@@ -539,14 +524,11 @@ Code generate_code( Node* node )
 						int size = description->size;
 						// Since description->scope contains the nesting in which the function is defined, theoretically the following value should represent the distance between the actual call nesting and the definition nesting
 						int chain = ( (Symbol*) scope->function )->nesting - description->scope;
-						// The function's oid
-						int oid = description->oid;
+						// The address of the function's body start
+						int entry = description->entry;
 					
 						result = append_code( result, make_code_two_param( SOL_PUSH, size, chain ) );
-						result = append_code( result, make_code_one_param( SOL_GOTO, oid ) );
-
-						// Adding call statement to the function call list
-						stacklist_push( &func_call_list, (stacklist_t) result.tail );
+						result = append_code( result, make_code_one_param( SOL_GOTO, entry ) );
 
 						result = append_code( result, make_code_no_param( SOL_POP ) );
 					}

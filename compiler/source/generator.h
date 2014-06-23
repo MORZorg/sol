@@ -108,8 +108,7 @@ typedef struct func_location
 {
   int size; // # of objects in the activation record of this function
   int scope; // level containing the function declaration, used to calculate the chain in func_call
-  int oid; // Function's oid
-  Stat* body_head; // Head of the function's body code, thus containing also the body start address
+  int entry;// The address of the function's body start
 } FuncDesc;
 
 int yygen( FILE*, FILE* );
@@ -139,8 +138,7 @@ char* schema_to_string( Schema* );
 
 int yygenerror( Node*, char* );
 
-map_t func_map; // Parameters need to function call
-stacklist func_call_list; // List of function call instructions
+map_t func_map; // Parameters needed by function call
 
 #include "tree_print.h"
 
