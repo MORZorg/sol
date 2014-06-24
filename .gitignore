@@ -36,6 +36,7 @@ parser.output
 analyser
 generator
 solc
+machine
 
 # Sol compiled code
 *.ohana

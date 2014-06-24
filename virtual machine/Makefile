@@ -1,10 +1,16 @@
-solm: main.c
+solvm: main.c
 	$(CC) -o $@ $^
 
-machine: main.c
-	$(CC) -g -o $@ $^
+machine: main.c executor.o tree_print.o
+	$(CC) -g -o $@ $< -DMACHINE
 
-lexer: machine.c lexer.o
+executor.o: executor.c executor.h support_structures.o
+	$(CC) -g -c $<
+
+support_structures.o: support_structures.c support_structures.h def.h
+	$(CC) -g -c $<
+
+lexer: main.c lexer.o
 	$(CC) -g -o $@ $^
 
 lexer.o: lexer.c parser.h def.h
@@ -13,10 +19,10 @@ lexer.o: lexer.c parser.h def.h
 lexer.c: lexer.lex parser.y parser.h parser.c def.h
 	flex -o $@ $<
 
-parser: machine.c lexer.o parser.o
-	$(CC) -g -o $@ $^
+parser: main.c lexer.o parser.o tree_print.o def.h
+	$(CC) -g -o $@ $^ -DPARSER
 
-parser.o: parser.c def.h
+parser.o: parser.c def.h 
 	$(CC) -g -c $<
 
 parser.h: parser.y def.h
@@ -25,6 +31,6 @@ parser.h: parser.y def.h
 .PHONY : clean
 clean:
 	rm -f \
-	  machine solm
+	  machine solm lexer parser *.o
 	rm -rf *.dSYM
 

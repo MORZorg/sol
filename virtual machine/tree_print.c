@@ -70,8 +70,7 @@ const char* CODE_OPERATORS[] =
 
 void code_array_print( Stat* code, int program_size )
 {
-	fprintf( stdout, "Starting..\n" );
-	int i, j;
+	int i;
 	for( i = 0; i < program_size; i++ )
 	{
 		switch( code[ i ].op )
@@ -147,6 +146,5 @@ void code_array_print( Stat* code, int program_size )
 				break;
 		}
 	}
-	fprintf( stdout, "..Ending\n" );
 }
 

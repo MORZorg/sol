@@ -45,7 +45,8 @@ void push_istack( char value )
 
 		istack = malloc( sizeof( char ) * ( isize + ISTACK_UNIT ) );
 
-		for( int i = 0; i < isize; i++ )
+		int i;
+		for( i = 0; i < isize; i++ )
 			istack[i] = old_istack[i];
 
 		isize += ISTACK_UNIT;
@@ -74,7 +75,8 @@ float pop_real()
 {
 	char object[ sizeof(float) ];
 
-	for( int i = 0; i < sizeof(float); i++ )
+	int i;
+	for( i = 0; i < sizeof(float); i++ )
 	{
 		object[i] = (char) top_istack();
 		pop_istack();
@@ -93,7 +95,8 @@ void push_real( float value )
 
 	memcpy( object, &value, sizeof( value ) );
 
-	for( int i = 0; i < sizeof( float ); i++ )
+	int i;
+	for( i = 0; i < sizeof( float ); i++ )
 		push_istack( object[i] );
 }
 
@@ -115,7 +118,8 @@ char* pop_string( int size )
 {
 	char* value = malloc( sizeof(char) * size );
 
-	for( int i = 0; i < size; i++ )
+	int i;
+	for( i = 0; i < size; i++ )
 	{
 		value[i] = top_istack();
 		pop_istack();
@@ -126,7 +130,8 @@ char* pop_string( int size )
 
 void push_string( char* object )
 {
-	for( int i = 0; i < strlen( object ); i++ )
+	int i;
+	for( i = 0; i < strlen( object ); i++ )
 		push_istack( object[i] );
 }
 
@@ -149,7 +154,8 @@ void push_ostack( Odescr* value )
 
 		ostack = malloc( sizeof( Odescr* ) * ( osize + OSTACK_UNIT ) );
 
-		for( int i = 0; i < osize; i++ )
+		int i;
+		for( i = 0; i < osize; i++ )
 			ostack[i] = old_ostack[i];
 
 		osize += OSTACK_UNIT;
@@ -178,7 +184,8 @@ void push_astack( Adescr* value )
 
 		astack = malloc( sizeof( Adescr* ) * ( asize + ASTACK_UNIT ) );
 
-		for( int i = 0; i < asize; i++ )
+		int i;
+		for( i = 0; i < asize; i++ )
 			astack[i] = old_astack[i];
 
 		asize += ASTACK_UNIT;

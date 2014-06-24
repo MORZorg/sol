@@ -8,13 +8,13 @@
 extern FILE* yyin;
 extern char* yytext;
 extern Value lexval;
-extern int line;
 
 extern int yylex();
 extern int yyerror( char* );
 
 Stat* program;
 int program_size;
+int current_line;
 %}
 
 %token SCODE OP CONST
@@ -40,19 +40,19 @@ op : OP { $$ = lexval; }
 const : CONST { $$ = lexval; }
 	  ;
 
-scode : SCODE const { program_size = $2.i_val; program = malloc( sizeof( Stat ) * program_size ); }
+scode : SCODE const { program_size = $2.i_val; program = malloc( sizeof( Stat ) * program_size ); current_line = 0; }
 	  ;
 
-no_param : op { program[ line - 1 ] = new_stat( 0, $1.op_val ); }
+no_param : op { program[ current_line++ ] = new_stat( 0, $1.op_val ); }
 		 ;
 
-one_param : op const { program[ line - 1 ] = new_stat( 1, $1.op_val, $2 ); }
+one_param : op const { program[ current_line++ ] = new_stat( 1, $1.op_val, $2 ); }
 		  ;
 
-two_param : op const const { program[ line - 1 ] = new_stat( 2, $1.op_val, $2, $3 ); }
+two_param : op const const { program[ current_line++ ] = new_stat( 2, $1.op_val, $2, $3 ); }
 		  ;
 
-three_param : op const const const { program[ line - 1 ] = new_stat( 3, $1.op_val, $2, $3, $4 ); }
+three_param : op const const const { program[ current_line++ ] = new_stat( 3, $1.op_val, $2, $3, $4 ); }
 			;
 
 %%

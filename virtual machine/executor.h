@@ -87,4 +87,4 @@ int sol_noop();
 
 char* get_filename_extension( char* );
 
-#endif
+#endif // EXECUTOR_H
