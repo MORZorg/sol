@@ -33,8 +33,8 @@ typedef enum
 // If the value is embedded, then it must have size < sizeof(byte)
 typedef struct
 {
-	byte emb_val;
-	byte* sta_val;
+	byte* emb_val;
+	int sta_val; // istack offset of the complex value start
 } ObjectVal;
 
 typedef struct
@@ -44,7 +44,7 @@ typedef struct
 	// Size of the object in bytes
 	int size;
 	// Value
-	byte* inst;
+	ObjectVal inst;
 } Odescr;
 
 typedef struct

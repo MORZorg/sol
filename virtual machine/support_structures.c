@@ -86,14 +86,14 @@ void push_bytearray( byte* value, int size )
 
 int pop_int()
 {
+	byte* object = pop_bytearray( sizeof( int ) );
+
 	int i = 0;
 	int value = 0;
 
 	do
 	{
-		value += (int) ( ( top_istack() << ( i * sizeof( byte ) ) ) & 0xFF );
-
-		pop_istack();
+		value += (int) ( ( object[ i ] << ( i * 8 ) ) & 0xFF );
 	}
 	while( ++i < sizeof( int ) );
 
@@ -102,13 +102,17 @@ int pop_int()
 
 void push_int( int value )
 {
+	byte object[ sizeof( int ) ];
+
 	int i = 0;
 
 	do
 	{
-		push_istack( ( value >> ( ( sizeof( int ) - 1 - i ) * sizeof( byte ) ) ) & 0xFF );
+		object[ i ] = ( value >> ( i * 8 ) ) & 0xFF;
 	}
 	while( ++i < sizeof( int ) );
+
+	push_bytearray( object, sizeof( int ) );
 }
 
 float pop_real()

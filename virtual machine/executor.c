@@ -286,6 +286,7 @@ int execute( Stat* current_statement )
 }
 
 // Execution of S-code instructions
+// Creates a new empty embedded object and puts it on ostack
 int sol_new( Value* args )
 {
 	int size = args[0].i_val;
@@ -293,19 +294,28 @@ int sol_new( Value* args )
 	Odescr* object = malloc( sizeof( Odescr ) );
 	object->mode = EMB;
 	object->size = size;
-	object->inst = malloc( sizeof( byte ) * size );
+	object->inst.emb_val = malloc( sizeof( byte ) * size );
 
 	push_ostack( object );
 
 	return 0;
 }
 
-// TODO implement
+// Creates a new empty stack object and puts it on ostack
 int sol_news( Value* args )
 {
+	int size = args[0].i_val;
+
+	Odescr* object = malloc( sizeof( Odescr ) );
+	object->mode = STA;
+	object->size = size;
+
+	push_ostack( object );
+
 	return 0;
 }
 
+// Loads the given char on istack
 int sol_ldc( Value* args )
 {
 	push_char( args[0].c_val );
@@ -313,6 +323,7 @@ int sol_ldc( Value* args )
 	return 0;
 }
 
+// Loads the given int on istack
 int sol_ldi( Value* args )
 {
 	push_int( args[0].i_val );
@@ -320,6 +331,7 @@ int sol_ldi( Value* args )
 	return 0;
 }
 
+// Loads the given real on istack
 int sol_ldr( Value* args )
 {
 	push_real( args[0].r_val );
@@ -327,6 +339,7 @@ int sol_ldr( Value* args )
 	return 0;
 }
 
+// Loads the given string on istack
 int sol_lds( Value* args )
 {
 	push_string( args[0].s_val );
@@ -334,6 +347,7 @@ int sol_lds( Value* args )
 	return 0;
 }
 
+// Retrieves the value of the given embedded object (referred with its oid) and loads its value on the stack
 int sol_lod( Value* args )
 {
 	int env_offset = args[0].i_val;
@@ -347,40 +361,90 @@ int sol_lod( Value* args )
 
 	Odescr* object = &( astack[ ap - 1 - env_offset ]->objects[ oid ] );
 
-	// Value LOD (direct load) must always be referred to an embedded thing?
-	push_bytearray( object->inst, object->size );
+	push_bytearray( object->inst.emb_val, object->size );
 
 	return MEM_OK;
 }
 
 // TODO implement
+// Not clear: it creates a new complex object with the last element_number elements on the stack, but where does the object go?
 int sol_cat( Value* args )
 {
 	return 0;
 }
 
-// TODO implement
+// Retrieves the starting address of the value of the given stack object and loads it on the stack as an integer
 int sol_lda( Value* args )
 {
-	return 0;
+	int env_offset = args[0].i_val;
+	int oid = args[1].i_val;
+	
+	if( ap - 1 - env_offset < 0 )
+		return ASTACK_OUT_OF_BOUND;
+
+	if( oid >= astack[ ap - 1 - env_offset ]->obj_number )
+		return OSTACK_OUT_OF_BOUND;
+
+	Odescr* object = &( astack[ ap - 1 - env_offset ]->objects[ oid ] );
+
+	push_int( object->inst.sta_val );
+
+	return MEM_OK;
 }
 
-// TODO implement
+// Updates the address loaded by LDA with an offset of given size
 int sol_fda( Value* args )
 {
+	int field_offset = args[0].i_val;
+
+	int ref_offset_on_stack = pop_int();
+
+	push_int( field_offset + ref_offset_on_stack );
+
 	return 0;
 }
 
-// TODO implement
+// Gets the start_offset from the istack, previously calculated with LDA and various FDA, goes on the istack to the field, copies it in its entirety and puts it on the stack
 int sol_eil( Value* args )
 {
-	return 0;
+	int field_size = args[0].i_val;
+
+	int start_offset = pop_int();
+
+	if( start_offset + field_size > ip - 1 )
+		return ISTACK_OUT_OF_BOUND;
+
+	byte* value;
+	int i = 0;
+
+	do
+	{
+		value[ i ] = istack[ start_offset + i ];
+	}
+	while( ++i < field_size );
+
+	push_bytearray( value, field_size );
+
+	return MEM_OK;
 }
 
 // TODO implement
+// Not clear: what should be put on the istack? the address of the field (start_offset, already present)?
 int sol_sil( Value* args )
 {
-	return 0;
+	int field_size = args[0].i_val;
+
+	int start_offset = pop_int();
+
+	if( start_offset + field_size > ip - 1 )
+		return ISTACK_OUT_OF_BOUND;
+
+	byte* value;
+	int i = 0;
+
+	// Mh wat?
+
+	return MEM_OK;
 }
 
 // TODO implement
@@ -389,10 +453,11 @@ int sol_ixa( Value* args )
 	return 0;
 }
 
+// Pops the last value from the istack and puts it as embedded instance of the referred object, whose size is known as part of Odescr
 int sol_sto( Value* args )
 {
 	int env_offset = args[0].i_val;
-	int oid = args[0].i_val;
+	int oid = args[1].i_val;
 
 	if( ap - 1 - env_offset < 0 )
 		return ASTACK_OUT_OF_BOUND;
@@ -402,7 +467,7 @@ int sol_sto( Value* args )
 
 	Odescr* object = &( astack[ ap - 1 - env_offset ]->objects[ oid ] );
 
-	object->inst = pop_bytearray( object->size );
+	object->inst.emb_val = pop_bytearray( object->size );
 
 	return MEM_OK;
 }
