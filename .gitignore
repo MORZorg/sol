@@ -24,6 +24,7 @@
 
 # Vim
 .*.swp
+.ropeproject
 
 # Debug executables and temporary files
 *.dSYM

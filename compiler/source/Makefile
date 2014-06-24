@@ -19,10 +19,10 @@ generator.o: generator.c generator.h
 tree_print.o: tree_print.c tree_print.h def.h
 	$(CC) -g -c $<
 
-$(LIBS_DIR)/hashmap.o: $(LIBS_DIR)/hashmap.c $(LIBS_DIR)/hashmap.h
+hashmap.o: $(LIBS_DIR)/hashmap.c $(LIBS_DIR)/hashmap.h
 	$(CC) -g -c $<
 
-$(LIBS_DIR)/stacklist.o: $(LIBS_DIR)/stacklist.c $(LIBS_DIR)/stacklist.h
+stacklist.o: $(LIBS_DIR)/stacklist.c $(LIBS_DIR)/stacklist.h
 	$(CC) -g -c $<
 
 lexer.c: lexer.lex parser.y parser.h parser.c def.h

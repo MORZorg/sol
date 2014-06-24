@@ -3,6 +3,7 @@
 import sys
 import math
 import os
+import struct
 from collections import deque
 from subprocess import Popen, PIPE
 
@@ -83,6 +84,8 @@ class MainWindow(QtGui.QMainWindow):
     def requestInput(self):
         inputDialog = InputDialog(deque(str(self.ui.debugText.text())))
         inputDialog.show()
+        if inputDialog.exec_():
+            print inputDialog.data  # "".join(inputDialog.data)
 
     @QtCore.pyqtSlot()
     def requestOutput(self, data):
@@ -95,6 +98,8 @@ class DataDialog(QtGui.QDialog):
     def __init__(self, schema, editable):
         QtGui.QDialog.__init__(self)
         self.ui = uic.loadUi("DataDialog.ui", self)
+
+        self.ui.buttonBox.accepted.connect(self.retrieveData)
 
         #  Remove, Create, Replace
         self.ui.gridLayout.removeWidget(self.ui.widgetSchema)
@@ -152,6 +157,9 @@ class DataDialog(QtGui.QDialog):
             self.ui.widgetSchema.setData(data)
         QtGui.QDialog.show(self)
 
+    def retrieveData(self):
+        self.data = self.ui.widgetSchema.getData()
+
 
 class OutputDialog(DataDialog):
 
@@ -179,24 +187,52 @@ class DataWidget(QtGui.QWidget):
         return self
 
     def setData(self, data):
-        raise NotImplementedError()
+        self.ui.inputBox.setText(str(data))
+        # self.ui.inputBox.setText(
+        #     DataDialog.decryptString(data, (",", "]", ")")))
+
+    def getData(self):
+        return list(str(self.ui.inputBox.text()))
 
 
 class IntegerWidget(DataWidget):
+    DATA_FORMAT = "<i"
 
     def __init__(self):
         DataWidget.__init__(self)
         self.ui = uic.loadUi("IntegerWidget.ui", self)
 
+    def getData(self):
+        return list(struct.pack(self.DATA_FORMAT,
+                                int(self.ui.inputBox.text())))
+
     def setData(self, data):
-        self.ui.inputBox.setText(DataDialog.decryptString(data, (",", "]")))
+        dataOfInterest = ""
+        for i in range(struct.calcsize(self.DATA_FORMAT)):
+            dataOfInterest += data.popleft()
+
+        DataWidget.setData(self, struct.unpack(self.DATA_FORMAT,
+                                               dataOfInterest)[0])
 
 
 class RealWidget(DataWidget):
+    DATA_FORMAT = "<f"
 
     def __init__(self):
         DataWidget.__init__(self)
         self.ui = uic.loadUi("RealWidget.ui", self)
+
+    def getData(self):
+        return list(struct.pack(self.DATA_FORMAT,
+                                float(self.ui.inputBox.text())))
+
+    def setData(self, data):
+        dataOfInterest = ""
+        for i in range(struct.calcsize(self.DATA_FORMAT)):
+            dataOfInterest += data.popleft()
+
+        DataWidget.setData(self, struct.unpack(self.DATA_FORMAT,
+                                               dataOfInterest)[0])
 
 
 class CharacterWidget(DataWidget):
@@ -205,12 +241,25 @@ class CharacterWidget(DataWidget):
         DataWidget.__init__(self)
         self.ui = uic.loadUi("CharacterWidget.ui", self)
 
+    def setData(self, data):
+        DataWidget.setData(self, data.popleft())
+
 
 class StringWidget(DataWidget):
 
     def __init__(self):
         DataWidget.__init__(self)
         self.ui = uic.loadUi("StringWidget.ui", self)
+
+    def setData(self, data):
+        dataOfInterest = data.popleft()
+        while dataOfInterest[-1] != '\0':
+            dataOfInterest = data.popleft()
+
+        DataWidget.setData(self, dataOfInterest)
+
+    def getData(self):
+        return list(str(self.ui.inputBox.toPlainText()) + '\0')
 
 
 class BooleanWidget(DataWidget):
@@ -220,7 +269,13 @@ class BooleanWidget(DataWidget):
         self.ui = uic.loadUi("BooleanWidget.ui", self)
 
     def setData(self, data):
-        self.ui.inputBox.setChecked(True)
+        if data.popleft() == '1':
+            self.ui.inputBox.setChecked(True)
+        else:
+            self.ui.inputBox.setChecked(False)
+
+    def getData(self):
+        return ['1' if self.ui.inputBox.isChecked() else '0']
 
 
 class VectorWidget(DataWidget):
@@ -228,7 +283,7 @@ class VectorWidget(DataWidget):
     def __init__(self, schema, nesting, editable):
         DataWidget.__init__(self)
         self.ui = uic.loadUi("VectorWidget.ui", self)
-        self.size = int(DataDialog.decryptString(schema, ","))
+        self.size = int(DataDialog.decryptString(schema, ','))
 
         self.ui.widgets = []
         self.ui.horizontal = (math.floor(nesting) % 2 == 0)
@@ -250,10 +305,16 @@ class VectorWidget(DataWidget):
         schema.popleft()  # Closed square bracket ending the vector's schema
 
     def setData(self, data):
-        data.popleft()  # Open squre bracket
+        for widget in self.ui.widgets:
+            widget.setData(data)
 
-        for i in range(self.size):
-            self.ui.widgets[i].setData(data)
+    def getData(self):
+        result = []
+
+        for widget in self.ui.widgets:
+            result += widget.getData()
+
+        return result
 
 
 class StructWidget(DataWidget):
@@ -284,10 +345,16 @@ class StructWidget(DataWidget):
         self.ui.gridLayout.update()
 
     def setData(self, data):
-        data.popleft()  # Open parenthesis
-
         for widget in self.ui.widgets:
             widget[1].setData(data)
+
+    def getData(self):
+        result = []
+
+        for widget in self.ui.widgets:
+            result += widget[1].getData()
+
+        return result
 
 
 class NestedWidget(DataWidget):
@@ -295,18 +362,29 @@ class NestedWidget(DataWidget):
     def __init__(self, schema, editable=True):
         DataWidget.__init__(self)
         self.ui = uic.loadUi("NestedWidget.ui", self)
-        self.connect(self.ui.pushButton,
-                     QtCore.SIGNAL('clicked()'),
-                     self,
-                     QtCore.SLOT('showWindow()'))
+        self.ui.pushButton.clicked.connect(self.showWindow)
         self.dataDialog = DataDialog(schema, editable)
+
+        self.data = None
 
     @QtCore.pyqtSlot()
     def showWindow(self):
-        self.dataDialog.show(self.data)
+        self.dataDialog.show(deque(self.data))
 
     def setData(self, data):
-        self.data = data
+        # A bit of an hack... Copies the data and then consumes the part
+        # relative to its content
+        self.data = deque(data)
+        self.dataDialog.widgetSchema.setData(data)
+
+    # Not the top of the usability, but it works...
+    def getData(self):
+        if self.data is None:
+            self.showWindow()
+            if self.dataDialog.exec_():
+                self.setData(self.dataDialog.data)
+
+        return self.data
 
 
 app = QtGui.QApplication(sys.argv)
