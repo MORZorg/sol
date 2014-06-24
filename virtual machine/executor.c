@@ -7,21 +7,8 @@
  */
 #include "executor.h"
 
-// Position of the actual statement to execute
-// Normally, the pc is increased by one after every instruction execution, but it can
-// be modified completely, for example, to perform a jump in the code (the statements vector)
-int pc = 0;
-
-stacklist astack,	// Stack of Adescr*
-		  ostack,	// Stack of Odescr*
-		  istack;	// Stack of char*
-
 int yyvm( Stat** statements )
 {
-	ap = (Adescr*) astack;
-	op = (Odescr*) ostack;
-	ip = (char*) istack;
-
 	while( statements[pc++]->op != SOL_HALT )
 		execute( statements[pc] );
 
@@ -296,79 +283,6 @@ int execute( Stat* current_statement )
 	return 0;
 }
 
-// Interaction with the istack
-int pop_int()
-{
-	int value = (int) istack->function;
-	stacklist_pop( &istack );
-
-	return value;
-}
-
-void push_int( int value )
-{
-	stacklist_push( &istack, (stacklist_t) ( (char*) &value ) );
-}
-
-float pop_real()
-{
-	char object[ sizeof(float) ];
-
-	for( int i = 0; i < sizeof(float); i++ )
-	{
-		object[i] = (char) istack->function;
-		stacklist_pop( &istack );
-	}
-
-	float value;
-
-	memcpy( &value, object, sizeof(value) );
-
-	return value;
-}
-
-void push_real( float value )
-{
-	char object[ sizeof(float) ];
-
-	memcpy( object, &value, sizeof( value ) );
-
-	for( int i = 0; i < sizeof( float ); i++ )
-		stacklist_push( &istack, (stacklist_t) &object[i] );
-}
-
-char pop_char()
-{
-	char value = (char) istack->function;
-	stacklist_pop( &istack );
-
-	return value;
-}
-
-void push_char( char value )
-{
-	stacklist_push( &istack, (stacklist_t) ( (char*) &value ) );
-}
-
-char* pop_string( int size )
-{
-	char* value = malloc( sizeof(char) * size );
-
-	for( int i = 0; i < size; i++ )
-	{
-		value[i] = (char) istack->function;
-		stacklist_pop( &istack );
-	}
-
-	return value;
-}
-
-void push_string( char* object )
-{
-	for( int i = 0; i < strlen( object ); i++ )
-		stacklist_push( &istack, (stacklist_t) &object[i] );
-}
-
 // Execution of S-code instructions
 int sol_new( Value* args )
 {
@@ -378,7 +292,7 @@ int sol_new( Value* args )
 	object->mode = EMB;
 	object->size = size;
 
-	stacklist_push( &ostack, (stacklist_t) object );
+	push_ostack( object );
 
 	return 0;
 }
