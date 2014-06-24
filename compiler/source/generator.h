@@ -86,7 +86,6 @@ typedef enum
 typedef union
 {
 	int i_val;
-	char c_val;
 	char* s_val;
 	float r_val;
 } Lexval;
@@ -129,7 +128,7 @@ Code make_code_one_param_proper( Operator, Value );
 Code make_code_two_param_proper( Operator, Value, Value );
 Code make_code_string_param( Operator, char* );
 Code make_push_pop( int, int, int );
-Code make_ldc( char );
+Code make_ldc( char* );
 Code make_ldi( int );
 Code make_ldr( float );
 Code make_lds( char* );

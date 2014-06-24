@@ -217,10 +217,6 @@ void tree_print( Node* root, int indent )
 			printf( " (%d)", root->value.i_val );
 			break;
 
-		case T_CHAR_CONST:
-			printf( " (%c)", root->value.c_val );
-			break;
-
 		case T_REAL_CONST:
 			printf( " (%f)", root->value.r_val );
 			break;
@@ -229,6 +225,7 @@ void tree_print( Node* root, int indent )
 			printf( " (%s)", (root->value.b_val == TRUE ? "true" : "false") );
 			break;
 
+		case T_CHAR_CONST:
 		case T_STR_CONST:
 		case T_ID:
         case T_ID_DOMAIN:
@@ -306,10 +303,10 @@ void code_print( Code code )
 				break;
 
 			case SOL_LDC:
-				printf( "%d: %s '%c'\n",
+				printf( "%d: %s '%s'\n",
 						current_stat->address,
 						CODE_OPERATORS[ current_stat->op ],
-						current_stat->args[ 0 ].c_val );
+						current_stat->args[ 0 ].s_val );
 				break;
 
 			case SOL_FRD:

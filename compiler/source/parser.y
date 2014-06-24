@@ -502,10 +502,6 @@ Node* new_terminal_node( TypeNode type, Value value )
 			result->value.i_val = value.i_val;
 			break;
 
-        case T_CHAR_CONST:
-            result->value.c_val = value.c_val;
-            break;
-
         case T_REAL_CONST:
             result->value.r_val = value.r_val;
             break;
@@ -514,6 +510,7 @@ Node* new_terminal_node( TypeNode type, Value value )
             result->value.b_val = value.b_val;
             break;
 
+        case T_CHAR_CONST:
         case T_STR_CONST:
 		case T_ID:
         case T_ID_DOMAIN:

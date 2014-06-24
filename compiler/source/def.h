@@ -106,7 +106,6 @@ typedef enum
 typedef union
 {
 	int i_val;
-	char c_val;
 	char* s_val;
 	double r_val;
 	Boolean b_val;

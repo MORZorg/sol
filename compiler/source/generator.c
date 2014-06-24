@@ -68,7 +68,7 @@ Code generate_code( Node* node )
 			break;
 
 		case T_CHAR_CONST:
-			result = make_ldc( node->value.c_val );
+			result = make_ldc( node->value.s_val );
 			break;
 
 		case T_REAL_CONST:
@@ -80,7 +80,7 @@ Code generate_code( Node* node )
 			break;
 
 		case T_BOOL_CONST:
-			result = make_ldc( node->value.b_val == TRUE ? '1' : '0' );
+			result = make_ldc( node->value.b_val == TRUE ? "1" : "0" );
 			break;
 			
 		case T_ID:
@@ -1276,11 +1276,11 @@ Code make_push_pop( int size, int chain, int entry )
 							 make_code_no_param( SOL_POP ) );
 }
 
-Code make_ldc( char a_char )
+Code make_ldc( char* a_char )
 {
 	Code result;
 	result = make_code_no_param( SOL_LDC );
-	result.head->args[ 0 ].c_val = a_char;
+	result.head->args[ 0 ].s_val = a_char;
 
 	return result;
 }
@@ -1441,9 +1441,9 @@ void output_code( FILE* output, Code code )
 				break;
 
 			case SOL_LDC:
-				fprintf( output, "%s '%c'\n",
+				fprintf( output, "%s '%s'\n",
 						CODE_OPERATORS[ current_stat->op ],
-						current_stat->args[ 0 ].c_val );
+						current_stat->args[ 0 ].s_val );
 				break;
 
 			case SOL_FRD:

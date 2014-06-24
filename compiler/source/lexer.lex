@@ -29,13 +29,13 @@ charconst		'([^\']|\\.)'
 intconst		{digit}+
 realconst		{digit}+\.{digit}+
 boolconst		true|false
+strconst		\"([^"\\]|\\.)*\"
 
 comment         --.*
 spacing			([ \t])+
 sugar			[()\[\]{}.,;]
 
 %x charconst
-%x strconst
 
 %%
 EOF                 { return 0; }
@@ -94,11 +94,8 @@ break               { SPAM( "BREAK" ); return( BREAK ); }
 "*"					{ SPAM( "MULTIPLY" ); return( MULTIPLY ); }
 "/"					{ SPAM( "DIVIDE" ); return( DIVIDE ); }
 {intconst}			{ SPAM( "INT_CONST" ); lexval.i_val = atoi( yytext ); return( INT_CONST ); }
-"\""	           	{ BEGIN strconst; strbuf = malloc( sizeof( char ) ); }
-<strconst>[^\\"\n]*	{ concatenate_string( strbuf, yytext ); }
-<strconst>\\.		{ char temp[] = { parse_escape_seq( yytext ), '\0' }; concatenate_string( strbuf, temp ); }
-<strconst>\"		{ lexval.s_val = new_string( strbuf ); BEGIN 0; SPAM( "STR_CONST" ); return STR_CONST; }
-{charconst}			{ SPAM( "CHAR_CONST" ); lexval.c_val = parse_escape_seq( yytext + 1 ); return( CHAR_CONST ); }
+{strconst}			{ SPAM( "STR_CONST" ); yytext[ strlen( yytext ) - 1 ] = '\0'; lexval.s_val = new_string( yytext + 1 ); return ( STR_CONST ); }
+{charconst}			{ SPAM( "CHAR_CONST" ); lexval.s_val = new_string( yytext ); return( CHAR_CONST ); }
 {realconst}			{ SPAM( "REAL_CONST" ); lexval.r_val = atof( yytext ); return( REAL_CONST ); }
 {boolconst}			{ SPAM( "BOOL_CONST" ); lexval.b_val = ( yytext[ 0 ] == 'f' ? FALSE : TRUE ); return( BOOL_CONST ); }
 {id}				{ SPAM( "ID" ); lexval.s_val = new_string( yytext ); return( ID ); }
