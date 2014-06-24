@@ -2,6 +2,9 @@
 <ui version="4.0">
  <class>Form</class>
  <widget class="QWidget" name="Form">
+  <property name="enabled">
+   <bool>true</bool>
+  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -18,9 +21,18 @@
     <number>0</number>
    </property>
    <item row="0" column="0">
-    <widget class="QCheckBox" name="checkBox">
+    <widget class="QCheckBox" name="inputBox">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
      <property name="text">
       <string/>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+     <property name="checked">
+      <bool>false</bool>
      </property>
      <property name="tristate">
       <bool>false</bool>

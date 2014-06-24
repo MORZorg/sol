@@ -10,6 +10,8 @@ from PyQt4 import QtCore, QtGui, uic
 
 EXT_SOURCE = ".sol"
 EXT_SCODE = ".ohana"
+EXE_COMPILER = "./solc"
+EXE_VM = "./solvm"
 
 
 class MainWindow(QtGui.QMainWindow):
@@ -21,25 +23,14 @@ class MainWindow(QtGui.QMainWindow):
         QtGui.QMainWindow.__init__(self)
         self.ui = uic.loadUi("MainWindow.ui", self)
 
-        self.connect(self.ui.actionOpen,
-                     QtCore.SIGNAL('triggered()'),
-                     self,
-                     QtCore.SLOT('open()'))
+        self.ui.actionOpen.triggered.connect(self.open)
+        self.ui.actionCompile.triggered.connect(self.compile)
+        self.ui.actionRun.triggered.connect(self.run)
 
-        self.connect(self.ui.actionCompile,
-                     QtCore.SIGNAL('triggered()'),
-                     self,
-                     QtCore.SLOT('compile()'))
-
-        self.connect(self.ui.actionRun,
-                     QtCore.SIGNAL('triggered()'),
-                     self,
-                     QtCore.SLOT('run()'))
-
-        self.connect(self.ui.pushButton,
-                     QtCore.SIGNAL('clicked()'),
-                     self,
-                     QtCore.SLOT('requestInput()'))
+        # Debug
+        self.ui.inputButton.clicked.connect(self.requestInput)
+        self.ui.outputButton.clicked \
+            .connect(lambda: self.requestOutput(str(self.ui.debugData.text())))
 
     @QtCore.pyqtSlot()
     def open(self):
@@ -69,7 +60,7 @@ class MainWindow(QtGui.QMainWindow):
 
     @QtCore.pyqtSlot()
     def compile(self):
-        proc = Popen(["./solc", "{}{}".format(self.fileName, EXT_SOURCE)],
+        proc = Popen([EXE_COMPILER, "{}{}".format(self.fileName, EXT_SOURCE)],
                      stdout=PIPE)
         output, _ = proc.communicate()
         self.ui.outputText.append(output)
@@ -81,7 +72,7 @@ class MainWindow(QtGui.QMainWindow):
 
     @QtCore.pyqtSlot()
     def run(self):
-        proc = Popen(["./vm", "{}{}".format(self.fileName, EXT_SCODE)],
+        proc = Popen([EXE_VM, "{}{}".format(self.fileName, EXT_SCODE)],
                      stdout=PIPE)
         # TODO Iterative output (or no output in the vm?)
         output, _ = proc.communicate()
@@ -90,118 +81,167 @@ class MainWindow(QtGui.QMainWindow):
 
     @QtCore.pyqtSlot()
     def requestInput(self):
-        inputDialog = InputDialog(deque(str(self.ui.lineEdit.text())))
+        inputDialog = InputDialog(deque(str(self.ui.debugText.text())))
         inputDialog.show()
 
+    @QtCore.pyqtSlot()
+    def requestOutput(self, data):
+        outputDialog = OutputDialog(deque(str(self.ui.debugText.text())))
+        outputDialog.show(deque(data))
 
-class InputDialog(QtGui.QDialog):
 
-    def __init__(self, schema):
+class DataDialog(QtGui.QDialog):
+
+    def __init__(self, schema, editable):
         QtGui.QDialog.__init__(self)
-        self.ui = uic.loadUi("InputDialog.ui", self)
+        self.ui = uic.loadUi("DataDialog.ui", self)
 
         #  Remove, Create, Replace
         self.ui.gridLayout.removeWidget(self.ui.widgetSchema)
         self.ui.widgetSchema.close()
-        self.ui.widgetSchema = InputDialog.resolveSchema(schema)
+        self.ui.widgetSchema = DataDialog.resolveSchema(schema, 0, editable)
         self.ui.gridLayout.addWidget(self.ui.widgetSchema, 0, 0, 1, 1)
         self.ui.gridLayout.update()
 
     @staticmethod
-    def resolveSchema(schema, nesting=0):
+    def resolveSchema(schema, nesting=0, editable=True):
         if len(schema) == 0:
             raise IndexError()
 
         element = schema.popleft()
         if element == "i":
-            return IntegerWidget()
+            return IntegerWidget().setEditable(editable)
         elif element == "r":
-            return RealWidget()
+            return RealWidget().setEditable(editable)
         elif element == "c":
-            return CharacterWidget()
+            return CharacterWidget().setEditable(editable)
         elif element == "s":
-            return StringWidget()
+            return StringWidget().setEditable(editable)
         elif element == "b":
-            return BooleanWidget()
+            return BooleanWidget().setEditable(editable)
         elif element == "[":
             if nesting > .5:
                 schema.appendleft(element)
-                return NestedWidget(schema)
+                return NestedWidget(schema, editable)
             else:
-                return VectorWidget(schema, nesting)
+                return VectorWidget(schema, nesting, editable)
         elif element == "(":
             if nesting > 0:
                 schema.appendleft(element)
-                return NestedWidget(schema)
+                return NestedWidget(schema, editable)
             else:
-                return StructWidget(schema, nesting)
+                return StructWidget(schema, nesting, editable)
         else:
-            return InputDialog.resolveSchema(schema, nesting)
+            return DataDialog.resolveSchema(schema, nesting, editable)
 
     @staticmethod
     def decryptString(schema, terminator):
+        if terminator is not tuple:
+            terminator = (terminator)
+
         result = ""
         character = schema.popleft()
-        while character != terminator:
+        while character not in terminator:
             result += character
             character = schema.popleft()
 
         return result
 
+    def show(self, data=None):
+        if data is not None:
+            self.ui.widgetSchema.setData(data)
+        QtGui.QDialog.show(self)
 
-class IntegerWidget(QtGui.QWidget):
+
+class OutputDialog(DataDialog):
+
+    def __init__(self, schema):
+        DataDialog.__init__(self, schema, False)
+
+
+class InputDialog(DataDialog):
+
+    def __init__(self, schema):
+        DataDialog.__init__(self, schema, True)
+
+
+class DataWidget(QtGui.QWidget):
 
     def __init__(self):
         QtGui.QWidget.__init__(self)
+
+    def setEditable(self, editable):
+        try:
+            self.ui.inputBox.setReadOnly(not editable)
+        except AttributeError:
+            self.ui.setEnabled(editable)
+
+        return self
+
+    def setData(self, data):
+        raise NotImplementedError()
+
+
+class IntegerWidget(DataWidget):
+
+    def __init__(self):
+        DataWidget.__init__(self)
         self.ui = uic.loadUi("IntegerWidget.ui", self)
 
+    def setData(self, data):
+        self.ui.inputBox.setText(DataDialog.decryptString(data, (",", "]")))
 
-class RealWidget(QtGui.QWidget):
+
+class RealWidget(DataWidget):
 
     def __init__(self):
-        QtGui.QWidget.__init__(self)
+        DataWidget.__init__(self)
         self.ui = uic.loadUi("RealWidget.ui", self)
 
 
-class CharacterWidget(QtGui.QWidget):
+class CharacterWidget(DataWidget):
 
     def __init__(self):
-        QtGui.QWidget.__init__(self)
+        DataWidget.__init__(self)
         self.ui = uic.loadUi("CharacterWidget.ui", self)
 
 
-class StringWidget(QtGui.QWidget):
+class StringWidget(DataWidget):
 
     def __init__(self):
-        QtGui.QWidget.__init__(self)
+        DataWidget.__init__(self)
         self.ui = uic.loadUi("StringWidget.ui", self)
 
 
-class BooleanWidget(QtGui.QWidget):
+class BooleanWidget(DataWidget):
 
     def __init__(self):
-        QtGui.QWidget.__init__(self)
+        DataWidget.__init__(self)
         self.ui = uic.loadUi("BooleanWidget.ui", self)
 
+    def setData(self, data):
+        self.ui.inputBox.setChecked(True)
 
-class VectorWidget(QtGui.QWidget):
 
-    def __init__(self, schema, nesting):
-        QtGui.QWidget.__init__(self)
+class VectorWidget(DataWidget):
+
+    def __init__(self, schema, nesting, editable):
+        DataWidget.__init__(self)
         self.ui = uic.loadUi("VectorWidget.ui", self)
-        self.size = int(InputDialog.decryptString(schema, ","))
+        self.size = int(DataDialog.decryptString(schema, ","))
 
         self.ui.widgets = []
         self.ui.horizontal = (math.floor(nesting) % 2 == 0)
         for i in range(self.size-1):
             self.ui.widgets.append(
-                InputDialog.resolveSchema(deque(schema), nesting+1))
+                DataDialog.resolveSchema(deque(schema), nesting+1, editable))
             self.ui.gridLayout.addWidget(self.ui.widgets[i],
                                          i if self.ui.horizontal else 0,
                                          0 if self.ui.horizontal else i)
 
         # Awful: last time, no copy
-        self.ui.widgets.append(InputDialog.resolveSchema(schema, nesting+1))
+        self.ui.widgets.append(
+            DataDialog.resolveSchema(schema, nesting+1, editable))
         self.ui.gridLayout.addWidget(self.ui.widgets[self.size-1],
                                      self.size-1 if self.ui.horizontal else 0,
                                      0 if self.ui.horizontal else self.size-1)
@@ -209,11 +249,17 @@ class VectorWidget(QtGui.QWidget):
 
         schema.popleft()  # Closed square bracket ending the vector's schema
 
+    def setData(self, data):
+        data.popleft()  # Open squre bracket
 
-class StructWidget(QtGui.QWidget):
+        for i in range(self.size):
+            self.ui.widgets[i].setData(data)
 
-    def __init__(self, schema, nesting):
-        QtGui.QWidget.__init__(self)
+
+class StructWidget(DataWidget):
+
+    def __init__(self, schema, nesting, editable):
+        DataWidget.__init__(self)
         self.ui = uic.loadUi("StructWidget.ui", self)
         self.ui.widgets = []
 
@@ -221,9 +267,9 @@ class StructWidget(QtGui.QWidget):
         i = 0
         while character != ")":
             name = character if character != "," else ""
-            name += InputDialog.decryptString(schema, ":")
+            name += DataDialog.decryptString(schema, ":")
 
-            widget = InputDialog.resolveSchema(schema, nesting+0.5)
+            widget = DataDialog.resolveSchema(schema, nesting+0.5, editable)
             label = QtGui.QLabel(name)
             label.setAlignment(QtCore.Qt.AlignTop)
             label.setBuddy(widget)
@@ -234,23 +280,33 @@ class StructWidget(QtGui.QWidget):
             # Comma separating elements of the struct or closed bracket
             character = schema.popleft()
             i += 1
+
         self.ui.gridLayout.update()
 
+    def setData(self, data):
+        data.popleft()  # Open parenthesis
 
-class NestedWidget(QtGui.QWidget):
+        for widget in self.ui.widgets:
+            widget[1].setData(data)
 
-    def __init__(self, schema):
-        QtGui.QWidget.__init__(self)
+
+class NestedWidget(DataWidget):
+
+    def __init__(self, schema, editable=True):
+        DataWidget.__init__(self)
         self.ui = uic.loadUi("NestedWidget.ui", self)
         self.connect(self.ui.pushButton,
                      QtCore.SIGNAL('clicked()'),
                      self,
-                     QtCore.SLOT('requestInput()'))
-        self.inputDialog = InputDialog(schema)
+                     QtCore.SLOT('showWindow()'))
+        self.dataDialog = DataDialog(schema, editable)
 
     @QtCore.pyqtSlot()
-    def requestInput(self):
-        self.inputDialog.show()
+    def showWindow(self):
+        self.dataDialog.show(self.data)
+
+    def setData(self, data):
+        self.data = data
 
 
 app = QtGui.QApplication(sys.argv)
