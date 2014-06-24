@@ -12,12 +12,17 @@
 
 #include "def.h"
 
+#define byte char
+
 #define MEM_OK 0
 #define ALLOC_ERROR 1
+#define ASTACK_OUT_OF_BOUND 2
+#define OSTACK_OUT_OF_BOUND 3
+#define ISTACK_OUT_OF_BOUND 4
 
 #define ASTACK_UNIT sizeof( Adescr* )
 #define OSTACK_UNIT sizeof( Odescr* )
-#define ISTACK_UNIT sizeof( char )
+#define ISTACK_UNIT sizeof( byte )
 
 typedef enum
 {
@@ -25,16 +30,21 @@ typedef enum
 	STA
 } Mode;
 
+// If the value is embedded, then it must have size < sizeof(byte)
+typedef struct
+{
+	byte emb_val;
+	byte* sta_val;
+} ObjectVal;
+
 typedef struct
 {
 	// Modality of saving of the object, either embedded or in the instance stack
 	Mode mode;
 	// Size of the object in bytes
 	int size;
-	// Value, either the complete value (i_val, s_val..) or a pointer to the right position in the instance_stack (char**?)
-	Value inst;
-	// oid of the object
-	int oid;
+	// Value
+	byte* inst;
 } Odescr;
 
 typedef struct
@@ -60,15 +70,18 @@ int asize, osize, isize;
 // The stacks (actually vectors)
 Adescr** astack;
 Odescr** ostack;
-char* istack;
+byte* istack;
 
 int initialize_stacks();
 
 // Interaction with the istack
-char top_istack();
+byte top_istack();
 
 void pop_istack();
-void push_istack( char );
+void push_istack( byte );
+
+byte* pop_bytearray( int );
+void push_bytearray( byte*, int );
 
 int pop_int();
 void push_int( int );

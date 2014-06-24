@@ -9,6 +9,8 @@
 
 int yyvm( Stat** statements )
 {
+	initialize_stacks();
+
 	while( statements[pc++]->op != SOL_HALT )
 		execute( statements[pc] );
 
@@ -291,6 +293,7 @@ int sol_new( Value* args )
 	Odescr* object = malloc( sizeof( Odescr ) );
 	object->mode = EMB;
 	object->size = size;
+	object->inst = malloc( sizeof( byte ) * size );
 
 	push_ostack( object );
 
@@ -331,15 +334,23 @@ int sol_lds( Value* args )
 	return 0;
 }
 
-// TODO implement
 int sol_lod( Value* args )
 {
 	int env_offset = args[0].i_val;
-	int oid = args[0].i_val;
+	int oid = args[1].i_val;
 
-	// We go only by byte size, don't care about type
+	if( ap - 1 - env_offset < 0 )
+		return ASTACK_OUT_OF_BOUND;
 
-	return 0;
+	if( oid >= astack[ ap - 1 - env_offset ]->obj_number )
+		return OSTACK_OUT_OF_BOUND;
+
+	Odescr* object = &( astack[ ap - 1 - env_offset ]->objects[ oid ] );
+
+	// Value LOD (direct load) must always be referred to an embedded thing?
+	push_bytearray( object->inst, object->size );
+
+	return MEM_OK;
 }
 
 // TODO implement
@@ -378,10 +389,22 @@ int sol_ixa( Value* args )
 	return 0;
 }
 
-// TODO implement
 int sol_sto( Value* args )
 {
-	return 0;
+	int env_offset = args[0].i_val;
+	int oid = args[0].i_val;
+
+	if( ap - 1 - env_offset < 0 )
+		return ASTACK_OUT_OF_BOUND;
+
+	if( oid >= astack[ ap - 1 - env_offset ]->obj_number )
+		return OSTACK_OUT_OF_BOUND;
+
+	Odescr* object = &( astack[ ap - 1 - env_offset ]->objects[ oid ] );
+
+	object->inst = pop_bytearray( object->size );
+
+	return MEM_OK;
 }
 
 // TODO implement

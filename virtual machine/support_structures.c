@@ -27,7 +27,7 @@ int initialize_stacks()
 }
 
 // Interaction with the istack
-char top_istack()
+byte top_istack()
 {
 	return istack[ ip - 1 ]; 
 }
@@ -37,13 +37,13 @@ void pop_istack()
 	free( &( istack[ --ip ] ) );
 }
 
-void push_istack( char value )
+void push_istack( byte value )
 {
 	if( ip == isize )
 	{
-		char* old_istack = istack;
+		byte* old_istack = istack;
 
-		istack = malloc( sizeof( char ) * ( isize + ISTACK_UNIT ) );
+		istack = malloc( sizeof( byte ) * ( isize + ISTACK_UNIT ) );
 
 		int i;
 		for( i = 0; i < isize; i++ )
@@ -57,30 +57,63 @@ void push_istack( char value )
 	istack[ ip++ ] = value;
 }
 
+byte* pop_bytearray( int size )
+{
+	int i = size - 1;
+	byte* value;
+
+	do
+	{
+		value[ i ] = top_istack();
+
+		pop_istack();
+	}
+	while( --i >= 0 );
+
+	return value;
+}
+
+void push_bytearray( byte* value, int size )
+{
+	int i = 0;
+
+	do
+	{
+		push_istack( value[ i ] );
+	}
+	while( ++i < size );
+}
+
 int pop_int()
 {
-	int value = (int) top_istack();
+	int i = 0;
+	int value = 0;
 
-	pop_istack();
+	do
+	{
+		value += (int) ( ( top_istack() << ( i * sizeof( byte ) ) ) & 0xFF );
+
+		pop_istack();
+	}
+	while( ++i < sizeof( int ) );
 
 	return value;
 }
 
 void push_int( int value )
 {
-	push_istack( (char) value );
+	int i = 0;
+
+	do
+	{
+		push_istack( ( value >> ( ( sizeof( int ) - 1 - i ) * sizeof( byte ) ) ) & 0xFF );
+	}
+	while( ++i < sizeof( int ) );
 }
 
 float pop_real()
 {
-	char object[ sizeof(float) ];
-
-	int i;
-	for( i = 0; i < sizeof(float); i++ )
-	{
-		object[i] = (char) top_istack();
-		pop_istack();
-	}
+	byte* object = pop_bytearray( sizeof( float ) );
 
 	float value;
 
@@ -91,18 +124,16 @@ float pop_real()
 
 void push_real( float value )
 {
-	char object[ sizeof(float) ];
+	byte object[ sizeof( float ) ];
 
 	memcpy( object, &value, sizeof( value ) );
 
-	int i;
-	for( i = 0; i < sizeof( float ); i++ )
-		push_istack( object[i] );
+	push_bytearray( object, sizeof( float ) );
 }
 
 char pop_char()
 {
-	char value = top_istack();
+	byte value = top_istack();
 
 	pop_istack();
 
@@ -116,23 +147,12 @@ void push_char( char value )
 
 char* pop_string( int size )
 {
-	char* value = malloc( sizeof(char) * size );
-
-	int i;
-	for( i = 0; i < size; i++ )
-	{
-		value[i] = top_istack();
-		pop_istack();
-	}
-
-	return value;
+	return (char*) pop_bytearray( size );
 }
 
 void push_string( char* object )
 {
-	int i;
-	for( i = 0; i < strlen( object ); i++ )
-		push_istack( object[i] );
+	push_bytearray( object, strlen( object ) );
 }
 
 // Interactions with the other stacks
