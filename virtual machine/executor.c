@@ -98,67 +98,31 @@ int execute( Stat* current_statement )
 			break;
 
 		case SOL_CGT:
-			sol_cgt( current_statement->args );
-			break;
-
 		case SOL_CGE:
-			sol_cge( current_statement->args );
-			break;
-
 		case SOL_CLT:
-			sol_clt( current_statement->args );
-			break;
-
 		case SOL_CLE:
-			sol_cle( current_statement->args );
+			sol_char_compare( current_statement->op, current_statement->args );
 			break;
 
 		case SOL_IGT:
-			sol_igt( current_statement->args );
-			break;
-
 		case SOL_IGE:
-			sol_ige( current_statement->args );
-			break;
-
 		case SOL_ILT:
-			sol_ilt( current_statement->args );
-			break;
-
 		case SOL_ILE:
-			sol_ile( current_statement->args );
+			sol_int_compare( current_statement->op, current_statement->args );
 			break;
 
 		case SOL_RGT:
-			sol_rgt( current_statement->args );
-			break;
-
 		case SOL_RGE:
-			sol_rge( current_statement->args );
-			break;
-
 		case SOL_RLT:
-			sol_rlt( current_statement->args );
-			break;
-
 		case SOL_RLE:
-			sol_rle( current_statement->args );
+			sol_real_compare( current_statement->op, current_statement->args );
 			break;
 
 		case SOL_SGT:
-			sol_sgt( current_statement->args );
-			break;
-
 		case SOL_SGE:
-			sol_sge( current_statement->args );
-			break;
-
 		case SOL_SLT:
-			sol_slt( current_statement->args );
-			break;
-
 		case SOL_SLE:
-			sol_sle( current_statement->args );
+			sol_string_compare( current_statement->op, current_statement->args );
 			break;
 
 		case SOL_IN:
@@ -166,35 +130,17 @@ int execute( Stat* current_statement )
 			break;
 
 		case SOL_IPLUS:
-			sol_iplus( current_statement->args );
-			break;
-
 		case SOL_IMINUS:
-			sol_iminus( current_statement->args );
-			break;
-
 		case SOL_ITIMES:
-			sol_itimes( current_statement->args );
-			break;
-
 		case SOL_IDIV:
-			sol_idiv( current_statement->args );
+			sol_int_math( current_statement->op, current_statement->args );
 			break;
 
 		case SOL_RPLUS:
-			sol_rplus( current_statement->args );
-			break;
-
 		case SOL_RMINUS:
-			sol_rminus( current_statement->args );
-			break;
-
 		case SOL_RTIMES:
-			sol_rtimes( current_statement->args );
-			break;
-
 		case SOL_RDIV:
-			sol_rdiv( current_statement->args );
+			sol_real_math( current_statement->op, current_statement->args );
 			break;
 
 		case SOL_IUMI:
@@ -503,7 +449,7 @@ int sol_ist()
 	int size = object->size;
 
 	byte* value = pop_bytearray();
-
+	
 	int start_address = pop_int();
 	int i;
 
@@ -596,100 +542,81 @@ int sol_neq( Value* args )
 	return MEM_OK;
 }
 
-// TODO implement
-int sol_cgt( Value* args )
+// BORING
+int sol_char_compare( Operator op, Value* args )
 {
-	return 0;
+	char left_value = pop_char();
+	char right_value = pop_char();
+
+	if( op == SOL_CGT && left_value > right_value )
+		push_char( TRUE );
+	else if( op == SOL_CGE && left_value >= right_value )
+		push_char( TRUE );
+	else if( op == SOL_CLT && left_value < right_value )
+		push_char( TRUE );
+	else if( op == SOL_CLE && left_value <= right_value )
+		push_char( TRUE );
+
+	push_char( FALSE );
+
+	return MEM_OK;
 }
 
-// TODO implement
-int sol_cge( Value* args )
+int sol_int_compare( Operator op, Value* args )
 {
-	return 0;
+	int left_value = pop_int();
+	int right_value = pop_int();
+
+	if( op == SOL_IGT && left_value > right_value )
+		push_char( TRUE );
+	else if( op == SOL_IGE && left_value >= right_value )
+		push_char( TRUE );
+	else if( op == SOL_ILT && left_value < right_value )
+		push_char( TRUE );
+	else if( op == SOL_ILE && left_value <= right_value )
+		push_char( TRUE );
+
+	push_char( FALSE );
+
+	return MEM_OK;
 }
 
-// TODO implement
-int sol_clt( Value* args )
+int sol_real_compare( Operator op, Value* args )
 {
-	return 0;
+	float left_value = pop_real();
+	float right_value = pop_real();
+
+	if( op == SOL_RGT && left_value > right_value )
+		push_char( TRUE );
+	else if( op == SOL_RGE && left_value >= right_value )
+		push_char( TRUE );
+	else if( op == SOL_RLT && left_value < right_value )
+		push_char( TRUE );
+	else if( op == SOL_RLE && left_value <= right_value )
+		push_char( TRUE );
+
+	push_char( FALSE );
+
+	return MEM_OK;
 }
 
-// TODO implement
-int sol_cle( Value* args )
+int sol_string_compare( Operator op, Value* args )
 {
-	return 0;
-}
+	char* left_value = pop_string();
+	char* right_value = pop_string();
 
-// TODO implement
-int sol_igt( Value* args )
-{
-	return 0;
-}
+	if( op == SOL_SGT && strcmp( left_value, right_value ) > 0 )
+		push_char( TRUE );
+	else if( op == SOL_SGE && strcmp( left_value, right_value ) >= 0 )
+		push_char( TRUE );
+	else if( op == SOL_SLT && strcmp( left_value, right_value ) < 0 )
+		push_char( TRUE );
+	else if( op == SOL_SLE && strcmp( left_value, right_value ) <= 0 )
+		push_char( TRUE );
 
-// TODO implement
-int sol_ige( Value* args )
-{
-	return 0;
-}
+	push_char( FALSE );
 
-// TODO implement
-int sol_ilt( Value* args )
-{
-	return 0;
-}
-
-// TODO implement
-int sol_ile( Value* args )
-{
-	return 0;
-}
-
-// TODO implement
-int sol_rgt( Value* args )
-{
-	return 0;
-}
-
-// TODO implement
-int sol_rge( Value* args )
-{
-	return 0;
-}
-
-// TODO implement
-int sol_rlt( Value* args )
-{
-	return 0;
-}
-
-// TODO implement
-int sol_rle( Value* args )
-{
-	return 0;
-}
-
-// TODO implement
-int sol_sgt( Value* args )
-{
-	return 0;
-}
-
-// TODO implement
-int sol_sge( Value* args )
-{
-	return 0;
-}
-
-// TODO implement
-int sol_slt( Value* args )
-{
-	return 0;
-}
-
-// TODO implement
-int sol_sle( Value* args )
-{
-	return 0;
+	return MEM_OK;
 }
 
 // TODO implement
@@ -698,52 +625,47 @@ int sol_in( Value* args )
 	return 0;
 }
 
-// TODO implement
-int sol_iplus( Value* args )
+// BORING
+int sol_int_math( Operator op, Value* args )
 {
-	return 0;
+	int left_value = pop_int();
+	int right_value = pop_int();
+
+	int result;
+
+	if( op == SOL_IPLUS )
+		result = left_value + right_value;
+	else if( op == SOL_IMINUS )
+		result = left_value - right_value;
+	else if( op == SOL_ITIMES )
+		result = left_value * right_value;
+	else if( op == SOL_IDIV )
+		result = left_value / right_value;
+
+	push_int( result );
+
+	return MEM_OK;
 }
 
-// TODO implement
-int sol_iminus( Value* args )
+int sol_real_math( Operator op, Value* args )
 {
-	return 0;
-}
+	float left_value = pop_real();
+	float right_value = pop_real();
 
-// TODO implement
-int sol_itimes( Value* args )
-{
-	return 0;
-}
+	float result;
 
-// TODO implement
-int sol_idiv( Value* args )
-{
-	return 0;
-}
+	if( op == SOL_RPLUS )
+		result = left_value + right_value;
+	else if( op == SOL_RMINUS )
+		result = left_value - right_value;
+	else if( op == SOL_RTIMES )
+		result = left_value * right_value;
+	else if( op == SOL_RDIV )
+		result = left_value / right_value;
 
-// TODO implement
-int sol_rplus( Value* args )
-{
-	return 0;
-}
+	push_real( result );
 
-// TODO implement
-int sol_rminus( Value* args )
-{
-	return 0;
-}
-
-// TODO implement
-int sol_rtimes( Value* args )
-{
-	return 0;
-}
-
-// TODO implement
-int sol_rdiv( Value* args )
-{
-	return 0;
+	return MEM_OK;
 }
 
 // TODO implement
