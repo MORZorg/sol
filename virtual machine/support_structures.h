@@ -80,7 +80,7 @@ byte top_istack();
 void pop_istack();
 void push_istack( byte );
 
-byte* pop_bytearray( int );
+byte* pop_bytearray();
 void push_bytearray( byte*, int );
 
 int pop_int();

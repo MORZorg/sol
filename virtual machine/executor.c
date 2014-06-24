@@ -447,9 +447,18 @@ int sol_sil( Value* args )
 	return MEM_OK;
 }
 
-// TODO implement
+// Identical to FDA but specific for vectors
+// The only given parameter is the size of the vector's elements dimension (eg vector [10] of int has dimension |int|, while vector [10] of vector [20] of int has 2 dimensions which elements have size 20*|int| and |int|)
+// The index value must have been previously calculated (and therefore be present as last value on the istack), the same applies for the base address of the vector, loaded with a LDA
 int sol_ixa( Value* args )
 {
+	int vector_dimension = args[0].i_val;
+
+	int index_value = pop_int(); // index value
+	int start_offset = pop_int(); // LDA
+
+	push_int( vector_dimension * index_value + vector_dimension );
+
 	return 0;
 }
 
@@ -473,24 +482,36 @@ int sol_sto( Value* args )
 }
 
 // TODO implement
-int sol_ist( Value* args )
+// Waiting for GL (HF) 
+int sol_ist()
 {
 	return 0;
 }
 
-// TODO implement
+// If the last value on the stack is false, jump
+// NOTE booleans are implemented as integers -> 0 = false, 1 = true
+// NOTE The jump is pc += offset - 1 because pc++ is always executed after every call of execute( Stat* )
 int sol_jmf( Value* args )
 {
+	int jump_offset = args[0].i_val;
+
+	if( !pop_int() )
+		pc += jump_offset - 1;
+
 	return 0;
 }
 
-// TODO implement
+// Unconditioned jump
 int sol_jmp( Value* args )
 {
+	int jump_offset = args[0].i_val;
+
+	pc += jump_offset - 1;
+
 	return 0;
 }
 
-// TODO implement
+// == operator
 int sol_equ( Value* args )
 {
 	return 0;

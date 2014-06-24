@@ -57,8 +57,10 @@ void push_istack( byte value )
 	istack[ ip++ ] = value;
 }
 
-byte* pop_bytearray( int size )
+byte* pop_bytearray()
 {
+	int size = pop_int();
+
 	int i = size - 1;
 	byte* value;
 
@@ -82,11 +84,13 @@ void push_bytearray( byte* value, int size )
 		push_istack( value[ i ] );
 	}
 	while( ++i < size );
+
+	push_int( size );
 }
 
 int pop_int()
 {
-	byte* object = pop_bytearray( sizeof( int ) );
+	byte* object = pop_bytearray();
 
 	int i = 0;
 	int value = 0;
@@ -117,7 +121,7 @@ void push_int( int value )
 
 float pop_real()
 {
-	byte* object = pop_bytearray( sizeof( float ) );
+	byte* object = pop_bytearray();
 
 	float value;
 
@@ -137,21 +141,17 @@ void push_real( float value )
 
 char pop_char()
 {
-	byte value = top_istack();
-
-	pop_istack();
-
-	return value;
+	return (char) pop_bytearray();
 }
 
 void push_char( char value )
 {
-	push_istack( value );
+	push_bytearray( (byte*) &value, 1 );
 }
 
-char* pop_string( int size )
+char* pop_string()
 {
-	return (char*) pop_bytearray( size );
+	return (char*) pop_bytearray();
 }
 
 void push_string( char* object )

@@ -33,7 +33,7 @@ int sol_eil( Value* );
 int sol_sil( Value* );
 int sol_ixa( Value* );
 int sol_sto( Value* );
-int sol_ist( Value* );
+int sol_ist();
 int sol_jmf( Value* );
 int sol_jmp( Value* );
 int sol_equ( Value* );
