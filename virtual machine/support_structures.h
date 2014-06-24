@@ -14,6 +14,9 @@
 
 #define byte char
 
+#define TRUE '1'
+#define FALSE '0'
+
 #define MEM_OK 0
 #define ALLOC_ERROR 1
 #define ASTACK_OUT_OF_BOUND 2
@@ -92,7 +95,7 @@ void push_real( float );
 char pop_char();
 void push_char( char );
 
-char* pop_string( int );
+char* pop_string();
 void push_string( char* );
 
 // Interactions with the other stacks

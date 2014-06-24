@@ -366,10 +366,25 @@ int sol_lod( Value* args )
 	return MEM_OK;
 }
 
-// TODO implement
-// Not clear: it creates a new complex object with the last element_number elements on the stack, but where does the object go?
+// Creates a temporary object which refers to a structure or vector composed by the last element_number elements on the stack. Total size is specified as parameter too
+// It's different from NEWS because the value is instantiated immediately
 int sol_cat( Value* args )
 {
+	int element_number = args[0].i_val;
+	int total_size = args[1].i_val;
+
+	// Remove the descriptor of the single elements
+	// A descriptor of the whole structure is created as purpose of this instruction 
+	while( element_number-- > 0 )
+		pop_ostack();
+
+	Odescr* object = malloc( sizeof( Odescr ) );
+	object->mode = STA;
+	object->size = total_size;
+	object->inst.sta_val = ip - total_size;
+
+	push_ostack( object );
+
 	return 0;
 }
 
@@ -385,9 +400,9 @@ int sol_lda( Value* args )
 	if( oid >= astack[ ap - 1 - env_offset ]->obj_number )
 		return OSTACK_OUT_OF_BOUND;
 
-	Odescr* object = &( astack[ ap - 1 - env_offset ]->objects[ oid ] );
+	Odescr* source_object = &( astack[ ap - 1 - env_offset ]->objects[ oid ] );
 
-	push_int( object->inst.sta_val );
+	push_int( source_object->inst.sta_val );
 
 	return MEM_OK;
 }
@@ -476,15 +491,25 @@ int sol_sto( Value* args )
 
 	Odescr* object = &( astack[ ap - 1 - env_offset ]->objects[ oid ] );
 
-	object->inst.emb_val = pop_bytearray( object->size );
+	object->inst.emb_val = pop_bytearray();
 
 	return MEM_OK;
 }
 
-// TODO implement
-// Waiting for GL (HF) 
+// Reads the value to assign, the field/index address and instantiates the field/index
 int sol_ist()
 {
+	Odescr* object = top_ostack();
+	int size = object->size;
+
+	byte* value = pop_bytearray();
+
+	int start_address = pop_int();
+	int i;
+
+	for( i = 0; i < size; i++ )
+		istack[ start_address + i ] = value[ i ];
+
 	return 0;
 }
 
@@ -495,7 +520,7 @@ int sol_jmf( Value* args )
 {
 	int jump_offset = args[0].i_val;
 
-	if( !pop_int() )
+	if( pop_char() == FALSE )
 		pc += jump_offset - 1;
 
 	return 0;
@@ -514,13 +539,61 @@ int sol_jmp( Value* args )
 // == operator
 int sol_equ( Value* args )
 {
-	return 0;
+	Odescr* left_object = top_ostack();
+	int left_size = left_object->size;
+
+	byte* left_value = pop_bytearray();
+
+	Odescr* right_object = top_ostack();
+	int right_size = right_object->size;
+
+	byte* right_value = pop_bytearray();
+
+	if( left_size != right_size )
+	{
+		push_char( FALSE );
+		return MEM_OK;
+	}
+
+	int i;
+
+	for( i = 0; i < left_size; i++ )
+		if( left_value[ i ] != right_value[ i ] )
+		{
+			push_char( FALSE );
+			return MEM_OK;
+		}
+
+	push_char( TRUE );
+
+	return MEM_OK;
 }
 
-// TODO implement
+// != operator
 int sol_neq( Value* args )
 {
-	return 0;
+	Odescr* left_object = top_ostack();
+	int left_size = left_object->size;
+
+	byte* left_value = pop_bytearray();
+
+	Odescr* right_object = top_ostack();
+	int right_size = right_object->size;
+
+	byte* right_value = pop_bytearray();
+
+	int i;
+
+	for( i = 0; i < left_size; i++ )
+		if( left_value[ i ] != right_value[ i ] )
+		{
+			push_char( TRUE );
+			return MEM_OK;
+		}
+
+	push_char( FALSE );
+
+	return MEM_OK;
 }
 
 // TODO implement

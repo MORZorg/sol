@@ -57,11 +57,14 @@ void push_istack( byte value )
 	istack[ ip++ ] = value;
 }
 
+// Write and read stuff on the istack
+// All methods pass from the bytearray ones
 byte* pop_bytearray()
 {
-	int size = pop_int();
+	Odescr* object = top_ostack();
+	pop_ostack();
 
-	int i = size - 1;
+	int i = object->size - 1;
 	byte* value;
 
 	do
@@ -85,7 +88,12 @@ void push_bytearray( byte* value, int size )
 	}
 	while( ++i < size );
 
-	push_int( size );
+	Odescr* object;
+	object->mode = STA;
+	object->size = size;
+	object->inst.sta_val = ip - size;
+
+	push_ostack( object );
 }
 
 int pop_int()
