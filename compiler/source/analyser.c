@@ -487,6 +487,10 @@ Boolean simplify_expression( Node* node )
 	Node* right_child = left_child->brother;
 	if( simplify_expression( left_child ) && simplify_expression( right_child ) )
 	{
+		// TODO: i should want to be useful
+		if( node->value.q_val == Q_IN )
+			return FALSE;
+
 		if( right_child != NULL && left_child->type != right_child->type )
 			yysemerror( node, PRINT_ERROR( STR_CONFLICT_TYPE, "simplify" ) );
 
@@ -510,9 +514,60 @@ Boolean simplify_expression( Node* node )
 				break;
 
 			case T_REL_EXPR:
-				printf( "rel!\n" );
-				// TODO
-				return FALSE;
+				// TODO: i should want to be useful, also with serious Q_IN
+				printf( "rel!\t" );
+				
+				node->type = T_BOOL_CONST;
+				switch( node->value.q_val )
+				{
+					case Q_EQ:
+						node->value.b_val = ( left_child->value.i_val == right_child->value.i_val );
+						break;
+
+					case Q_NEQ:
+						node->value.b_val = ( left_child->value.i_val != right_child->value.i_val );
+						break;
+
+					case Q_GT:
+						node->value.b_val = ( left_child->value.i_val > right_child->value.i_val );
+						break;
+
+					case Q_GEQ:
+						node->value.b_val = ( left_child->value.i_val >= right_child->value.i_val );
+						break;
+
+					case Q_LT:
+						node->value.b_val = ( left_child->value.i_val < right_child->value.i_val );
+						break;
+
+					case Q_LEQ:
+						node->value.b_val = ( left_child->value.i_val <= right_child->value.i_val );
+						break;
+
+					case Q_IN:
+					{
+						Node* eq = new_qualified_node( T_REL_EXPR, Q_EQ );
+						eq->child = left_child;
+						Node* current_right_children = right_child->child;
+						node->value.b_val = FALSE;
+						while( current_right_children != NULL )
+						{
+							eq->child->brother = current_right_children;
+							node->value.b_val |= simplify_expression( eq );
+							current_right_children = current_right_children->brother;
+						}
+
+						left_child->brother = right_child;
+						break;
+					}
+						
+					default:
+						yysemerror( node, PRINT_ERROR( STR_BUG, "wrong syntax" ) );
+						break;
+				}
+
+				printf( "Result: %d\n", node->value.b_val );
+				break;
 
 			case T_MATH_EXPR:
 				node->type = left_child->type;
@@ -570,8 +625,15 @@ Boolean simplify_expression( Node* node )
 
 			case T_INSTANCE_EXPR:
 				printf( "inst!\n" );
-				// TODO
-				return FALSE;
+
+				Node* current_child = node->child;
+				node->value.b_val = TRUE;
+				while( current_child != NULL )
+				{
+					node->value.b_val &= simplify_expression( current_child );
+					current_child = current_child->brother;
+				}
+				break;
 
 			case T_BUILT_IN_CALL:
 				if( node->value.q_val == Q_TOREAL )
@@ -620,7 +682,7 @@ Schema* infere_expression_schema( Node* node )
 		{
 			Schema* left_argument = infere_expression_schema( node->child );
 			Schema* right_argument = infere_expression_schema( node->child->brother );
-			if( !schema_check( left_argument, right_argument ) )
+			if( node->value.q_val != Q_IN && !schema_check( left_argument, right_argument ) )
 				yysemerror( node, PRINT_ERROR( STR_CONFLICT_TYPE, "infere" ) );
 
 			switch( node->value.q_val )
