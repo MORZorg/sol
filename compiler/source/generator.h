@@ -5,8 +5,8 @@
 #include <stdarg.h>
 
 #include "def.h"
-#include "stacklist.h"
 #include "analyser.h"
+#include "../../libs/stacklist.h"
 
 #define INTERMEDIATE_CODE_EXTENSION ".ohana"
 

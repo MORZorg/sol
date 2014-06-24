@@ -6,6 +6,11 @@
  * Group: ORZ
  */
 #include "executor.h"
+#include "tree_print.h"
+
+extern int yyparse();
+extern Stat* program;
+extern int program_size;
 
 int main( int argc, char** argv )
 {
@@ -14,6 +19,16 @@ int main( int argc, char** argv )
 
 	// yyvm( statements );
 	// Profit.
+	
+	int result;
+
+	fprintf( stdout, "Something\n" );
+
+	if( ( result = yyparse() ) == 0 )
+	{
+		fprintf( stdout, "*** Readen code ***\n" );
+		code_array_print( program, program_size );
+	}
 
 	return 0;
 }

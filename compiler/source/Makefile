@@ -1,4 +1,6 @@
-solc: main.c lexer.o parser.o analyser.o generator.o hashmap.o stacklist.o tree_print.o
+LIBS_DIR=../../libs
+
+solc: main.c lexer.o parser.o analyser.o generator.o $(LIBS_DIR)/hashmap.o $(LIBS_DIR)/stacklist.o tree_print.o
 	$(CC) -o $@ $^
 	cp $@ ../../virtual\ machine/$@
 
@@ -17,7 +19,10 @@ generator.o: generator.c generator.h
 tree_print.o: tree_print.c tree_print.h def.h
 	$(CC) -g -c $<
 
-hashmap.o: hashmap.c hashmap.h
+$(LIBS_DIR)/hashmap.o: $(LIBS_DIR)/hashmap.c $(LIBS_DIR)/hashmap.h
+	$(CC) -g -c $<
+
+$(LIBS_DIR)/stacklist.o: $(LIBS_DIR)/stacklist.c $(LIBS_DIR)/stacklist.h
 	$(CC) -g -c $<
 
 lexer.c: lexer.lex parser.y parser.h parser.c def.h
@@ -26,16 +31,16 @@ lexer.c: lexer.lex parser.y parser.h parser.c def.h
 parser.h: parser.y def.h
 	bison -vd -o parser.c $<
 
-lexer: main.c lexer.o hashmap.o
+lexer: main.c lexer.o $(LIBS_DIR)/hashmap.o
 	$(CC) -g -o $@ $^ -DLEXER
 
-parser: main.c tree_print.o lexer.o parser.o hashmap.o
+parser: main.c tree_print.o lexer.o parser.o $(LIBS_DIR)/hashmap.o
 	$(CC) -g -o $@ $^ -DPARSER
 
-analyser: main.c lexer.o parser.o analyser.o hashmap.o stacklist.o tree_print.o
+analyser: main.c lexer.o parser.o analyser.o $(LIBS_DIR)/hashmap.o $(LIBS_DIR)/stacklist.o tree_print.o
 	$(CC) -g -o $@ $^ -DANALYSER
 
-generator: main.c lexer.o parser.o analyser.o generator.o hashmap.o stacklist.o tree_print.o
+generator: main.c lexer.o parser.o analyser.o generator.o $(LIBS_DIR)/hashmap.o $(LIBS_DIR)/stacklist.o tree_print.o
 	$(CC) -g -o $@ $^
 
 .PHONY : clean

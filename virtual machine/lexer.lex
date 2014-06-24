@@ -24,9 +24,8 @@ digit			[0-9]
 id				{alpha}({alpha}|{digit}|_)*
 
 charconst		'([^\']|\\.)'
-intconst		{digit}+
-realconst		{digit}+\.{digit}+
-boolconst		'0'|'1'
+intconst		-?{digit}+
+realconst		-?{digit}+\.{digit}+
 
 spacing			([ \t])+
 sugar			[()\[\]{}.,;]

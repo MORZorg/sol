@@ -14,6 +14,7 @@ extern int yylex();
 extern int yyerror( char* );
 
 Stat* program;
+int program_size;
 %}
 
 %token SCODE OP CONST
@@ -39,7 +40,7 @@ op : OP { $$ = lexval; }
 const : CONST { $$ = lexval; }
 	  ;
 
-scode : SCODE const { program = malloc( sizeof( Stat ) * $2.i_val ); }
+scode : SCODE const { program_size = $2.i_val; program = malloc( sizeof( Stat ) * program_size ); }
 	  ;
 
 no_param : op { program[ line - 1 ] = new_stat( 0, $1.op_val ); }

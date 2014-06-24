@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include "tree_print.h"
 
 #define MAX_ARGS 3
 

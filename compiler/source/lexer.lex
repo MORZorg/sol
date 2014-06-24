@@ -1,7 +1,7 @@
 %{
 #include "def.h"
 #include "parser.h"
-#include "hashmap.h"
+#include "../../libs/hashmap.h"
 
 char* STR_ERROR = "lexical error";
 

@@ -1,10 +1,11 @@
 #include "generator.h"
+#include "tree_print.h"
 
 extern FILE* yyin;
 extern Node* root;
 extern Symbol* symbol_table;
 extern stacklist scope;
-extern const char* CODE_OPERATORS[];
+extern char* CODE_OPERATORS[];
 
 FILE* yyin;
 
