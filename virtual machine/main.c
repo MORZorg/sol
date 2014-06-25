@@ -44,7 +44,7 @@ int main( int argc, char** argv )
 
 	if( ( result = yyparse() ) == 0 )
 	{
-		fprintf( stdout, "*** Readen code ***\n" );
+		fprintf( stdout, "*** Read code ***\n" );
 		code_array_print( program, program_size );
 	}
 

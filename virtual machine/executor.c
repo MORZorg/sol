@@ -7,11 +7,11 @@
  */
 #include "executor.h"
 
-int yyvm( Stat** statements )
+int yyvm( Stat* statements )
 {
 	initialize_stacks();
 
-	while( statements[pc++]->op != SOL_HALT )
+	while( statements[pc++].op != SOL_HALT )
 		execute( statements[pc] );
 
 	return 0;
@@ -78,7 +78,7 @@ int execute( Stat* current_statement )
 			break;
 
 		case SOL_IST:
-			sol_ist( current_statement->args );
+			sol_ist();
 			break;
 
 		case SOL_JMF:
@@ -90,69 +90,69 @@ int execute( Stat* current_statement )
 			break;
 
 		case SOL_EQU:
-			sol_equ( current_statement->args );
+			sol_equ();
 			break;
 
 		case SOL_NEQ:
-			sol_neq( current_statement->args );
+			sol_neq();
 			break;
 
 		case SOL_CGT:
 		case SOL_CGE:
 		case SOL_CLT:
 		case SOL_CLE:
-			sol_char_compare( current_statement->op, current_statement->args );
+			sol_char_compare( current_statement->op );
 			break;
 
 		case SOL_IGT:
 		case SOL_IGE:
 		case SOL_ILT:
 		case SOL_ILE:
-			sol_int_compare( current_statement->op, current_statement->args );
+			sol_int_compare( current_statement->op );
 			break;
 
 		case SOL_RGT:
 		case SOL_RGE:
 		case SOL_RLT:
 		case SOL_RLE:
-			sol_real_compare( current_statement->op, current_statement->args );
+			sol_real_compare( current_statement->op );
 			break;
 
 		case SOL_SGT:
 		case SOL_SGE:
 		case SOL_SLT:
 		case SOL_SLE:
-			sol_string_compare( current_statement->op, current_statement->args );
+			sol_string_compare( current_statement->op );
 			break;
 
 		case SOL_IN:
-			sol_in( current_statement->args );
+			sol_in();
 			break;
 
 		case SOL_IPLUS:
 		case SOL_IMINUS:
 		case SOL_ITIMES:
 		case SOL_IDIV:
-			sol_int_math( current_statement->op, current_statement->args );
+			sol_int_math( current_statement->op );
 			break;
 
 		case SOL_RPLUS:
 		case SOL_RMINUS:
 		case SOL_RTIMES:
 		case SOL_RDIV:
-			sol_real_math( current_statement->op, current_statement->args );
+			sol_real_math( current_statement->op );
 			break;
 
 		case SOL_IUMI:
-			sol_iumi( current_statement->args );
+			sol_iumi();
 			break;
 
 		case SOL_RUMI:
-			sol_rumi( current_statement->args );
+			sol_rumi();
 			break;
 
 		case SOL_NEG:
-			sol_neg( current_statement->args );
+			sol_neg();
 			break;
 
 		case SOL_WR:
@@ -172,7 +172,7 @@ int execute( Stat* current_statement )
 			break;
 
 		case SOL_POP:
-			sol_pop( current_statement->args );
+			sol_pop();
 			break;
 
 		case SOL_RD:
@@ -184,11 +184,11 @@ int execute( Stat* current_statement )
 			break;
 
 		case SOL_TOINT:
-			sol_toint( current_statement->args );
+			sol_toint();
 			break;
 
 		case SOL_TOREAL:
-			sol_toreal( current_statement->args );
+			sol_toreal();
 			break;
 
 		case SOL_READ:
@@ -212,15 +212,7 @@ int execute( Stat* current_statement )
 			break;
 
 		case SOL_RETURN:
-			sol_return( current_statement->args );
-			break;
-
-		case SOL_SCODE:
-			sol_scode( current_statement->args );
-			break;
-
-		case SOL_HALT:
-			sol_halt( current_statement->args );
+			sol_return();
 			break;
 
 		default:
@@ -365,7 +357,7 @@ int sol_fda( Value* args )
 	return 0;
 }
 
-// Gets the start_offset from the istack, previously calculated with LDA and various FDA, goes on the istack to the field, copies it in its entirety and puts it on the stack
+// Gets the start_offset from the istack, previously calculated with LDA and various FDA (or IXA), goes on the istack to the field, copies it in its entirety and puts it on the stack
 int sol_eil( Value* args )
 {
 	int field_size = args[0].i_val;
@@ -389,7 +381,7 @@ int sol_eil( Value* args )
 	return MEM_OK;
 }
 
-// TODO implement
+// TODO not sure - for now it's the same as EIL
 // Not clear: what should be put on the istack? the address of the field (start_offset, already present)?
 int sol_sil( Value* args )
 {
@@ -404,6 +396,14 @@ int sol_sil( Value* args )
 	int i = 0;
 
 	// Mh wat?
+	do
+	{
+		value[ i ] = istack[ start_offset + i ];
+	}
+	while( ++i < field_size );
+
+	push_bytearray( value, field_size );
+
 
 	return MEM_OK;
 }
@@ -483,7 +483,7 @@ int sol_jmp( Value* args )
 }
 
 // == operator
-int sol_equ( Value* args )
+int sol_equ()
 {
 	Odescr* left_object = top_ostack();
 	int left_size = left_object->size;
@@ -516,7 +516,7 @@ int sol_equ( Value* args )
 }
 
 // != operator
-int sol_neq( Value* args )
+int sol_neq()
 {
 	Odescr* left_object = top_ostack();
 	int left_size = left_object->size;
@@ -543,7 +543,7 @@ int sol_neq( Value* args )
 }
 
 // BORING
-int sol_char_compare( Operator op, Value* args )
+int sol_char_compare( Operator op )
 {
 	char left_value = pop_char();
 	char right_value = pop_char();
@@ -562,7 +562,7 @@ int sol_char_compare( Operator op, Value* args )
 	return MEM_OK;
 }
 
-int sol_int_compare( Operator op, Value* args )
+int sol_int_compare( Operator op )
 {
 	int left_value = pop_int();
 	int right_value = pop_int();
@@ -581,7 +581,7 @@ int sol_int_compare( Operator op, Value* args )
 	return MEM_OK;
 }
 
-int sol_real_compare( Operator op, Value* args )
+int sol_real_compare( Operator op )
 {
 	float left_value = pop_real();
 	float right_value = pop_real();
@@ -600,7 +600,7 @@ int sol_real_compare( Operator op, Value* args )
 	return MEM_OK;
 }
 
-int sol_string_compare( Operator op, Value* args )
+int sol_string_compare( Operator op )
 {
 	char* left_value = pop_string();
 	char* right_value = pop_string();
@@ -619,14 +619,49 @@ int sol_string_compare( Operator op, Value* args )
 	return MEM_OK;
 }
 
-// TODO implement
-int sol_in( Value* args )
+// The check is done byte-by-byte
+int sol_in()
 {
+	Odescr* setObject = top_ostack();
+	byte* set = pop_bytearray();
+
+	Odescr* valueObject = top_ostack();
+	byte* value = pop_bytearray();
+
+	int setSize = setObject->size;
+	int valueSize = valueObject->size;
+
+	int i, j;
+
+	for( i = 0; i < setSize - valueSize; i++ )
+	{
+		if( set[i] == value[0] )
+		{
+			for( j = 1; j < valueSize; j++ )
+			{
+				if( set[ i + j ] != value[ j ] )
+				{
+					push_char( FALSE );
+					break;
+				}
+			}
+
+			if( j == valueSize )
+			{
+				push_char( TRUE );
+				break;
+			}
+		}
+	}
+
+	if( i == setSize - valueSize )
+		push_char( FALSE );
+
 	return 0;
 }
 
 // BORING
-int sol_int_math( Operator op, Value* args )
+int sol_int_math( Operator op )
 {
 	int left_value = pop_int();
 	int right_value = pop_int();
@@ -647,7 +682,7 @@ int sol_int_math( Operator op, Value* args )
 	return MEM_OK;
 }
 
-int sol_real_math( Operator op, Value* args )
+int sol_real_math( Operator op )
 {
 	float left_value = pop_real();
 	float right_value = pop_real();
@@ -668,137 +703,273 @@ int sol_real_math( Operator op, Value* args )
 	return MEM_OK;
 }
 
-// TODO implement
-int sol_iumi( Value* args )
+// Negations
+int sol_iumi()
 {
+	push_int( -1 * pop_int() );
+
 	return 0;
 }
 
-// TODO implement
-int sol_rumi( Value* args )
+int sol_rumi()
 {
+	push_real( -1 * pop_real() );
+
 	return 0;
 }
 
-// TODO implement
-int sol_neg( Value* args )
+int sol_neg()
 {
+	if( pop_char() == FALSE )
+		push_char( TRUE );
+	else
+		push_char( FALSE );
+
 	return 0;
 }
 
-// TODO implement
+// Write on the std output in the given format
+// Leaves the expr result available on the istack
 int sol_wr( Value* args )
 {
+	char* format = args[0].s_val;
+
+	byte* expr = pop_bytearray();
+
+	userOutput( format, expr );
+
+	push_bytearray( expr );
+
 	return 0;
 }
 
-// TODO implement
+// Write on the given file (ignore format?)
+// Leaves the expr result available on the istack
 int sol_fwr( Value* args )
 {
+	char* format = args[0].s_val;
+
+	char* filename = pop_string();
+	byte* expr = pop_bytearray();
+
+	fileOutput( filename, expr );
+
+	push_bytearray( expr );
+
 	return 0;
 }
 
-// TODO implement
+// Push the chain and element_number on the istack, in preaparation of the call to GOTO, and instantiate a new activation record
 int sol_push( Value* args )
 {
+	int element_number = args[0].i_val;
+	int chain = args[1].i_val;
+
+	push_int( element_number );
+	push_int( chain );
+
 	return 0;
 }
 
-// TODO implement
+// GOTO is used ONLY after a push, to perform a function call
 int sol_goto( Value* args )
 {
+	int entry_point = args[0].i_val;
+
+	int chain = pop_int();
+	int element_number = pop_int();
+
+	if( ap - 1 - chain < 0 )
+		return ASTACK_OUT_OF_BOUND;
+
+	Adescr* function_env = astack[ ap - 1 - chain ];
+	
+	if( entry_point >= function_env->obj_number )
+		return OSTACK_OUT_OF_BOUND;
+
+	// The number of elements is given, the start point for its objects is the top of the stack (the objects will be instantiated as part of the function call, not before)
+	Adescr* function_ar = malloc( sizeof( Adescr ) );
+	function_ar->obj_number = element_number;
+	function_ar->objects = op;
+	function_ar->raddr = pc + 1;
+
+	// Jump to the entry point (first instruction will be the definition of the formals)
+	pc = entry_point - 1;
+
 	return 0;
 }
 
-// TODO implement
-int sol_pop( Value* args )
+// Clean astack after the last function call
+int sol_pop()
 {
+	pop_astack();
+
 	return 0;
 }
 
-// TODO implement
+// Read input from user and save it in the lhs object
+// If the object is in STA mode, load the input on the istack, remove the object descriptor and save the value address
+// Leaves the input result available on the istack
 int sol_rd( Value* args )
 {
+	int env_offset = args[0].i_val;
+	int oid = args[1].i_val;
+	char* format = args[2].s_val;
+
+	byte* input = userInput( format );
+
+	Odescr* lhs = astack[ ap - 1 - env_offset ]->objects[ oid ];
+
+	if( lhs->mode = EMB )
+		lhs->inst.emb_val = input;
+	else
+	{
+		lhs->inst.sta_val = ip;
+		push_bytearray( input );
+		pop_ostack();
+	}
+
+	push_bytearray( input );
+
 	return 0;
 }
 
-// TODO implement
+// Same as rd but from file (ignore format?)
+// Leaves the input result available on the istack
 int sol_frd( Value* args )
 {
+	int env_offset = args[0].i_val;
+	int oid = args[1].i_val;
+	char* format = args[2].s_val;
+
+	char* filename = pop_string();
+
+	byte* input = fileInput( filename );
+
+	Odescr* lhs = astack[ ap - 1 - env_offset ]->objects[ oid ];
+
+	if( lhs->mode = EMB )
+		lhs->inst.emb_val = input;
+	else
+	{
+		lhs->inst.sta_val = ip;
+		push_bytearray( input );
+		pop_ostack();
+	}
+
+	push_bytearray( input );
+
 	return 0;
 }
 
-// TODO implement
-int sol_toint( Value* args )
+// From real to int
+int sol_toint()
 {
+	float value = pop_real();
+	
+	push_int( (int) value );
+
 	return 0;
 }
 
-// TODO implement
-int sol_toreal( Value* args )
+// From int to real
+int sol_toreal()
 {
+	int value = pop_int();
+
+	push_real( (float) value );
+
 	return 0;
 }
 
-// TODO implement
+// RD, FRD, WR, FWR but without leaving the value on the stack
 int sol_read( Value* args )
 {
+	int env_offset = args[0].i_val;
+	int oid = args[1].i_val;
+	char* format = args[2].s_val;
+
+	byte* input = userInput( format );
+
+	Odescr* lhs = astack[ ap - 1 - env_offset ]->objects[ oid ];
+
+	if( lhs->mode = EMB )
+		lhs->inst.emb_val = input;
+	else
+	{
+		lhs->inst.sta_val = ip;
+		push_bytearray( input );
+		pop_ostack();
+	}
+
 	return 0;
 }
 
-// TODO implement
 int sol_fread( Value* args )
 {
+	int env_offset = args[0].i_val;
+	int oid = args[1].i_val;
+	char* format = args[2].s_val;
+
+	char* filename = pop_string();
+
+	byte* input = fileInput( filename );
+
+	Odescr* lhs = astack[ ap - 1 - env_offset ]->objects[ oid ];
+
+	if( lhs->mode = EMB )
+		lhs->inst.emb_val = input;
+	else
+	{
+		lhs->inst.sta_val = ip;
+		push_bytearray( input );
+		pop_ostack();
+	}
+
 	return 0;
 }
 
-// TODO implement
 int sol_write( Value* args )
 {
+	char* format = args[0].s_val;
+
+	byte* expr = pop_bytearray();
+
+	userOutput( format, expr );
+
 	return 0;
 }
 
-// TODO implement
 int sol_fwrite( Value* args )
 {
+	char* format = args[0].s_val;
+
+	char* filename = pop_string();
+	byte* expr = pop_bytearray();
+
+	fileOutput( filename, expr );
+
 	return 0;
 }
 
-// TODO implement
+// Nothing to do?
+// Can't create an Odescr because, otherwise, the oid direct addressing would fail (functions are referred to with a different count)
 int sol_func( Value* args )
 {
+	int fid = args[0].i_val;
+
 	return 0;
 }
 
-// TODO implement
-int sol_return( Value* args )
+// Jump to the pop instruction
+int sol_return()
 {
-	return 0;
-}
+	pc = astack[ ap - 1 ]->raddr - 1;
 
-// TODO implement
-int sol_scode( Value* args )
-{
-	return 0;
-}
-
-// TODO implement
-int sol_halt( Value* args )
-{
 	return 0;
 }
 
 int sol_noop()
 {
 	return 0;
-}
-
-char* get_filename_extension( char* filename )
-{
-    char *dot = strrchr( filename, '.' );
-    
-	if( !dot || dot == filename )
-		return "";
-
-	return dot + 1;
 }

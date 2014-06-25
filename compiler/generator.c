@@ -479,6 +479,8 @@ Code generate_code( Node* node )
 					// TODO Find a way to avoid to duplicate the base function.
 					stacklist_push( &scope, (stacklist_t) func_scope );
 					current_node = current_node->brother;
+
+					Code entry_code = empty_code();
 					
 					// If PAR_LIST is missing, current_node will be the domain
 					// node, better to check also the type to avoid collisions
@@ -486,7 +488,7 @@ Code generate_code( Node* node )
 					if( current_node->type == T_UNQUALIFIED_NONTERMINAL
 						&& current_node->value.n_val == N_PAR_LIST )
 					{
-						result = append_code( result, generate_code( current_node ) );
+						entry_code = append_code( entry_code, generate_code( current_node ) );
 						current_node = current_node->brother;
 					}
 					// Skip the return type
@@ -498,19 +500,19 @@ Code generate_code( Node* node )
 					
 					if( current_node->value.n_val == N_VAR_SECT )
 					{
-						result = append_code( result, generate_code( current_node ) );
+						entry_code = append_code( entry_code, generate_code( current_node ) );
 						current_node = current_node->brother;
 					}
 					
 					if( current_node->value.n_val == N_CONST_SECT )
 					{
-						result = append_code( result, generate_code( current_node ) );
+						entry_code = append_code( entry_code, generate_code( current_node ) );
 						current_node = current_node->brother;
 					}
 
 					Node* function_list = NULL;
 
-					// The FUNC_LIST processing is done after the body, so that I know what the body.head address is
+					// The FUNC_LIST processing is done after the body
 					if( current_node->value.n_val == N_FUNC_LIST )
 					{
 						function_list = current_node;
@@ -518,12 +520,9 @@ Code generate_code( Node* node )
 						current_node = current_node->brother;
 					}
 					
-					Code body_code = generate_code( current_node );
-
-					result = append_code( result, body_code );
+					entry_code = append_code( entry_code, generate_code( current_node ) );
 
 					// Create new entry in func_map with the function's oid as key
-					// FIXME derive length correctly
 					char key[ MAX_INT_LEN ];
 					sprintf( key, "%d", func_scope->oid );
 
@@ -531,9 +530,11 @@ Code generate_code( Node* node )
 
 					description->size = hashmap_length( func_scope->locenv );
 					description->scope = func_scope->nesting;
-					description->entry = body_code.head->address;
+					description->entry = entry_code.head->address;
 					
 					hashmap_put( func_map, key, description );
+
+					result = append_code( result, entry_code );
 					
 					if( function_list != NULL )
 					{

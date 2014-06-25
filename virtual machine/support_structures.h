@@ -56,7 +56,7 @@ typedef struct
 	int obj_number;
 	// Pointer to the first object of the activation record in object_stack
 	Odescr* objects;
-	// Address of the return instruction of the actual activation entry
+	// Address were to return
 	int raddr;
 } Adescr;
 
