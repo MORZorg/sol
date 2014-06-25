@@ -771,7 +771,7 @@ int sol_goto( Value* args )
 	// The number of elements is given, the start point for its objects is the top of the stack (the objects will be instantiated as part of the function call, not before)
 	Adescr* function_ar = malloc( sizeof( Adescr ) );
 	function_ar->obj_number = element_number;
-	function_ar->objects = op;  // FIXME
+	function_ar->objects = ostack[ op ];
 	function_ar->raddr = pc + 1;
 
 	// Jump to the entry point (first instruction will be the definition of the formals)
@@ -815,7 +815,7 @@ int sol_rd( Value* args )
 
 	ByteArray input = userInput( format );
 
-	Odescr* lhs = &( astack[ ap - 1 - env_offset ]->objects[ oid ] );  // FIXME (and also the similar cases)
+	Odescr* lhs = &( astack[ ap - 1 - env_offset ]->objects[ oid ] );
 
 	if( lhs->mode = EMB )
 		lhs->inst.emb_val = input.value;
