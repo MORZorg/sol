@@ -84,6 +84,9 @@ p, li { white-space: pre-wrap; }
    <property name="text">
     <string>Open</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
   </action>
   <action name="actionCompile">
    <property name="enabled">
@@ -92,6 +95,9 @@ p, li { white-space: pre-wrap; }
    <property name="text">
     <string>Compile</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+D</string>
+   </property>
   </action>
   <action name="actionRun">
    <property name="enabled">
@@ -99,6 +105,9 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="text">
     <string>Run</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+R</string>
    </property>
   </action>
  </widget>

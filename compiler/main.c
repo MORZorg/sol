@@ -3,7 +3,7 @@
 #ifdef LEXER
 
 #include "parser.h"
-#include "../../libs/hashmap.h"
+#include "../libs/hashmap.h"
 
 extern int yylex();
 extern char* yytext;

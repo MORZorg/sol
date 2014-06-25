@@ -1,8 +1,8 @@
-LIBS_DIR=../../libs
+LIBS_DIR=../libs
 
 solc: main.c lexer.o parser.o analyser.o generator.o $(LIBS_DIR)/hashmap.o $(LIBS_DIR)/stacklist.o tree_print.o
 	$(CC) -o $@ $^
-	cp $@ ../../virtual\ machine/$@
+	cp $@ ../virtual\ machine/$@
 
 lexer.o: lexer.c parser.h def.h
 	$(CC) -g -c $<

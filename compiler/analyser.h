@@ -2,8 +2,8 @@
 #define __ANALYSER_H__
 
 #include "def.h"
-#include "../../libs/hashmap.h"
-#include "../../libs/stacklist.h"
+#include "../libs/hashmap.h"
+#include "../libs/stacklist.h"
 
 #define SEM_OK 0
 #define SEM_ERROR -1

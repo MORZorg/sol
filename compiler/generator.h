@@ -6,7 +6,7 @@
 
 #include "def.h"
 #include "analyser.h"
-#include "../../libs/stacklist.h"
+#include "../libs/stacklist.h"
 
 #define INTERMEDIATE_CODE_EXTENSION ".ohana"
 
