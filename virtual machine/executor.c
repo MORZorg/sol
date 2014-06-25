@@ -888,11 +888,7 @@ int sol_fread( Value* args )
 
 int sol_write( Value* args )
 {
-	char* format = args[ 0 ].s_val;
-
-	ByteArray expr = pop_bytearray();
-
-	userOutput( format, expr );
+	userOutput( args[ 0 ].s_val, pop_bytearray() );
 
 	return MEM_OK;
 }
