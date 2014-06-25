@@ -7,9 +7,7 @@ func game_of_life( name: string; ) : int
 
 	var		world: grid;
 
-
 	const	summary: string = "Welcome to ORZ's Conway's Game of Life!";
-
 
 	-- Rules:
 	--   Any live cell with fewer than two live neighbours dies, as if caused by under-population.
@@ -32,8 +30,6 @@ func game_of_life( name: string; ) : int
 					for h = ( if j-1>0 then j-1 else 0 endif ) to ( if j+1<100 then j+1 else 100 endif ) do
 						if world[ k ][ h ] then
 							neighbours = neighbours + 1;
-						else
-							neighbours = neighbours;
 						endif;
 					endfor;
 				endfor;

@@ -178,7 +178,7 @@ Code generate_code( Node* node )
 					// If true, surpass the ldc setting the result to false and go to the one which sets it as true
 					result = append_code( result, make_code_one_param( SOL_JMP, 2 ) );
 					// False ldc
-					result = append_code( result, make_code_one_param( SOL_LDC, 0 ) );
+					result = append_code( result, make_ldc( "0" ) );
 					// The result is now on top of the stack (hopefully, if Lamperti is right)
 					break;
 
@@ -188,7 +188,7 @@ Code generate_code( Node* node )
 					// If expr1 is false, jump to expr2 evaluation
 					result = append_code( result, make_code_one_param( SOL_JMF, 3 ) );
 					// Else load true and jump after expr2 evaluation
-					result = append_code( result, make_code_one_param( SOL_LDC, 1 ) );
+					result = append_code( result, make_ldc( "1" ) );
 					result = append_code( result, make_code_one_param( SOL_JMP, expr2.size + 1 ) );
 					// Expr2 evaluation
 					result = append_code( result, expr2 );
@@ -1163,7 +1163,7 @@ Code generate_lhs_code( Node* node, Schema** id_schema, Boolean is_assigned )
 							}
 
 							result = append_code( result,
-												  make_code_one_param( op, schema_size( array_schema ) ) );
+												  make_code_one_param( op, schema_size( array_schema->child ) ) );
 						}
 					}
 					else
