@@ -237,13 +237,13 @@ read_stat : READ specifier_opt ID { $$ = new_terminal_node( T_ID, lexval ); }
 		    {
 				$$ = new_nonterminal_node( N_READ_STAT );
 
-                if( $2 == NULL )
-                    $$->child = $4;
-                else
-                {
-                    $$->child = $2;
-                    $$->child->brother = $4;
-                }
+				if( $2 == NULL )
+					$$->child = $4;
+				else
+				{
+					$$->child = $2;
+					$$->child->brother = $4;
+				}
 			}
           ;
 
