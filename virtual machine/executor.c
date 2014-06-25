@@ -817,7 +817,7 @@ int sol_rd( Value* args )
 
 	Odescr* lhs = &( astack[ ap - 1 - env_offset ]->objects[ oid ] );
 
-	if( lhs->mode = EMB )
+	if( lhs->mode == EMB )
 		lhs->inst.emb_val = input.value;
 	else
 	{
@@ -845,7 +845,7 @@ int sol_frd( Value* args )
 
 	Odescr* lhs = &( astack[ ap - 1 - env_offset ]->objects[ oid ] );
 
-	if( lhs->mode = EMB )
+	if( lhs->mode == EMB )
 		lhs->inst.emb_val = input.value;
 	else
 	{
@@ -890,7 +890,7 @@ int sol_read( Value* args )
 
 	Odescr* lhs = &( astack[ ap - 1 - env_offset ]->objects[ oid ] );
 
-	if( lhs->mode = EMB )
+	if( lhs->mode == EMB )
 		lhs->inst.emb_val = input.value;
 	else
 	{
@@ -914,7 +914,7 @@ int sol_fread( Value* args )
 
 	Odescr* lhs = &( astack[ ap - 1 - env_offset ]->objects[ oid ] );
 
-	if( lhs->mode = EMB )
+	if( lhs->mode == EMB )
 		lhs->inst.emb_val = input.value;
 	else
 	{
