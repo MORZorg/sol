@@ -8,6 +8,9 @@ from PyQt4 import QtCore, QtGui, uic
 
 
 class DataDialog(QtGui.QDialog):
+    """
+    Generic dialog to ask for/show data based on a given schema.
+    """
 
     def __init__(self, schema, editable):
         QtGui.QDialog.__init__(self)
@@ -24,6 +27,9 @@ class DataDialog(QtGui.QDialog):
 
     @staticmethod
     def resolveSchema(schema, nesting=0, editable=True):
+        """
+        Transforms a string schema into a widget (or series of nested widgets)
+        """
         if len(schema) == 0:
             raise IndexError()
 
@@ -54,24 +60,34 @@ class DataDialog(QtGui.QDialog):
             return DataDialog.resolveSchema(schema, nesting, editable)
 
     @staticmethod
-    def decryptString(schema, terminator):
+    def decryptString(stringDeque, terminator):
+        """
+        Reads a string from a deque of characters, until the terminator (single
+        value or list of values) is found.
+        """
         if terminator is not tuple:
             terminator = (terminator)
 
         result = ""
-        character = schema.popleft()
+        character = stringDeque.popleft()
         while character not in terminator:
             result += character
-            character = schema.popleft()
+            character = stringDeque.popleft()
 
         return result
 
     def show(self, data=None):
+        """
+        Shows the dialog, eventually filling its widgets with the given data.
+        """
         if data is not None:
             self.ui.widgetSchema.setData(data)
         QtGui.QDialog.show(self)
 
     def retrieveData(self):
+        """
+        Retrieves the data from the dialog, called when pressing the OK button.
+        """
         self.data = self.ui.widgetSchema.getData()
 
 
@@ -88,6 +104,9 @@ class InputDialog(DataDialog):
 
 
 class DataWidget(QtGui.QWidget):
+    """
+    Generic widget to be implemented for each type.
+    """
 
     def __init__(self):
         QtGui.QWidget.__init__(self)
@@ -102,8 +121,6 @@ class DataWidget(QtGui.QWidget):
 
     def setData(self, data):
         self.ui.inputBox.setText(str(data))
-        # self.ui.inputBox.setText(
-        #     DataDialog.decryptString(data, (",", "]", ")")))
 
     def getData(self):
         return list(str(self.ui.inputBox.text()))
@@ -272,6 +289,11 @@ class StructWidget(DataWidget):
 
 
 class NestedWidget(DataWidget):
+    """
+    For types which are too nested, a nested widget is used.
+    This just shows as a button which, when clicked, displays a new dialog
+    related to just a subpart of the schema.
+    """
 
     def __init__(self, schema, editable=True):
         DataWidget.__init__(self)
@@ -291,11 +313,29 @@ class NestedWidget(DataWidget):
         self.data = deque(data)
         self.dataDialog.widgetSchema.setData(data)
 
-    # Not the top of the usability, but it works...
     def getData(self):
         if self.data is None:
+            # Not the top of the usability, but it works...
             self.showWindow()
             if self.dataDialog.exec_():
                 self.setData(self.dataDialog.data)
 
         return self.data
+
+
+def requestInput(textualSchema):
+    """
+    External function to ask for data.
+    """
+    inputDialog = InputDialog(deque(textualSchema))
+    inputDialog.show()
+    if inputDialog.exec_():
+        return inputDialog.data  # "".join(inputDialog.data)
+
+
+def requestOutput(textualSchema, data):
+    """
+    External function to request data.
+    """
+    outputDialog = OutputDialog(deque(textualSchema))
+    outputDialog.show(deque(data))

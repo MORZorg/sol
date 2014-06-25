@@ -2,13 +2,11 @@
 
 import sys
 import os
-from collections import deque
 from subprocess import Popen, PIPE
 
 from PyQt4 import QtCore, QtGui, uic
 
-# Debug only
-from interface import InputDialog, OutputDialog
+from interface import requestInput, requestOutput
 
 
 class MainWindow(QtGui.QMainWindow):
@@ -30,12 +28,19 @@ class MainWindow(QtGui.QMainWindow):
         self.ui.actionRun.triggered.connect(self.run)
 
         # Debug
-        self.ui.inputButton.clicked.connect(self.requestInput)
+        self.ui.inputButton.clicked \
+            .connect(lambda: requestInput(str(self.ui.debugText.text())))
         self.ui.outputButton.clicked \
-            .connect(lambda: self.requestOutput(str(self.ui.debugData.text())))
+            .connect(lambda: requestOutput(str(self.ui.debugText.text()),
+                                           str(self.ui.debugData.text())))
 
     @QtCore.pyqtSlot()
     def open(self):
+        """
+        Opens the "Open file" window asking either for a source or a compiled
+        file
+        """
+
         fileName = QtGui.QFileDialog.getOpenFileName(
             self,
             "Open file",
@@ -62,7 +67,12 @@ class MainWindow(QtGui.QMainWindow):
 
     @QtCore.pyqtSlot()
     def compile(self):
-        proc = Popen([self.EXE_COMPILER, "{}{}".format(self.fileName, self.EXT_SOURCE)],
+        """
+        Calls the compiler on the loaded file (supposing it has the usual
+        extension)
+        """
+        proc = Popen([self.EXE_COMPILER, "{}{}".format(self.fileName,
+                                                       self.EXT_SOURCE)],
                      stdout=PIPE)
         output, _ = proc.communicate()
         self.ui.outputText.append(output)
@@ -74,26 +84,20 @@ class MainWindow(QtGui.QMainWindow):
 
     @QtCore.pyqtSlot()
     def run(self):
-        proc = Popen([self.EXE_VM, "{}{}".format(self.fileName, self.EXT_SCODE)],
+        """
+        Calls the virtual machine on the loaded file (supposing it has the
+        usual extension)
+        """
+        proc = Popen([self.EXE_VM, "{}{}".format(self.fileName,
+                                                 self.EXT_SCODE)],
                      stdout=PIPE)
         # TODO Iterative output (or no output in the vm?)
         output, _ = proc.communicate()
 
         self.ui.outputText.append(output)
 
-    @QtCore.pyqtSlot()
-    def requestInput(self):
-        inputDialog = InputDialog(deque(str(self.ui.debugText.text())))
-        inputDialog.show()
-        if inputDialog.exec_():
-            print inputDialog.data  # "".join(inputDialog.data)
 
-    @QtCore.pyqtSlot()
-    def requestOutput(self, data):
-        outputDialog = OutputDialog(deque(str(self.ui.debugText.text())))
-        outputDialog.show(deque(data))
-
-
-app = QtGui.QApplication(sys.argv)
-MainWindow().show()
-sys.exit(app.exec_())
+if __name__ == '__main__':
+    app = QtGui.QApplication(sys.argv)
+    MainWindow().show()
+    sys.exit(app.exec_())
