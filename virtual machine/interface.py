@@ -335,7 +335,7 @@ def requestInput(textualSchema):
 
 def requestOutput(textualSchema, data):
     """
-    External function to request data.
+    External function to show data.
     """
     outputDialog = OutputDialog(deque(textualSchema))
     outputDialog.show(deque(data))

@@ -28,6 +28,9 @@ parser.o: parser.c def.h
 parser.h: parser.y def.h
 	bison -vd -o parser.c $<
 
+dataIO.o: dataIO.c dataIO.h
+	$(CC) -I/usr/include/python2.7 -g -c $<
+
 .PHONY : clean
 clean:
 	rm -f \
