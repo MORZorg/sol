@@ -9,6 +9,32 @@ extern char* CODE_OPERATORS[];
 
 FILE* yyin;
 
+/*
+ * PRIVATE FUNCTION
+ */
+
+Stat* new_stat( Operator op )
+{
+	Stat* result = malloc( sizeof( Stat ) );
+	result->address = 0;
+	result->op = op;
+	result->next = NULL;
+
+	return result;
+}
+
+/*
+ * PUBLIC FUNCTIONS
+ */
+
+/**
+ * @brief Function that starts the code generation
+ *
+ * @param input Input file where we will read every statement
+ * @param output Output code file
+ *
+ * @return Returns 0 if all is done correctly.
+ */
 int yygen( FILE* input, FILE* output )
 {
 	yyin = input;
@@ -34,6 +60,13 @@ int yygen( FILE* input, FILE* output )
 	return 0;
 }
 
+/**
+ * @brief Function that generates the initial part of the generated code
+ *
+ * @param base_function The symbol that represents the first function of the program
+ *
+ * @return Returns the generated code
+ */
 Code generate_intro_code( Symbol* base_function )
 {
 	Code result = empty_code();
@@ -57,6 +90,13 @@ Code generate_intro_code( Symbol* base_function )
 	return result;
 }
 
+/**
+ * @brief Function that, given a node of the program, generates the corresponding S-code.
+ *
+ * @param node Node to be processed
+ *
+ * @return Returns the generated code
+ */
 Code generate_code( Node* node )
 {
 	Code result = empty_code();
@@ -985,6 +1025,7 @@ Code generate_code( Node* node )
 				case N_INDEXING:
 					result = generate_lhs_code( node, NULL, FALSE );
 					break;
+
 				default:
 					break;
 			}
@@ -1145,12 +1186,23 @@ Code generate_lhs_code( Node* node, Schema** id_schema, Boolean is_assigned )
 	return result;
 }
 
+/**
+ * @brief Creates an empty code object, used to start a new code part.
+ *
+ * @return The empty code generated
+ */
 Code empty_code( void )
 {
 	static Code code = { NULL, 0, NULL };
 	return code;
 }
 
+/**
+ * @brief Given a specific code, it translates the address of every pieces of code by the given offset.
+ *
+ * @param code
+ * @param offset
+ */
 void relocate_address( Code code, int offset )
 {
 	if( offset == 0 )
@@ -1163,6 +1215,14 @@ void relocate_address( Code code, int offset )
 		current_stat->address += offset;
 }
 
+/**
+ * @brief Appends two code in a unique code part.
+ *
+ * @param first
+ * @param second
+ *
+ * @return A single code object with the two given code parameters appended each other.
+ */
 Code append_code( Code first, Code second )
 {
 	if( first.size == 0 )
@@ -1183,6 +1243,16 @@ Code append_code( Code first, Code second )
 	return result;
 }
 
+/**
+ * @brief Concatenates two or more code objects in a unique one.
+ *
+ * @param size The number of code objects that have to be merged together.
+ * @param code1 
+ * @param code2
+ * @param ... All the other possibile code objects.
+ *
+ * @return The resulting code.
+ */
 Code concatenate_code( int size, Code code1, Code code2, ... )
 {
 	va_list argp;
@@ -1198,16 +1268,13 @@ Code concatenate_code( int size, Code code1, Code code2, ... )
 	return result;
 }
 
-Stat* new_stat( Operator op )
-{
-	Stat* result = malloc( sizeof( Stat ) );
-	result->address = 0;
-	result->op = op;
-	result->next = NULL;
-
-	return result;
-}
-
+/**
+ * @brief Creates the code for a no param code instance.
+ *
+ * @param op The operator.
+ *
+ * @return The code generated for that operator.
+ */
 Code make_code_no_param( Operator op )
 {
 	Code result;
@@ -1217,6 +1284,14 @@ Code make_code_no_param( Operator op )
 	return result;
 }
 
+/**
+ * @brief Creates the code for a one integer parameter S-code statement.
+ *
+ * @param op 
+ * @param arg The argument must be an integer.
+ *
+ * @return 
+ */
 Code make_code_one_param( Operator op, int arg )
 {
 	Code result = make_code_no_param( op );
@@ -1225,6 +1300,15 @@ Code make_code_one_param( Operator op, int arg )
 	return result;
 }
 
+/**
+ * @brief Creates the code for a two integer parameters S-code parameter.
+ *
+ * @param op
+ * @param arg1 This argument must be an integer.
+ * @param arg2 This argument must be an integer.
+ *
+ * @return 
+ */
 Code make_code_two_param( Operator op, int arg1, int arg2 )
 {
 	Code result = make_code_no_param( op );
@@ -1234,31 +1318,14 @@ Code make_code_two_param( Operator op, int arg1, int arg2 )
 	return result;
 }
 
-// TODO Remove if not used
-Code make_code_one_param_proper( Operator op, Value arg )
-{
-	Code result = make_code_no_param( op );
-
-	result.head->args[ 0 ].i_val = arg.i_val;
-	result.head->args[ 0 ].s_val = arg.s_val;
-
-	return result;
-}
-
-// TODO Remove if not used
-Code make_code_two_param_proper( Operator op, Value arg1, Value arg2 )
-{
-	Code result = make_code_no_param( op );
-
-	result.head->args[ 0 ].i_val = arg1.i_val;
-	result.head->args[ 0 ].s_val = arg1.s_val;
-
-	result.head->args[ 1 ].i_val = arg2.i_val;
-	result.head->args[ 1 ].s_val = arg2.s_val;
-
-	return result;
-}
-
+/**
+ * @brief Creates the code for a one string parameter S-code statement.
+ *
+ * @param op S-code operator.
+ * @param arg1 String argument.
+ *
+ * @return Returns the generated code.
+ */
 Code make_code_string_param( Operator op, char* arg1 )
 {
 	Code result = make_code_no_param( op );
@@ -1268,6 +1335,15 @@ Code make_code_string_param( Operator op, char* arg1 )
 	return result;
 }
 
+/**
+ * @brief 
+ *
+ * @param size
+ * @param chain
+ * @param entry
+ *
+ * @return 
+ */
 Code make_push_pop( int size, int chain, int entry )
 {
 	return concatenate_code( 3,
@@ -1276,6 +1352,13 @@ Code make_push_pop( int size, int chain, int entry )
 							 make_code_no_param( SOL_POP ) );
 }
 
+/**
+ * @brief Creates the LDC S-code statement.
+ *
+ * @param a_char 
+ *
+ * @return 
+ */
 Code make_ldc( char* a_char )
 {
 	Code result;
@@ -1285,6 +1368,13 @@ Code make_ldc( char* a_char )
 	return result;
 }
 
+/**
+ * @brief Creates the LDI S-code statement.
+ *
+ * @param an_int
+ *
+ * @return 
+ */
 Code make_ldi( int an_int )
 {
 	Code result;
@@ -1294,6 +1384,13 @@ Code make_ldi( int an_int )
 	return result;
 }
 
+/**
+ * @brief Creates the LDR S-code statement. 
+ *
+ * @param a_real
+ *
+ * @return 
+ */
 Code make_ldr( float a_real )
 {
 	Code result;
@@ -1303,6 +1400,13 @@ Code make_ldr( float a_real )
 	return result;
 }
 
+/**
+ * @brief Creates the LDS S-code statement. 
+ *
+ * @param a_string
+ *
+ * @return 
+ */
 Code make_lds( char* a_string )
 {
 	Code result;
@@ -1312,6 +1416,13 @@ Code make_lds( char* a_string )
 	return result;
 }
 
+/**
+ * @brief Creates the S-code corresponding to a variable declaration, knowing its schema.
+ *
+ * @param a_schema
+ *
+ * @return 
+ */
 Code make_decl( Schema* a_schema )
 {
 	Operator op;
@@ -1330,6 +1441,13 @@ Code make_decl( Schema* a_schema )
 	return make_code_one_param( op, schema_size( a_schema ) );
 }
 
+/**
+ * @brief Calculates the size of the given schema. Works also on structured schemas.
+ *
+ * @param a_schema
+ *
+ * @return Returns a size_t value of the given schema.
+ */
 size_t schema_size( Schema* a_schema )
 {
 	switch( a_schema->type )
@@ -1369,6 +1487,13 @@ size_t schema_size( Schema* a_schema )
 	}
 }
 
+/**
+ * @brief Creates a string based on the given schema, indicating how it is made.
+ *
+ * @param a_schema
+ *
+ * @return Returns a string that describes the given schema.
+ */
 char* schema_to_string( Schema* a_schema )
 {
 	switch( a_schema->type )
@@ -1423,6 +1548,12 @@ char* schema_to_string( Schema* a_schema )
 	}
 }
 
+/**
+ * @brief Function that prints the given code in the output file received as first parameter.
+ *
+ * @param output A FILE* object that represents the output file where the code will be written.
+ * @param code The code to print.
+ */
 void output_code( FILE* output, Code code )
 {
 	code = append_code( make_code_one_param( SOL_SCODE, code.size ), code );
@@ -1502,3 +1633,4 @@ void output_code( FILE* output, Code code )
 				break;
 		}
 }
+

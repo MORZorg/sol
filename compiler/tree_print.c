@@ -184,6 +184,15 @@ const char* CODE_OPERATORS[] =
 
 const char* SPACING = "  ";
 
+/*
+ * PRIVATE FUNCTIONS
+ */
+
+/**
+ * @brief Private functions used to indent the syntax tree, so it will be more clear to read.
+ *
+ * @param indent The number of indentation to print, based on the SPACING constant.
+ */
 void print_indent( int indent )
 {
 	int i;
@@ -191,6 +200,31 @@ void print_indent( int indent )
 		printf( "%s", SPACING );
 }
 
+/**
+ * @brief Private function used to print the hashmap elements.
+ *
+ * @param indent Indicates the number of indentation needed to print the hashmap elements.
+ * @param root The hashmap itself.
+ * @note Both arguments must be any_t type, as requested from the hashmap library.
+ * 
+ * @return Returns MAP_OK, indicating that all is done correctly.
+ */
+int table_print_hashmap( any_t indent, any_t root )
+{
+	table_print( (Symbol*) root, *(int*) indent );
+	return MAP_OK;
+}
+
+/*
+ * PUBLIC FUNCTIONS
+ */
+
+/**
+ * @brief Function that prints a node and all its descendancy.
+ *
+ * @param root The starting node to be printed.
+ * @param indent The number of indentation to print for this node.
+ */
 void tree_print( Node* root, int indent )
 {
 	Node* p;
@@ -241,12 +275,12 @@ void tree_print( Node* root, int indent )
 		tree_print( p, indent + 1 );
 }
 
-int table_print_hashmap( any_t indent, any_t root )
-{
-	table_print( (Symbol*) root, *(int*) indent );
-	return MAP_OK;
-}
-
+/**
+ * @brief Function that prints the given symbol table.
+ *
+ * @param root
+ * @param indent
+ */
 void table_print( Symbol* root, int indent )
 {
 	int i;
@@ -264,6 +298,11 @@ void table_print( Symbol* root, int indent )
 	hashmap_iterate( root->locenv, table_print_hashmap, (any_t) &next_indent );
 }
 
+/**
+ * @brief Function that prints the given schema.
+ *
+ * @param root
+ */
 void schema_print( Schema* root )
 {
     printf( "%s", TABLE_TYPES[ root->type ] );
@@ -285,6 +324,11 @@ void schema_print( Schema* root )
 	}
 }
 
+/**
+ * @brief Function that prints the given code.
+ *
+ * @param code
+ */
 void code_print( Code code )
 {
 	printf( "Size: %d.\n", code.size );

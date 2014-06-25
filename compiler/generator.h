@@ -117,15 +117,13 @@ Code generate_intro_code( Symbol* );
 Code generate_code( Node* );
 Code generate_lhs_code( Node*, Schema**, Boolean );
 
+Code empty_code( void );
 void relocate_address( Code, int );
 Code append_code( Code, Code );
 Code concatenate_code( int, Code, Code, ... );
-Code empty_code( void );
 Code make_code_no_param( Operator );
 Code make_code_one_param( Operator, int );
 Code make_code_two_param( Operator, int, int );
-Code make_code_one_param_proper( Operator, Value );
-Code make_code_two_param_proper( Operator, Value, Value );
 Code make_code_string_param( Operator, char* );
 Code make_push_pop( int, int, int );
 Code make_ldc( char* );
@@ -133,12 +131,10 @@ Code make_ldi( int );
 Code make_ldr( float );
 Code make_lds( char* );
 Code make_decl( Schema* );
-void output_code( FILE*, Code );
 
 size_t schema_size( Schema* );
 char* schema_to_string( Schema* );
-
-int yygenerror( Node*, char* );
+void output_code( FILE*, Code );
 
 map_t func_map; // Parameters needed by function call
 

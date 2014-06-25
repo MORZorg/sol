@@ -50,21 +50,20 @@ typedef struct symtab
 	struct symtab** formals;
 } Symbol;
 
-// TODO Resort (at least to be coherent with the .c file)
 int yysem();
 Symbol* check_function_subtree( Node*, int );
 Symbol* create_symbol_table_element( Node*, int* );
+void analyse_decl_list( Node*, int*, ClassSymbol, Boolean hasAssignment );
+int associate_formals_parameters( Node*, Symbol* );
 Schema* create_schema( Node* );
 Schema* create_schema_attribute( Node* );
-Symbol* fetch_scope( char* );
-void analyse_decl_list( Node*, int*, ClassSymbol, Boolean hasAssignment );
 Boolean simplify_expression( Node* );
-Boolean insert_unconflicted_element( Symbol* );
-int associate_formals_parameters( Node*, Symbol* );
 Schema* infere_expression_schema( Node* );
 Schema* infere_lhs_schema( Node*, Boolean );
 Boolean schema_check( Schema*, Schema* );
 Boolean type_check( Node* );
+Symbol* fetch_scope( char* );
+Boolean insert_unconflicted_element( Symbol* );
 
 int yysemerror( Node*, char* );
 
