@@ -9,11 +9,21 @@
 
 #ifdef MACHINE
 
+#include "def.h"
 #include "executor.h"
+
+extern int yyparse();
+extern Stat* program;
+extern int program_size;
 
 int main( int argc, char** argv )
 {
-	fprintf( stdout, "I want to do something!ノ┬─┬ノ ︵ ( \\o°o)\\\n" );
+	int result;
+
+	fprintf( stdout, "I want to do something! ノ┬─┬ノ ︵ ( \\o°o)\\\n" );
+
+	if( ( result = yyparse() ) == 0 )
+		fprintf( stdout, "I have %d code lines to do!\n", program_size );
 
 	return 0;
 }
@@ -24,7 +34,6 @@ int main( int argc, char** argv )
 #include "def.h"
 #include "tree_print.h"
 
-extern FILE *yyin;
 extern int yyparse();
 extern Stat* program;
 extern int program_size;

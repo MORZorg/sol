@@ -1,8 +1,8 @@
 solvm: main.c
 	$(CC) -o $@ $^
 
-machine: main.c executor.o tree_print.o
-	$(CC) -g -o $@ $< -DMACHINE
+machine: main.c def.h executor.o support_structures.o parser.o lexer.o
+	$(CC) -g -o $@ $^ -DMACHINE
 
 executor.o: executor.c executor.h support_structures.o
 	$(CC) -g -c $<
