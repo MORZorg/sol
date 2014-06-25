@@ -5,9 +5,9 @@
 
 #include "support_structures.h"
 
-const char* PYTHON_MODULE_NAME = "interface";
-const char* PYTHON_REQUEST_INPUT_NAME = "requestInput";
-const char* PYTHON_REQUEST_OUTPUT_NAME = "requestOutput";
+#define PYTHON_MODULE_NAME "interface"
+#define PYTHON_REQUEST_INPUT_NAME "requestInput"
+#define PYTHON_REQUEST_OUTPUT_NAME "requestOutput"
 
 /**
  * @brief Asks the user for data.

@@ -14,7 +14,7 @@ int yyvm( Stat* statements )
 	while( statements[pc++].op != SOL_HALT )
 	{
 		execute( statements[pc] );
-		printf( "%s\n", statements[pc].op );
+		printf( "%d\n", statements[pc].op );
 	}
 
 	return 0;
