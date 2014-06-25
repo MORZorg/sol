@@ -1,7 +1,7 @@
 solvm: main.c
 	$(CC) -o $@ $^
 
-machine: main.c def.h executor.o support_structures.o parser.o lexer.o
+machine: main.c executor.o support_structures.o parser.o lexer.o
 	$(CC) -g -o $@ $^ -DMACHINE
 
 executor.o: executor.c executor.h support_structures.o
