@@ -4,8 +4,8 @@ solvm: main.c
 machine: main.c executor.o support_structures.o parser.o lexer.o
 	$(CC) -g -o $@ $^ -DMACHINE
 
-executor.o: executor.c executor.h support_structures.o
-	$(CC) -g -c $<
+executor.o: executor.c executor.h support_structures.o dataIO.o
+	$(CC) -I/usr/include/python2.7 -g -c $<
 
 support_structures.o: support_structures.c support_structures.h def.h
 	$(CC) -g -c $<
