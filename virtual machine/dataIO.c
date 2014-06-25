@@ -2,6 +2,17 @@
 
 ByteArray userInput(char* schema)
 {
+	Py_Initialize();
+
+	char *path, *new_path;
+	char* added_path = ":/usr/local/lib/python2.7/site-packages:.";
+	path = Py_GetPath();
+	new_path = malloc(sizeof(char) * (strlen(path) + strlen(added_path) + 2));
+	strcpy(new_path, path);
+	strcat(new_path, added_path);  // ":." for unix, or ";." for windows
+	PySys_SetPath(new_path);
+	free(new_path);
+
 	PyObject* gui_module = PyImport_Import(PyString_FromString(PYTHON_MODULE_NAME));
 	PyObject* gui_function = PyObject_GetAttrString(gui_module,
 													PYTHON_REQUEST_INPUT_NAME);
@@ -12,12 +23,29 @@ ByteArray userInput(char* schema)
 		PyObject_CallObject(gui_function, gui_args),
 		&result.value,
 		&result.size);
+
+	Py_Finalize();
+
 	return result;
 }
 
 void userOutput(char* schema, ByteArray data)
 {
+	Py_Initialize();
+	
+	char *path, *new_path;
+	char* added_path = ":/usr/local/lib/python2.7/site-packages:.";
+	path = Py_GetPath();
+	new_path = malloc(sizeof(char) * (strlen(path) + strlen(added_path) + 2));
+	strcpy(new_path, path);
+	strcat(new_path, added_path);  // ":." for unix, or ";." for windows
+	PySys_SetPath(new_path);
+	free(new_path);
+
+	PyObject* gui_name = PyString_FromString(PYTHON_MODULE_NAME);
 	PyObject* gui_module = PyImport_Import(PyString_FromString(PYTHON_MODULE_NAME));
+	Py_DECREF(gui_name);
+
 	PyObject* gui_function = PyObject_GetAttrString(gui_module,
 													PYTHON_REQUEST_OUTPUT_NAME);
 	PyObject* gui_args =
@@ -26,6 +54,8 @@ void userOutput(char* schema, ByteArray data)
 					 PyString_FromStringAndSize(data.value, data.size));
 
 	PyObject_CallObject(gui_function, gui_args);
+
+	Py_Finalize();
 }
 
 ByteArray fileInput(char* filename)

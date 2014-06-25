@@ -11,17 +11,13 @@ int initialize_stacks()
 {
 	pc = ap = op = ip = 0;
 
-	Adescr* first_activation = malloc( ASTACK_UNIT );
-	astack = &first_activation;
-
-	Odescr* first_object = malloc( OSTACK_UNIT );
-	ostack = &first_object;
-
+	astack = malloc( ASTACK_UNIT );
+	ostack = malloc( OSTACK_UNIT );
 	istack = malloc( ISTACK_UNIT );
 	
-	asize = ASTACK_UNIT;
-	osize = OSTACK_UNIT;
-	isize = ISTACK_UNIT;
+	asize = 1;
+	osize = 1;
+	isize = 1;
 
 	return MEM_OK;
 }
@@ -34,25 +30,13 @@ byte top_istack()
 
 void pop_istack()
 {
-	free( &( istack[ --ip ] ) );
+	--ip;
 }
 
 void push_istack( byte value )
 {
 	if( ip == isize )
-	{
-		byte* old_istack = istack;
-
-		istack = malloc( ISTACK_UNIT * ( isize + 1 ) );
-
-		int i;
-		for( i = 0; i < isize; i++ )
-			istack[i] = old_istack[i];
-
-		isize += ISTACK_UNIT;
-		
-		free( old_istack );
-	}
+		istack = realloc( istack, ISTACK_UNIT * ++isize );
 
 	istack[ ip++ ] = value;
 }
@@ -66,6 +50,7 @@ ByteArray pop_bytearray()
 
 	ByteArray result;
     result.value = malloc( sizeof( byte ) * object->size );
+	result.size = object->size;
 
 	int i = object->size - 1;
 	do
@@ -89,7 +74,7 @@ void push_bytearray( byte* value, int size )
 	}
 	while( ++i < size );
 
-	Odescr* object;
+	Odescr* object = malloc( sizeof( Odescr ) );
 	object->mode = STA;
 	object->size = size;
 	object->inst.sta_val = ip - size;
@@ -101,14 +86,16 @@ int pop_int()
 {
 	byte* object = pop_bytearray().value;
 
-	int i = 0;
 	int value = 0;
 
-	do
-	{
-		value += (int) ( ( object[ i ] << ( i * 8 ) ) & 0xFF );
-	}
-	while( ++i < sizeof( int ) );
+	// FIXME Conversion for SIGNED integers
+	/* int i = 0; */
+	/* do */
+	/* { */
+	/* 	value += ( ( object[ i ] << ( i * 8 ) ) & 0xFF ); */
+	/* } */
+	/* while( ++i < sizeof( int ) ); */
+	memcpy( &value, object, sizeof( value ) );
 
 	return value;
 }
@@ -117,13 +104,14 @@ void push_int( int value )
 {
 	byte object[ sizeof( int ) ];
 
-	int i = 0;
-
-	do
-	{
-		object[ i ] = ( value >> ( i * 8 ) ) & 0xFF;
-	}
-	while( ++i < sizeof( int ) );
+	// FIXME Conversion for SIGNED integers
+	/* int i = 0; */
+	/* do */
+	/* { */
+	/* 	object[ i ] = ( value >> ( i * 8 ) ) & 0xFF; */
+	/* } */
+	/* while( ++i < sizeof( int ) ); */
+	memcpy( &value, object, sizeof( value ) );
 
 	push_bytearray( object, sizeof( int ) );
 }
@@ -134,7 +122,7 @@ float pop_real()
 
 	float value;
 
-	memcpy( &value, object, sizeof(value) );
+	memcpy( &value, object, sizeof( value ) );
 
 	return value;
 }
@@ -165,7 +153,7 @@ char* pop_string()
 
 void push_string( char* object )
 {
-	push_bytearray( object, strlen( object ) );
+	push_bytearray( object, strlen( object ) + 1 );
 }
 
 // Interactions with the other stacks
@@ -176,25 +164,13 @@ Odescr* top_ostack()
 
 void pop_ostack()
 {
-	free( &( ostack[ --op ] ) );
+	free( ostack[ --op ] );
 }
 
 void push_ostack( Odescr* value )
 {
 	if( op == osize )
-	{
-		Odescr** old_ostack = ostack;
-
-		ostack = malloc( OSTACK_UNIT * ( osize + 1 ) );
-
-		int i;
-		for( i = 0; i < osize; i++ )
-			ostack[i] = old_ostack[i];
-
-		osize += OSTACK_UNIT;
-
-		free( old_ostack );
-	}
+		ostack = realloc( ostack, OSTACK_UNIT * ++osize );
 
 	ostack[ op++ ] = value;
 }
@@ -206,25 +182,13 @@ Adescr* top_astack()
 
 void pop_astack()
 {
-	free( &( astack[ --ap ] ) );
+	free( astack[ --ap ] );
 }
 
 void push_astack( Adescr* value )
 {
 	if( ap == asize )
-	{
-		Adescr** old_astack = astack;
-
-		astack = malloc( ASTACK_UNIT * ( asize + 1 ) );
-
-		int i;
-		for( i = 0; i < asize; i++ )
-			astack[i] = old_astack[i];
-
-		asize += ASTACK_UNIT;
-
-		free( old_astack );
-	}
+		astack = realloc( astack, ASTACK_UNIT * ++asize );
 
 	astack[ ap++ ] = value;
 }

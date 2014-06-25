@@ -7,223 +7,188 @@
  */
 #include "executor.h"
 
-int yyvm( Stat* statements )
+extern Stat* program;
+
+int yyvm()
 {
 	initialize_stacks();
 
-	while( statements[pc++].op != SOL_HALT )
+	while( program[pc].op != SOL_HALT )
 	{
-		execute( statements[pc] );
-		printf( "%d\n", statements[pc].op );
+		printf( "%d\n", program[pc].op );
+
+        int result;
+		if( ( result = execute( program[pc] ) != 0 ) )
+        {
+          printf( "Error number: %d\n", result );
+          return result;
+        }
+
+        pc++;
 	}
 
-	return 0;
+	return MEM_OK;
 }
 
-int execute( Stat* current_statement )
+int execute( Stat current_statement )
 {
-	switch( current_statement->op )
+	switch( current_statement.op )
 	{
 		case SOL_NEW:
-			sol_new( current_statement->args );
-			break;
+			return sol_new( current_statement.args );
 
 		case SOL_NEWS:
-			sol_news( current_statement->args );
-			break;
+			return sol_news( current_statement.args );
 
 		case SOL_LDC:
-			sol_ldc( current_statement->args );
-			break;
+			return sol_ldc( current_statement.args );
 
 		case SOL_LDI:
-			sol_ldi( current_statement->args );
-			break;
+			return sol_ldi( current_statement.args );
 
 		case SOL_LDR:
-			sol_ldr( current_statement->args );
-			break;
+			return sol_ldr( current_statement.args );
 
 		case SOL_LDS:
-			sol_lds( current_statement->args );
-			break;
+			return sol_lds( current_statement.args );
 
 		case SOL_LOD:
-			sol_lod( current_statement->args );
-			break;
+			return sol_lod( current_statement.args );
 
 		case SOL_CAT:
-			sol_cat( current_statement->args );
-			break;
+			return sol_cat( current_statement.args );
 
 		case SOL_LDA:
-			sol_lda( current_statement->args );
-			break;
+			return sol_lda( current_statement.args );
 
 		case SOL_FDA:
-			sol_fda( current_statement->args );
-			break;
+			return sol_fda( current_statement.args );
 
 		case SOL_EIL:
-			sol_eil( current_statement->args );
-			break;
+			return sol_eil( current_statement.args );
 
 		case SOL_SIL:
-			sol_sil( current_statement->args );
-			break;
+			return sol_sil( current_statement.args );
 
 		case SOL_IXA:
-			sol_ixa( current_statement->args );
-			break;
+			return sol_ixa( current_statement.args );
 
 		case SOL_STO:
-			sol_sto( current_statement->args );
-			break;
+			return sol_sto( current_statement.args );
 
 		case SOL_IST:
-			sol_ist();
-			break;
+			return sol_ist();
 
 		case SOL_JMF:
-			sol_jmf( current_statement->args );
-			break;
+			return sol_jmf( current_statement.args );
 
 		case SOL_JMP:
-			sol_jmp( current_statement->args );
-			break;
+			return sol_jmp( current_statement.args );
 
 		case SOL_EQU:
-			sol_equ();
-			break;
+			return sol_equ();
 
 		case SOL_NEQ:
-			sol_neq();
-			break;
+			return sol_neq();
 
 		case SOL_CGT:
 		case SOL_CGE:
 		case SOL_CLT:
 		case SOL_CLE:
-			sol_char_compare( current_statement->op );
-			break;
+			return sol_char_compare( current_statement.op );
 
 		case SOL_IGT:
 		case SOL_IGE:
 		case SOL_ILT:
 		case SOL_ILE:
-			sol_int_compare( current_statement->op );
-			break;
+			return sol_int_compare( current_statement.op );
 
 		case SOL_RGT:
 		case SOL_RGE:
 		case SOL_RLT:
 		case SOL_RLE:
-			sol_real_compare( current_statement->op );
-			break;
+			return sol_real_compare( current_statement.op );
 
 		case SOL_SGT:
 		case SOL_SGE:
 		case SOL_SLT:
 		case SOL_SLE:
-			sol_string_compare( current_statement->op );
-			break;
+			return sol_string_compare( current_statement.op );
 
 		case SOL_IN:
-			sol_in();
-			break;
+			return sol_in();
 
 		case SOL_IPLUS:
 		case SOL_IMINUS:
 		case SOL_ITIMES:
 		case SOL_IDIV:
-			sol_int_math( current_statement->op );
-			break;
+			return sol_int_math( current_statement.op );
 
 		case SOL_RPLUS:
 		case SOL_RMINUS:
 		case SOL_RTIMES:
 		case SOL_RDIV:
-			sol_real_math( current_statement->op );
-			break;
+			return sol_real_math( current_statement.op );
 
 		case SOL_IUMI:
-			sol_iumi();
-			break;
+			return sol_iumi();
 
 		case SOL_RUMI:
-			sol_rumi();
-			break;
+			return sol_rumi();
 
 		case SOL_NEG:
-			sol_neg();
-			break;
+			return sol_neg();
 
 		case SOL_WR:
-			sol_wr( current_statement->args );
-			break;
+			return sol_wr( current_statement.args );
 
 		case SOL_FWR:
-			sol_fwr( current_statement->args );
-			break;
+			return sol_fwr( current_statement.args );
 
 		case SOL_PUSH:
-			sol_push( current_statement->args );
-			break;
+			return sol_push( current_statement.args );
 
 		case SOL_GOTO:
-			sol_goto( current_statement->args );
-			break;
+			return sol_goto( current_statement.args );
 
 		case SOL_POP:
-			sol_pop();
-			break;
+			return sol_pop();
 
 		case SOL_RD:
-			sol_rd( current_statement->args );
-			break;
+			return sol_rd( current_statement.args );
 
 		case SOL_FRD:
-			sol_frd( current_statement->args );
-			break;
+			return sol_frd( current_statement.args );
 
 		case SOL_TOINT:
-			sol_toint();
-			break;
+			return sol_toint();
 
 		case SOL_TOREAL:
-			sol_toreal();
-			break;
+			return sol_toreal();
 
 		case SOL_READ:
-			sol_read( current_statement->args );
-			break;
+			return sol_read( current_statement.args );
 
 		case SOL_FREAD:
-			sol_fread( current_statement->args );
-			break;
+			return sol_fread( current_statement.args );
 
 		case SOL_WRITE:
-			sol_write( current_statement->args );
-			break;
+			return sol_write( current_statement.args );
 
 		case SOL_FWRITE:
-			sol_fwrite( current_statement->args );
-			break;
+			return sol_fwrite( current_statement.args );
 
 		case SOL_FUNC:
-			sol_func( current_statement->args );
-			break;
+			return sol_func( current_statement.args );
 
 		case SOL_RETURN:
-			sol_return();
-			break;
+			return sol_return();
 
 		default:
-			sol_noop();
-			break;
+			return sol_noop();
 	}
 
-	return 0;
+	return MEM_OK;
 }
 
 // Execution of S-code instructions
@@ -239,7 +204,7 @@ int sol_new( Value* args )
 
 	push_ostack( object );
 
-	return 0;
+	return MEM_OK;
 }
 
 // Creates a new empty stack object and puts it on ostack
@@ -253,7 +218,7 @@ int sol_news( Value* args )
 
 	push_ostack( object );
 
-	return 0;
+	return MEM_OK;
 }
 
 // Loads the given char on istack
@@ -261,7 +226,7 @@ int sol_ldc( Value* args )
 {
 	push_char( args[ 0 ].c_val );
 
-	return 0;
+	return MEM_OK;
 }
 
 // Loads the given int on istack
@@ -269,7 +234,7 @@ int sol_ldi( Value* args )
 {
 	push_int( args[ 0 ].i_val );
 
-	return 0;
+	return MEM_OK;
 }
 
 // Loads the given real on istack
@@ -277,7 +242,7 @@ int sol_ldr( Value* args )
 {
 	push_real( args[ 0 ].r_val );
 
-	return 0;
+	return MEM_OK;
 }
 
 // Loads the given string on istack
@@ -285,7 +250,7 @@ int sol_lds( Value* args )
 {
 	push_string( args[ 0 ].s_val );
 
-	return 0;
+	return MEM_OK;
 }
 
 // Retrieves the value of the given embedded object (referred with its oid) and loads its value on the stack
@@ -295,10 +260,10 @@ int sol_lod( Value* args )
 	int oid = args[ 1 ].i_val;
 
 	if( ap - 1 - env_offset < 0 )
-		return ASTACK_OUT_OF_BOUND;
+		return ERROR_ASTACK_OUT_OF_BOUND;
 
 	if( oid >= astack[ ap - 1 - env_offset ]->obj_number )
-		return OSTACK_OUT_OF_BOUND;
+		return ERROR_OSTACK_OUT_OF_BOUND;
 
 	Odescr* object = &( astack[ ap - 1 - env_offset ]->objects[ oid ] );
 
@@ -326,7 +291,7 @@ int sol_cat( Value* args )
 
 	push_ostack( object );
 
-	return 0;
+	return MEM_OK;
 }
 
 // Retrieves the starting address of the value of the given stack object and loads it on the stack as an integer
@@ -336,10 +301,10 @@ int sol_lda( Value* args )
 	int oid = args[ 1 ].i_val;
 	
 	if( ap - 1 - env_offset < 0 )
-		return ASTACK_OUT_OF_BOUND;
+		return ERROR_ASTACK_OUT_OF_BOUND;
 
 	if( oid >= astack[ ap - 1 - env_offset ]->obj_number )
-		return OSTACK_OUT_OF_BOUND;
+		return ERROR_OSTACK_OUT_OF_BOUND;
 
 	Odescr* source_object = &( astack[ ap - 1 - env_offset ]->objects[ oid ] );
 
@@ -357,7 +322,7 @@ int sol_fda( Value* args )
 
 	push_int( field_offset + ref_offset_on_stack );
 
-	return 0;
+	return MEM_OK;
 }
 
 // Gets the start_offset from the istack, previously calculated with LDA and various FDA (or IXA), goes on the istack to the field, copies it in its entirety and puts it on the stack
@@ -368,7 +333,7 @@ int sol_eil( Value* args )
 	int start_offset = pop_int();
 
 	if( start_offset + field_size > ip - 1 )
-		return ISTACK_OUT_OF_BOUND;
+		return ERROR_ISTACK_OUT_OF_BOUND;
 
 	byte* value;
 	int i = 0;
@@ -393,7 +358,7 @@ int sol_sil( Value* args )
 	int start_offset = pop_int();
 
 	if( start_offset + field_size > ip - 1 )
-		return ISTACK_OUT_OF_BOUND;
+		return ERROR_ISTACK_OUT_OF_BOUND;
 
 	byte* value;
 	int i = 0;
@@ -423,7 +388,7 @@ int sol_ixa( Value* args )
 
 	push_int( vector_dimension * index_value + vector_dimension );
 
-	return 0;
+	return MEM_OK;
 }
 
 // Pops the last value from the istack and puts it as embedded instance of the referred object, whose size is known as part of Odescr
@@ -433,10 +398,10 @@ int sol_sto( Value* args )
 	int oid = args[ 1 ].i_val;
 
 	if( ap - 1 - env_offset < 0 )
-		return ASTACK_OUT_OF_BOUND;
+		return ERROR_ASTACK_OUT_OF_BOUND;
 
 	if( oid >= astack[ ap - 1 - env_offset ]->obj_number )
-		return OSTACK_OUT_OF_BOUND;
+		return ERROR_OSTACK_OUT_OF_BOUND;
 
 	Odescr* object = &( astack[ ap - 1 - env_offset ]->objects[ oid ] );
 
@@ -459,7 +424,7 @@ int sol_ist()
 	for( i = 0; i < size; i++ )
 		istack[ start_address + i ] = value[ i ];
 
-	return 0;
+	return MEM_OK;
 }
 
 // If the last value on the stack is false, jump
@@ -472,7 +437,7 @@ int sol_jmf( Value* args )
 	if( pop_char() == FALSE )
 		pc += jump_offset - 1;
 
-	return 0;
+	return MEM_OK;
 }
 
 // Unconditioned jump
@@ -482,7 +447,7 @@ int sol_jmp( Value* args )
 
 	pc += jump_offset - 1;
 
-	return 0;
+	return MEM_OK;
 }
 
 // == operator
@@ -638,7 +603,7 @@ int sol_in()
 	if( i == set.size - value.size )
 		push_char( FALSE );
 
-	return 0;
+	return MEM_OK;
 }
 
 // BORING
@@ -689,14 +654,14 @@ int sol_iumi()
 {
 	push_int( -1 * pop_int() );
 
-	return 0;
+	return MEM_OK;
 }
 
 int sol_rumi()
 {
 	push_real( -1 * pop_real() );
 
-	return 0;
+	return MEM_OK;
 }
 
 int sol_neg()
@@ -706,7 +671,7 @@ int sol_neg()
 	else
 		push_char( FALSE );
 
-	return 0;
+	return MEM_OK;
 }
 
 // Write on the std output in the given format
@@ -721,7 +686,7 @@ int sol_wr( Value* args )
 
 	push_bytearray( expr.value, expr.size );
 
-	return 0;
+	return MEM_OK;
 }
 
 // Write on the given file (ignore format?)
@@ -737,7 +702,7 @@ int sol_fwr( Value* args )
 
 	push_bytearray( expr.value, expr.size );
 
-	return 0;
+	return MEM_OK;
 }
 
 // Push the chain and element_number on the istack, in preaparation of the call to GOTO, and instantiate a new activation record
@@ -749,7 +714,7 @@ int sol_push( Value* args )
 	push_int( element_number );
 	push_int( chain );
 
-	return 0;
+	return MEM_OK;
 }
 
 // GOTO is used ONLY after a push, to perform a function call
@@ -760,24 +725,19 @@ int sol_goto( Value* args )
 	int chain = pop_int();
 	int element_number = pop_int();
 
-	if( ap - 1 - chain < 0 )
-		return ASTACK_OUT_OF_BOUND;
-
-	Adescr* function_env = astack[ ap - 1 - chain ];
-	
-	if( entry_point >= function_env->obj_number )
-		return OSTACK_OUT_OF_BOUND;
-
-	// The number of elements is given, the start point for its objects is the top of the stack (the objects will be instantiated as part of the function call, not before)
+    // The number of elements is given, the start point for its objects is the
+    // top of the stack (the objects will be instantiated as part of the
+    // function call, not before)
 	Adescr* function_ar = malloc( sizeof( Adescr ) );
 	function_ar->obj_number = element_number;
 	function_ar->objects = ostack[ op ];
 	function_ar->raddr = pc + 1;
+    push_astack( function_ar );
 
 	// Jump to the entry point (first instruction will be the definition of the formals)
 	pc = entry_point - 1;
 
-	return 0;
+	return MEM_OK;
 }
 
 // Clean the stacks after the last function call
@@ -801,7 +761,7 @@ int sol_pop()
 
 	pop_astack();
 
-	return 0;
+	return MEM_OK;
 }
 
 // Read input from user and save it in the lhs object
@@ -828,7 +788,7 @@ int sol_rd( Value* args )
 
 	push_bytearray( input.value, input.size );
 
-	return 0;
+	return MEM_OK;
 }
 
 // Same as rd but from file (ignore format?)
@@ -856,7 +816,7 @@ int sol_frd( Value* args )
 
 	push_bytearray( input.value, input.size );
 
-	return 0;
+	return MEM_OK;
 }
 
 // From real to int
@@ -866,7 +826,7 @@ int sol_toint()
 	
 	push_int( (int) value );
 
-	return 0;
+	return MEM_OK;
 }
 
 // From int to real
@@ -876,7 +836,7 @@ int sol_toreal()
 
 	push_real( (float) value );
 
-	return 0;
+	return MEM_OK;
 }
 
 // RD, FRD, WR, FWR but without leaving the value on the stack
@@ -899,7 +859,7 @@ int sol_read( Value* args )
 		pop_ostack();
 	}
 
-	return 0;
+	return MEM_OK;
 }
 
 int sol_fread( Value* args )
@@ -923,7 +883,7 @@ int sol_fread( Value* args )
 		pop_ostack();
 	}
 
-	return 0;
+	return MEM_OK;
 }
 
 int sol_write( Value* args )
@@ -934,7 +894,7 @@ int sol_write( Value* args )
 
 	userOutput( format, expr );
 
-	return 0;
+	return MEM_OK;
 }
 
 int sol_fwrite( Value* args )
@@ -946,7 +906,7 @@ int sol_fwrite( Value* args )
 
 	fileOutput( filename, expr );
 
-	return 0;
+	return MEM_OK;
 }
 
 // Nothing to do?
@@ -955,7 +915,7 @@ int sol_func( Value* args )
 {
 	int fid = args[ 0 ].i_val;
 
-	return 0;
+	return MEM_OK;
 }
 
 // Jump to the pop instruction
@@ -963,10 +923,10 @@ int sol_return()
 {
 	pc = astack[ ap - 1 ]->raddr - 1;
 
-	return 0;
+	return MEM_OK;
 }
 
 int sol_noop()
 {
-	return 0;
+	return ERROR_UNRECOGNISED;
 }

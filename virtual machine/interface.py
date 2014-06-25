@@ -183,11 +183,7 @@ class StringWidget(DataWidget):
         self.ui = uic.loadUi("StringWidget.ui", self)
 
     def setData(self, data):
-        dataOfInterest = data.popleft()
-        while dataOfInterest[-1] != '\0':
-            dataOfInterest = data.popleft()
-
-        DataWidget.setData(self, dataOfInterest)
+        self.ui.inputBox.setPlainText(DataDialog.decryptString(data, '\0'))
 
     def getData(self):
         return list(str(self.ui.inputBox.toPlainText()) + '\0')
@@ -327,15 +323,22 @@ def requestInput(textualSchema):
     """
     External function to ask for data.
     """
+    app = QtGui.QApplication([])
+
     inputDialog = InputDialog(deque(textualSchema))
     inputDialog.show()
     if inputDialog.exec_():
         return "".join(inputDialog.data)
+
+    app.exec_()
 
 
 def requestOutput(textualSchema, data):
     """
     External function to show data.
     """
-    outputDialog = OutputDialog(deque(textualSchema))
-    outputDialog.show(deque(data))
+    app = QtGui.QApplication([])
+
+    OutputDialog(deque(textualSchema)).show(deque(data))
+
+    app.exec_()

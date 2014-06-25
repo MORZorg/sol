@@ -13,7 +13,6 @@
 #include "executor.h"
 
 extern int yyparse();
-extern Stat* program;
 extern int program_size;
 
 int main( int argc, char** argv )
@@ -23,7 +22,11 @@ int main( int argc, char** argv )
 	fprintf( stdout, "I want to do something! ノ┬─┬ノ ︵ ( \\o°o)\\\n" );
 
 	if( ( result = yyparse() ) == 0 )
+	{
 		fprintf( stdout, "I have %d code lines to do!\n", program_size );
+
+		result = yyvm();
+	}
 
 	return 0;
 }

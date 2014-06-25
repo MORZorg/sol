@@ -18,10 +18,11 @@
 #define FALSE '0'
 
 #define MEM_OK 0
-#define ALLOC_ERROR 1
-#define ASTACK_OUT_OF_BOUND 2
-#define OSTACK_OUT_OF_BOUND 3
-#define ISTACK_OUT_OF_BOUND 4
+#define ERROR_ALLOC 1
+#define ERROR_ASTACK_OUT_OF_BOUND 2
+#define ERROR_OSTACK_OUT_OF_BOUND 3
+#define ERROR_ISTACK_OUT_OF_BOUND 4
+#define ERROR_UNRECOGNISED 5
 
 #define ASTACK_UNIT sizeof( Adescr* )
 #define OSTACK_UNIT sizeof( Odescr* )
