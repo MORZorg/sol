@@ -34,7 +34,7 @@ typedef enum
 } Mode;
 
 // If the value is embedded, then it must have size < sizeof(byte)
-typedef union 
+typedef union
 {
 	byte* emb_val;
 	int sta_val; // istack offset of the complex value start

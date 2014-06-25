@@ -83,7 +83,7 @@ typedef union
 	Operator op_val;
 } Value;
 
-typedef struct stat
+typedef struct
 {
 	Operator op;
 	Value args[ MAX_ARGS ];
