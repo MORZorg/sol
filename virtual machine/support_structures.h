@@ -60,6 +60,12 @@ typedef struct
 	int raddr;
 } Adescr;
 
+typedef struct
+{
+	long size;
+	byte* value;
+} ByteArray;
+
 // Position of the actual statement to execute
 // Normally, the pc is increased by one after every instruction execution, but it can
 // be modified completely, for example, to perform a jump in the code (the statements vector)
@@ -83,7 +89,7 @@ byte top_istack();
 void pop_istack();
 void push_istack( byte );
 
-byte* pop_bytearray();
+ByteArray pop_bytearray();
 void push_bytearray( byte*, int );
 
 int pop_int();

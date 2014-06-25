@@ -227,7 +227,7 @@ int execute( Stat* current_statement )
 // Creates a new empty embedded object and puts it on ostack
 int sol_new( Value* args )
 {
-	int size = args[0].i_val;
+	int size = args[ 0 ].i_val;
 
 	Odescr* object = malloc( sizeof( Odescr ) );
 	object->mode = EMB;
@@ -242,7 +242,7 @@ int sol_new( Value* args )
 // Creates a new empty stack object and puts it on ostack
 int sol_news( Value* args )
 {
-	int size = args[0].i_val;
+	int size = args[ 0 ].i_val;
 
 	Odescr* object = malloc( sizeof( Odescr ) );
 	object->mode = STA;
@@ -256,7 +256,7 @@ int sol_news( Value* args )
 // Loads the given char on istack
 int sol_ldc( Value* args )
 {
-	push_char( args[0].c_val );
+	push_char( args[ 0 ].c_val );
 
 	return 0;
 }
@@ -264,7 +264,7 @@ int sol_ldc( Value* args )
 // Loads the given int on istack
 int sol_ldi( Value* args )
 {
-	push_int( args[0].i_val );
+	push_int( args[ 0 ].i_val );
 
 	return 0;
 }
@@ -272,7 +272,7 @@ int sol_ldi( Value* args )
 // Loads the given real on istack
 int sol_ldr( Value* args )
 {
-	push_real( args[0].r_val );
+	push_real( args[ 0 ].r_val );
 
 	return 0;
 }
@@ -280,7 +280,7 @@ int sol_ldr( Value* args )
 // Loads the given string on istack
 int sol_lds( Value* args )
 {
-	push_string( args[0].s_val );
+	push_string( args[ 0 ].s_val );
 
 	return 0;
 }
@@ -288,8 +288,8 @@ int sol_lds( Value* args )
 // Retrieves the value of the given embedded object (referred with its oid) and loads its value on the stack
 int sol_lod( Value* args )
 {
-	int env_offset = args[0].i_val;
-	int oid = args[1].i_val;
+	int env_offset = args[ 0 ].i_val;
+	int oid = args[ 1 ].i_val;
 
 	if( ap - 1 - env_offset < 0 )
 		return ASTACK_OUT_OF_BOUND;
@@ -308,8 +308,8 @@ int sol_lod( Value* args )
 // It's different from NEWS because the value is instantiated immediately
 int sol_cat( Value* args )
 {
-	int element_number = args[0].i_val;
-	int total_size = args[1].i_val;
+	int element_number = args[ 0 ].i_val;
+	int total_size = args[ 1 ].i_val;
 
 	// Remove the descriptor of the single elements
 	// A descriptor of the whole structure is created as purpose of this instruction 
@@ -329,8 +329,8 @@ int sol_cat( Value* args )
 // Retrieves the starting address of the value of the given stack object and loads it on the stack as an integer
 int sol_lda( Value* args )
 {
-	int env_offset = args[0].i_val;
-	int oid = args[1].i_val;
+	int env_offset = args[ 0 ].i_val;
+	int oid = args[ 1 ].i_val;
 	
 	if( ap - 1 - env_offset < 0 )
 		return ASTACK_OUT_OF_BOUND;
@@ -348,7 +348,7 @@ int sol_lda( Value* args )
 // Updates the address loaded by LDA with an offset of given size
 int sol_fda( Value* args )
 {
-	int field_offset = args[0].i_val;
+	int field_offset = args[ 0 ].i_val;
 
 	int ref_offset_on_stack = pop_int();
 
@@ -360,7 +360,7 @@ int sol_fda( Value* args )
 // Gets the start_offset from the istack, previously calculated with LDA and various FDA (or IXA), goes on the istack to the field, copies it in its entirety and puts it on the stack
 int sol_eil( Value* args )
 {
-	int field_size = args[0].i_val;
+	int field_size = args[ 0 ].i_val;
 
 	int start_offset = pop_int();
 
@@ -385,7 +385,7 @@ int sol_eil( Value* args )
 // Not clear: what should be put on the istack? the address of the field (start_offset, already present)?
 int sol_sil( Value* args )
 {
-	int field_size = args[0].i_val;
+	int field_size = args[ 0 ].i_val;
 
 	int start_offset = pop_int();
 
@@ -409,11 +409,11 @@ int sol_sil( Value* args )
 }
 
 // Identical to FDA but specific for vectors
-// The only given parameter is the size of the vector's elements dimension (eg vector [10] of int has dimension |int|, while vector [10] of vector [20] of int has 2 dimensions which elements have size 20*|int| and |int|)
+// The only given parameter is the size of the vector's elements dimension (eg vector [ 10 ] of int has dimension |int|, while vector [ 10 ] of vector [ 20 ] of int has 2 dimensions which elements have size 20*|int| and |int|)
 // The index value must have been previously calculated (and therefore be present as last value on the istack), the same applies for the base address of the vector, loaded with a LDA
 int sol_ixa( Value* args )
 {
-	int vector_dimension = args[0].i_val;
+	int vector_dimension = args[ 0 ].i_val;
 
 	int index_value = pop_int(); // index value
 	int start_offset = pop_int(); // LDA
@@ -426,8 +426,8 @@ int sol_ixa( Value* args )
 // Pops the last value from the istack and puts it as embedded instance of the referred object, whose size is known as part of Odescr
 int sol_sto( Value* args )
 {
-	int env_offset = args[0].i_val;
-	int oid = args[1].i_val;
+	int env_offset = args[ 0 ].i_val;
+	int oid = args[ 1 ].i_val;
 
 	if( ap - 1 - env_offset < 0 )
 		return ASTACK_OUT_OF_BOUND;
@@ -437,7 +437,7 @@ int sol_sto( Value* args )
 
 	Odescr* object = &( astack[ ap - 1 - env_offset ]->objects[ oid ] );
 
-	object->inst.emb_val = pop_bytearray();
+	object->inst.emb_val = pop_bytearray().value;
 
 	return MEM_OK;
 }
@@ -448,7 +448,7 @@ int sol_ist()
 	Odescr* object = top_ostack();
 	int size = object->size;
 
-	byte* value = pop_bytearray();
+	byte* value = pop_bytearray().value;
 	
 	int start_address = pop_int();
 	int i;
@@ -464,7 +464,7 @@ int sol_ist()
 // NOTE The jump is pc += offset - 1 because pc++ is always executed after every call of execute( Stat* )
 int sol_jmf( Value* args )
 {
-	int jump_offset = args[0].i_val;
+	int jump_offset = args[ 0 ].i_val;
 
 	if( pop_char() == FALSE )
 		pc += jump_offset - 1;
@@ -475,7 +475,7 @@ int sol_jmf( Value* args )
 // Unconditioned jump
 int sol_jmp( Value* args )
 {
-	int jump_offset = args[0].i_val;
+	int jump_offset = args[ 0 ].i_val;
 
 	pc += jump_offset - 1;
 
@@ -485,26 +485,18 @@ int sol_jmp( Value* args )
 // == operator
 int sol_equ()
 {
-	Odescr* left_object = top_ostack();
-	int left_size = left_object->size;
+	ByteArray left_object = pop_bytearray();
+	ByteArray right_object = pop_bytearray();
 
-	byte* left_value = pop_bytearray();
-
-	Odescr* right_object = top_ostack();
-	int right_size = right_object->size;
-
-	byte* right_value = pop_bytearray();
-
-	if( left_size != right_size )
+	if( left_object.size != right_object.size )
 	{
 		push_char( FALSE );
 		return MEM_OK;
 	}
 
 	int i;
-
-	for( i = 0; i < left_size; i++ )
-		if( left_value[ i ] != right_value[ i ] )
+	for( i = 0; i < left_object.size; i++ )
+		if( left_object.value[ i ] != right_object.value[ i ] )
 		{
 			push_char( FALSE );
 			return MEM_OK;
@@ -518,20 +510,12 @@ int sol_equ()
 // != operator
 int sol_neq()
 {
-	Odescr* left_object = top_ostack();
-	int left_size = left_object->size;
-
-	byte* left_value = pop_bytearray();
-
-	Odescr* right_object = top_ostack();
-	int right_size = right_object->size;
-
-	byte* right_value = pop_bytearray();
+	ByteArray left_object = pop_bytearray();
+	ByteArray right_object = pop_bytearray();
 
 	int i;
-
-	for( i = 0; i < left_size; i++ )
-		if( left_value[ i ] != right_value[ i ] )
+	for( i = 0; i < left_object.size; i++ )
+		if( left_object.value[ i ] != right_object.value[ i ] )
 		{
 			push_char( TRUE );
 			return MEM_OK;
@@ -620,33 +604,27 @@ int sol_string_compare( Operator op )
 }
 
 // The check is done byte-by-byte
+// FIXME WRONG.   "pino" in vector( "campi", "nonno argald" ) == true
 int sol_in()
 {
-	Odescr* setObject = top_ostack();
-	byte* set = pop_bytearray();
-
-	Odescr* valueObject = top_ostack();
-	byte* value = pop_bytearray();
-
-	int setSize = setObject->size;
-	int valueSize = valueObject->size;
+	ByteArray set = pop_bytearray();
+	ByteArray value = pop_bytearray();
 
 	int i, j;
-
-	for( i = 0; i < setSize - valueSize; i++ )
+	for( i = 0; i < set.size - value.size; i++ )
 	{
-		if( set[i] == value[0] )
+		if( set.value[ i ] == value.value[ 0 ] )
 		{
-			for( j = 1; j < valueSize; j++ )
+			for( j = 1; j < value.size; j++ )
 			{
-				if( set[ i + j ] != value[ j ] )
+				if( set.value[ i + j ] != value.value[ j ] )
 				{
 					push_char( FALSE );
 					break;
 				}
 			}
 
-			if( j == valueSize )
+			if( j == value.size )
 			{
 				push_char( TRUE );
 				break;
@@ -654,7 +632,7 @@ int sol_in()
 		}
 	}
 
-	if( i == setSize - valueSize )
+	if( i == set.size - value.size )
 		push_char( FALSE );
 
 	return 0;
@@ -732,13 +710,13 @@ int sol_neg()
 // Leaves the expr result available on the istack
 int sol_wr( Value* args )
 {
-	char* format = args[0].s_val;
+	char* format = args[ 0 ].s_val;
 
-	byte* expr = pop_bytearray();
+	ByteArray expr = pop_bytearray();
 
 	userOutput( format, expr );
 
-	push_bytearray( expr );
+	push_bytearray( expr.value, expr.size );
 
 	return 0;
 }
@@ -747,14 +725,14 @@ int sol_wr( Value* args )
 // Leaves the expr result available on the istack
 int sol_fwr( Value* args )
 {
-	char* format = args[0].s_val;
+	char* format = args[ 0 ].s_val;
 
 	char* filename = pop_string();
-	byte* expr = pop_bytearray();
+	ByteArray expr = pop_bytearray();
 
 	fileOutput( filename, expr );
 
-	push_bytearray( expr );
+	push_bytearray( expr.value, expr.size );
 
 	return 0;
 }
@@ -762,8 +740,8 @@ int sol_fwr( Value* args )
 // Push the chain and element_number on the istack, in preaparation of the call to GOTO, and instantiate a new activation record
 int sol_push( Value* args )
 {
-	int element_number = args[0].i_val;
-	int chain = args[1].i_val;
+	int element_number = args[ 0 ].i_val;
+	int chain = args[ 1 ].i_val;
 
 	push_int( element_number );
 	push_int( chain );
@@ -774,7 +752,7 @@ int sol_push( Value* args )
 // GOTO is used ONLY after a push, to perform a function call
 int sol_goto( Value* args )
 {
-	int entry_point = args[0].i_val;
+	int entry_point = args[ 0 ].i_val;
 
 	int chain = pop_int();
 	int element_number = pop_int();
@@ -790,7 +768,7 @@ int sol_goto( Value* args )
 	// The number of elements is given, the start point for its objects is the top of the stack (the objects will be instantiated as part of the function call, not before)
 	Adescr* function_ar = malloc( sizeof( Adescr ) );
 	function_ar->obj_number = element_number;
-	function_ar->objects = op;
+	function_ar->objects = op;  // FIXME
 	function_ar->raddr = pc + 1;
 
 	// Jump to the entry point (first instruction will be the definition of the formals)
@@ -828,24 +806,24 @@ int sol_pop()
 // Leaves the input result available on the istack
 int sol_rd( Value* args )
 {
-	int env_offset = args[0].i_val;
-	int oid = args[1].i_val;
-	char* format = args[2].s_val;
+	int env_offset = args[ 0 ].i_val;
+	int oid = args[ 1 ].i_val;
+	char* format = args[ 2 ].s_val;
 
-	byte* input = userInput( format );
+	ByteArray input = userInput( format );
 
-	Odescr* lhs = astack[ ap - 1 - env_offset ]->objects[ oid ];
+	Odescr* lhs = astack[ ap - 1 - env_offset ]->objects[ oid ];  // FIXME (and also the similar cases)
 
 	if( lhs->mode = EMB )
 		lhs->inst.emb_val = input;
 	else
 	{
 		lhs->inst.sta_val = ip;
-		push_bytearray( input );
+		push_bytearray( input.value, input.size );
 		pop_ostack();
 	}
 
-	push_bytearray( input );
+	push_bytearray( input.value, input.size );
 
 	return 0;
 }
@@ -854,13 +832,13 @@ int sol_rd( Value* args )
 // Leaves the input result available on the istack
 int sol_frd( Value* args )
 {
-	int env_offset = args[0].i_val;
-	int oid = args[1].i_val;
-	char* format = args[2].s_val;
+	int env_offset = args[ 0 ].i_val;
+	int oid = args[ 1 ].i_val;
+	char* format = args[ 2 ].s_val;
 
 	char* filename = pop_string();
 
-	byte* input = fileInput( filename );
+	ByteArray input = fileInput( filename );
 
 	Odescr* lhs = astack[ ap - 1 - env_offset ]->objects[ oid ];
 
@@ -869,11 +847,11 @@ int sol_frd( Value* args )
 	else
 	{
 		lhs->inst.sta_val = ip;
-		push_bytearray( input );
+		push_bytearray( input.value, input.size );
 		pop_ostack();
 	}
 
-	push_bytearray( input );
+	push_bytearray( input.value, input.size );
 
 	return 0;
 }
@@ -901,11 +879,11 @@ int sol_toreal()
 // RD, FRD, WR, FWR but without leaving the value on the stack
 int sol_read( Value* args )
 {
-	int env_offset = args[0].i_val;
-	int oid = args[1].i_val;
-	char* format = args[2].s_val;
+	int env_offset = args[ 0 ].i_val;
+	int oid = args[ 1 ].i_val;
+	char* format = args[ 2 ].s_val;
 
-	byte* input = userInput( format );
+	ByteArray input = userInput( format );
 
 	Odescr* lhs = astack[ ap - 1 - env_offset ]->objects[ oid ];
 
@@ -914,7 +892,7 @@ int sol_read( Value* args )
 	else
 	{
 		lhs->inst.sta_val = ip;
-		push_bytearray( input );
+		push_bytearray( input.value, input.size );
 		pop_ostack();
 	}
 
@@ -923,13 +901,13 @@ int sol_read( Value* args )
 
 int sol_fread( Value* args )
 {
-	int env_offset = args[0].i_val;
-	int oid = args[1].i_val;
-	char* format = args[2].s_val;
+	int env_offset = args[ 0 ].i_val;
+	int oid = args[ 1 ].i_val;
+	char* format = args[ 2 ].s_val;
 
 	char* filename = pop_string();
 
-	byte* input = fileInput( filename );
+	ByteArray input = fileInput( filename );
 
 	Odescr* lhs = astack[ ap - 1 - env_offset ]->objects[ oid ];
 
@@ -938,7 +916,7 @@ int sol_fread( Value* args )
 	else
 	{
 		lhs->inst.sta_val = ip;
-		push_bytearray( input );
+		push_bytearray( input.value, input.size );
 		pop_ostack();
 	}
 
@@ -947,9 +925,9 @@ int sol_fread( Value* args )
 
 int sol_write( Value* args )
 {
-	char* format = args[0].s_val;
+	char* format = args[ 0 ].s_val;
 
-	byte* expr = pop_bytearray();
+	ByteArray expr = pop_bytearray();
 
 	userOutput( format, expr );
 
@@ -958,10 +936,10 @@ int sol_write( Value* args )
 
 int sol_fwrite( Value* args )
 {
-	char* format = args[0].s_val;
+	char* format = args[ 0 ].s_val;
 
 	char* filename = pop_string();
-	byte* expr = pop_bytearray();
+	ByteArray expr = pop_bytearray();
 
 	fileOutput( filename, expr );
 
@@ -972,7 +950,7 @@ int sol_fwrite( Value* args )
 // Can't create an Odescr because, otherwise, the oid direct addressing would fail (functions are referred to with a different count)
 int sol_func( Value* args )
 {
-	int fid = args[0].i_val;
+	int fid = args[ 0 ].i_val;
 
 	return 0;
 }

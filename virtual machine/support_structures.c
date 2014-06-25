@@ -59,23 +59,24 @@ void push_istack( byte value )
 
 // Write and read stuff on the istack
 // All methods pass from the bytearray ones
-byte* pop_bytearray()
+ByteArray pop_bytearray()
 {
 	Odescr* object = top_ostack();
 	pop_ostack();
 
-	int i = object->size - 1;
-	byte* value;
+	ByteArray result;
+    result.value = malloc( sizeof( byte ) * object->size );
 
+	int i = object->size - 1;
 	do
 	{
-		value[ i ] = top_istack();
+		result.value[ i ] = top_istack();
 
 		pop_istack();
 	}
 	while( --i >= 0 );
 
-	return value;
+	return result;
 }
 
 void push_bytearray( byte* value, int size )
@@ -98,7 +99,7 @@ void push_bytearray( byte* value, int size )
 
 int pop_int()
 {
-	byte* object = pop_bytearray();
+	byte* object = pop_bytearray().value;
 
 	int i = 0;
 	int value = 0;
@@ -129,7 +130,7 @@ void push_int( int value )
 
 float pop_real()
 {
-	byte* object = pop_bytearray();
+	byte* object = pop_bytearray().value;
 
 	float value;
 
@@ -149,7 +150,7 @@ void push_real( float value )
 
 char pop_char()
 {
-	return (char) pop_bytearray();
+	return pop_bytearray().value[ 0 ];
 }
 
 void push_char( char value )
@@ -159,7 +160,7 @@ void push_char( char value )
 
 char* pop_string()
 {
-	return (char*) pop_bytearray();
+	return pop_bytearray().value;
 }
 
 void push_string( char* object )

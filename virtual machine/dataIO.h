@@ -3,6 +3,8 @@
 
 #include <Python.h>
 
+#include "support_structures.h"
+
 const char* PYTHON_MODULE_NAME = "interface";
 const char* PYTHON_REQUEST_INPUT_NAME = "requestInput";
 const char* PYTHON_REQUEST_OUTPUT_NAME = "requestOutput";
@@ -14,7 +16,7 @@ const char* PYTHON_REQUEST_OUTPUT_NAME = "requestOutput";
  *
  * @return The read data.
  */
-char* userInput(char*);
+ByteArray userInput(char*);
 
 /**
  * @brief Shows the user some data.
@@ -22,7 +24,7 @@ char* userInput(char*);
  * @param char* The schema of the data to show.
  * @param char* The data to show.
  */
-void userOutput(char*, char*);
+void userOutput(char*, ByteArray);
 
 /**
  * @brief Reads data to a file.
@@ -31,7 +33,7 @@ void userOutput(char*, char*);
  *
  * @return The read data.
  */
-char* fileInput(char*);
+ByteArray fileInput(char*);
 
 /**
  * @brief Writes some data to a file.
@@ -39,6 +41,6 @@ char* fileInput(char*);
  * @param char* The name of the file to write to.
  * @param char* The data to write.
  */
-void fileOutput(char*, char*);
+void fileOutput(char*, ByteArray);
 
 #endif  // __DATA_IO_H__

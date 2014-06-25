@@ -1,4 +1,4 @@
-func game_of_life() : int
+func game_of_life( name: string; ) : int
 
 	type	lines: vector [ 30 ] of bool;
 			grid: vector [ 30 ] of lines;
@@ -8,16 +8,14 @@ func game_of_life() : int
 	var		world: grid;
 
 
-			-- REALLOC ERROR
-			const	summary: string = "Welcome to ORZ's Conway's Game of Life";
-	--const	summary: string = "Sbra";
+	const	summary: string = "Welcome to ORZ's Conway's Game of Life!";
 
 
-			-- Rules:
-			--   Any live cell with fewer than two live neighbours dies, as if caused by under-population.
-			--   Any live cell with two or three live neighbours lives on to the next generation.
-			--   Any live cell with more than three live neighbours dies, as if by overcrowding.
-			--   Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
+	-- Rules:
+	--   Any live cell with fewer than two live neighbours dies, as if caused by under-population.
+	--   Any live cell with two or three live neighbours lives on to the next generation.
+	--   Any live cell with more than three live neighbours dies, as if by overcrowding.
+	--   Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
 	func next_state() : grid
 		var		i, j, k, h: int;
 				neighbours: int;
@@ -62,12 +60,14 @@ func game_of_life() : int
 begin game_of_life
 	write summary;
 
-	-- world = get_initial_state_from_gui();
+	read world;
 
 	while true do
 		world = next_state();
-		-- put_next_state_to_gui();
+		write world;
 	endwhile;
+
+	write [ name ] world;
 
 	return 0;
 end game_of_life
