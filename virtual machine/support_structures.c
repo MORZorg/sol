@@ -43,7 +43,7 @@ void push_istack( byte value )
 	{
 		byte* old_istack = istack;
 
-		istack = malloc( sizeof( byte ) * ( isize + ISTACK_UNIT ) );
+		istack = malloc( ISTACK_UNIT * ( isize + 1 ) );
 
 		int i;
 		for( i = 0; i < isize; i++ )
@@ -184,7 +184,7 @@ void push_ostack( Odescr* value )
 	{
 		Odescr** old_ostack = ostack;
 
-		ostack = malloc( sizeof( Odescr* ) * ( osize + OSTACK_UNIT ) );
+		ostack = malloc( OSTACK_UNIT * ( osize + 1 ) );
 
 		int i;
 		for( i = 0; i < osize; i++ )
@@ -214,7 +214,7 @@ void push_astack( Adescr* value )
 	{
 		Adescr** old_astack = astack;
 
-		astack = malloc( sizeof( Adescr* ) * ( asize + ASTACK_UNIT ) );
+		astack = malloc( ASTACK_UNIT * ( asize + 1 ) );
 
 		int i;
 		for( i = 0; i < asize; i++ )
