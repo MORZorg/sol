@@ -127,7 +127,7 @@ Symbol* check_function_subtree( Node* node, int oid_absolute )
 	if( element->name != current_node->child->value.s_val )
 		yysemerror( current_node->child, PRINT_ERROR( STR_GENERAL, "the function body name must match the function's name" ) );
 
-	type_check( current_node->child->brother );
+	type_check( current_node );
 
 	if( stacklist_pop( &scope ) )
 		return NULL;
@@ -619,8 +619,24 @@ Boolean simplify_expression( Node* node )
 				break;
 
 			case T_NEG_EXPR:
-				node->type = T_BOOL_CONST;
-				node->value.b_val = !left_child->value.b_val;
+				node->type = left_child->type;
+				switch( left_child->type )
+				{
+					case T_BOOL_CONST:
+						node->value.b_val = !left_child->value.b_val;
+						break;
+
+					case T_INT_CONST:
+						node->value.i_val = -left_child->value.i_val;
+						break;
+
+					case T_REAL_CONST:
+						node->value.r_val = -left_child->value.r_val;
+						break;
+
+					default:
+						yysemerror( node, PRINT_ERROR( STR_BUG, "wrong syntax" ) );
+				}
 				break;
 
 			case T_INSTANCE_EXPR:
@@ -1121,6 +1137,7 @@ Boolean type_check( Node* node )
 
 			if( has_return && current_node != NULL )
 				yysemerror( current_node, STR_CODE_AFTER_RETURN );
+
 			break;
 		}
 
@@ -1152,59 +1169,35 @@ Boolean type_check( Node* node )
 			if( infere_expression_schema( node->child )->type != TS_BOOL )
 				yysemerror( node, STR_COND_EXPR );
 
-			Node* current_node = node->child->brother;
-			while( current_node->value.n_val != N_ELSIF_STAT
-				   && current_node->value.n_val != N_ELSE_STAT )
-			{
-				has_return |= type_check( current_node );
-
-				current_node = current_node->brother;
-			}
-
-			has_return &= type_check( current_node );
-			if( current_node->brother != NULL )
-				has_return &= type_check( current_node->brother );
+			has_return = TRUE;
+			Node* current_node;
+			for( current_node = node->child->brother;
+				 current_node != NULL;
+				 current_node = current_node->brother )
+				has_return &= type_check( current_node );
 
 			break;
 		}
 
 		case N_ELSIF_STAT:
 		{
-			Node* current_node = node->child;
+			simplify_expression( node->child );
+			if( infere_expression_schema( node->child )->type != TS_BOOL )
+				yysemerror( node->child, STR_COND_EXPR );
 
-			while( current_node != NULL )
-			{
-				simplify_expression( current_node );
-				if( infere_expression_schema( current_node )->type != TS_BOOL )
-					yysemerror( current_node, STR_COND_EXPR );
-
-				current_node = current_node->brother;
-				// FIXME: could happen to have two consecutive cond_expr?
-				
-				while( current_node != NULL
-					   && current_node->type != T_LOGIC_EXPR
-					   && current_node->type != T_REL_EXPR
-					   && ( current_node->type != T_NEG_EXPR && current_node->value.q_val != Q_NOT )
-					 )
-				{
-					has_return |= type_check( current_node );
-					current_node = current_node->brother;
-				}
-
-				//current_node = current_node->brother;
-			}
+			has_return = TRUE;
+			Node* current_node;
+			for( current_node = node->child->brother;
+				 current_node != NULL;
+				 current_node = current_node->brother )
+				has_return &= type_check( current_node );
 
 			break;
 		}
 
 		case N_ELSE_STAT:
 		{
-			Node* current_node = node->child;
-			while( current_node != NULL )
-			{
-				has_return |= type_check( current_node );
-				current_node = current_node->brother;
-			}
+			has_return = type_check( node->child );
 			break;
 		}
 

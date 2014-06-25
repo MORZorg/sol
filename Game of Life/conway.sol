@@ -1,7 +1,7 @@
 func game_of_life() : int
 
-	type	lines: vector [ 100 ] of bool;
-			grid: vector [ 2 ] of lines;
+	type	lines: vector [ 30 ] of bool;
+			grid: vector [ 30 ] of lines;
 			-- Just a bad idea.
 			-- grid: struct( rows: lines; columns: lines; );
 
@@ -9,8 +9,8 @@ func game_of_life() : int
 
 
 			-- REALLOC ERROR
-			-- const	summary: string = "Welcome to ORZ's Conway's Game of Life";
-	const	summary: string = "Sbra";
+			const	summary: string = "Welcome to ORZ's Conway's Game of Life";
+	--const	summary: string = "Sbra";
 
 
 			-- Rules:
