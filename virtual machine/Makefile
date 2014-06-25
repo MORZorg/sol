@@ -2,7 +2,7 @@ solvm: main.c
 	$(CC) -o $@ $^
 
 machine: main.c executor.o support_structures.o parser.o lexer.o dataIO.o
-	$(CC) -I/usr/include/python2.7 -lpython2.7 -g -o $@ $^ -DMACHINE
+	$(CC) -I/usr/include/python2.7 -g -o $@ $^ -DMACHINE -lpython2.7
 
 executor.o: executor.c executor.h support_structures.o dataIO.o
 	$(CC) -I/usr/include/python2.7 -g -c $<
