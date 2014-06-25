@@ -330,7 +330,7 @@ def requestInput(textualSchema):
     inputDialog = InputDialog(deque(textualSchema))
     inputDialog.show()
     if inputDialog.exec_():
-        return inputDialog.data  # "".join(inputDialog.data)
+        return "".join(inputDialog.data)
 
 
 def requestOutput(textualSchema, data):
