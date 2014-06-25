@@ -12,7 +12,10 @@ int yyvm( Stat* statements )
 	initialize_stacks();
 
 	while( statements[pc++].op != SOL_HALT )
+	{
 		execute( statements[pc] );
+		printf( "%s\n", statements[pc].op );
+	}
 
 	return 0;
 }
@@ -812,10 +815,10 @@ int sol_rd( Value* args )
 
 	ByteArray input = userInput( format );
 
-	Odescr* lhs = astack[ ap - 1 - env_offset ]->objects[ oid ];  // FIXME (and also the similar cases)
+	Odescr* lhs = &( astack[ ap - 1 - env_offset ]->objects[ oid ] );  // FIXME (and also the similar cases)
 
 	if( lhs->mode = EMB )
-		lhs->inst.emb_val = input;
+		lhs->inst.emb_val = input.value;
 	else
 	{
 		lhs->inst.sta_val = ip;
@@ -840,10 +843,10 @@ int sol_frd( Value* args )
 
 	ByteArray input = fileInput( filename );
 
-	Odescr* lhs = astack[ ap - 1 - env_offset ]->objects[ oid ];
+	Odescr* lhs = &( astack[ ap - 1 - env_offset ]->objects[ oid ] );
 
 	if( lhs->mode = EMB )
-		lhs->inst.emb_val = input;
+		lhs->inst.emb_val = input.value;
 	else
 	{
 		lhs->inst.sta_val = ip;
@@ -885,10 +888,10 @@ int sol_read( Value* args )
 
 	ByteArray input = userInput( format );
 
-	Odescr* lhs = astack[ ap - 1 - env_offset ]->objects[ oid ];
+	Odescr* lhs = &( astack[ ap - 1 - env_offset ]->objects[ oid ] );
 
 	if( lhs->mode = EMB )
-		lhs->inst.emb_val = input;
+		lhs->inst.emb_val = input.value;
 	else
 	{
 		lhs->inst.sta_val = ip;
@@ -909,10 +912,10 @@ int sol_fread( Value* args )
 
 	ByteArray input = fileInput( filename );
 
-	Odescr* lhs = astack[ ap - 1 - env_offset ]->objects[ oid ];
+	Odescr* lhs = &( astack[ ap - 1 - env_offset ]->objects[ oid ] );
 
 	if( lhs->mode = EMB )
-		lhs->inst.emb_val = input;
+		lhs->inst.emb_val = input.value;
 	else
 	{
 		lhs->inst.sta_val = ip;
