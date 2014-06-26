@@ -1509,6 +1509,9 @@ size_t schema_size( Schema* a_schema )
 
 		case TS_ATTR:
 			return schema_size( a_schema->child );
+
+		default:
+			return 0;
 	}
 }
 
@@ -1570,6 +1573,9 @@ char* schema_to_string( Schema* a_schema )
 
 		case TS_ATTR:
 			return schema_to_string( a_schema->child );
+
+		default:
+			return NULL;
 	}
 }
 
