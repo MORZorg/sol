@@ -9,7 +9,7 @@
 
 extern Stat* program;
 
-int yyvm()
+int yyvm( void )
 {
 	initialize_gui();
 	initialize_stacks();

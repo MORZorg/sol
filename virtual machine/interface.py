@@ -328,7 +328,7 @@ def requestInput(textualSchema):
     inputDialog = InputDialog(deque(textualSchema))
     inputDialog.show()
     if inputDialog.exec_():
-        return "".join(inputDialog.data)
+        return inputDialog.data
 
     app.exec_()
 
@@ -339,6 +339,7 @@ def requestOutput(textualSchema, data):
     """
     app = QtWidgets.QApplication([])
 
-    OutputDialog(deque(textualSchema)).show(deque(data))
+    # TODO Would be nice to use the bytes everywhere.
+    OutputDialog(deque(textualSchema)).show(deque(data.decode("utf-8")))
 
     app.exec_()
