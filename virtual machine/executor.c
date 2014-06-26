@@ -617,7 +617,7 @@ int sol_int_math( Operator op )
 	int left_value = pop_int();
 	int right_value = pop_int();
 
-	int result;
+	int result = 0;
 
 	if( op == SOL_IPLUS )
 		result = left_value + right_value;
@@ -638,7 +638,7 @@ int sol_real_math( Operator op )
 	float left_value = pop_real();
 	float right_value = pop_real();
 
-	float result;
+	float result = 0;
 
 	if( op == SOL_RPLUS )
 		result = left_value + right_value;
@@ -698,7 +698,7 @@ int sol_wr( Value* args )
 // Leaves the expr result available on the istack
 int sol_fwr( Value* args )
 {
-	char* format = args[ 0 ].s_val;
+	// char* format = args[ 0 ].s_val;
 
 	char* filename = pop_string();
 	ByteArray expr = pop_bytearray();
@@ -791,7 +791,7 @@ int sol_frd( Value* args )
 {
 	int env_offset = args[ 0 ].i_val;
 	int oid = args[ 1 ].i_val;
-	char* format = args[ 2 ].s_val;
+	// char* format = args[ 2 ].s_val;
 
 	char* filename = pop_string();
 
@@ -860,7 +860,7 @@ int sol_fread( Value* args )
 {
 	int env_offset = args[ 0 ].i_val;
 	int oid = args[ 1 ].i_val;
-	char* format = args[ 2 ].s_val;
+	// char* format = args[ 2 ].s_val;
 
 	char* filename = pop_string();
 
@@ -889,7 +889,7 @@ int sol_write( Value* args )
 
 int sol_fwrite( Value* args )
 {
-	char* format = args[ 0 ].s_val;
+	// char* format = args[ 0 ].s_val;
 
 	char* filename = pop_string();
 	ByteArray expr = pop_bytearray();
@@ -903,7 +903,7 @@ int sol_fwrite( Value* args )
 // Can't create an Odescr because, otherwise, the oid direct addressing would fail (functions are referred to with a different count)
 int sol_func( Value* args )
 {
-	int fid = args[ 0 ].i_val;
+	// int fid = args[ 0 ].i_val;
 
 	return MEM_OK;
 }
