@@ -25,12 +25,15 @@ int initialize_stacks()
 // Interaction with the istack
 byte top_istack()
 {
+	fprintf( stderr, "Top istack, position %d\n", ip - 1 );
+
 	return istack[ ip - 1 ]; 
 }
 
 void pop_istack()
 {
 	--ip;
+	fprintf( stderr, "Popped istack, new ip %d\n", ip );
 }
 
 void push_istack( byte value )
@@ -40,7 +43,7 @@ void push_istack( byte value )
 
 	istack[ ip++ ] = value;
 
-	fprintf( stderr, "Pushed istack: %d\n", value );
+	fprintf( stderr, "Pushed istack: %d (ip %d isize %d)\n", value, ip, isize );
 }
 
 // Write and read stuff on the istack
@@ -48,11 +51,12 @@ void push_istack( byte value )
 ByteArray pop_bytearray()
 {
 	Odescr* object = top_ostack();
-	pop_ostack();
 
 	ByteArray result;
     result.value = malloc( sizeof( byte ) * object->size );
 	result.size = object->size;
+
+	fprintf( stderr, "******************%d\n", object->size );
 
 	int i = object->size - 1;
 	do
@@ -62,6 +66,9 @@ ByteArray pop_bytearray()
 		pop_istack();
 	}
 	while( --i >= 0 );
+	
+	// Must be last because it destroys the value referred by object
+	pop_ostack();
 
 	return result;
 }
@@ -86,11 +93,22 @@ void push_bytearray( byte* value, int size )
 
 int pop_int()
 {
-	byte* object = pop_bytearray().value;
+	byte* object = (byte*) pop_bytearray().value;
 
 	int value = 0;
+	int i = 0;
+
+	/*do
+	{
+		value += (int) ( ( object[ i ] << ( i * 8 ) ) & (signed byte) 0xFF );
+		fprintf( stderr, "Byte %d: %X\n", i, object[i] );
+	}
+	while( ++i < sizeof( int ) );*/
 
 	memcpy( &value, object, sizeof( value ) );
+
+	for( i = 0; i < sizeof( value ); i++ )
+		fprintf( stderr, "Byte %d: %X\n", i, object[i] );
 
 	fprintf( stderr, "Popped int: %d\n", value );
 
@@ -100,13 +118,24 @@ int pop_int()
 void push_int( int value )
 {
 	fprintf( stderr, "Push int: %d (%lu)\n", value, sizeof( value ) );
-
+	
 	byte object[ sizeof( value ) ];
+	
+	int i = 0;
 
-	//memcpy( &value, object, sizeof( value ) );
+	/*do
+	{
+		object[ i ] = ( value >> ( i * 8 ) ) & (signed byte) 0xFF;
+		fprintf( stderr, "Byte %d: %X\n", i, object[i] );
+	}
+	while( ++i < sizeof( int ) );*/
+
 	memcpy( object, &value, sizeof( value ) );
+	
+	for( i = 0; i < sizeof( value ); i++ )
+		fprintf( stderr, "Byte %d: %X\n", i, object[i] );
 
-	push_bytearray( object, sizeof( value ) );
+	push_bytearray( (byte*) &value, sizeof( value ) );
 }
 
 float pop_real()
@@ -152,7 +181,11 @@ void push_string( char* object )
 // Interactions with the other stacks
 Odescr* top_ostack()
 {
-	return ostack[ op - 1 ];
+	Odescr* value = ostack[ op - 1 ];
+
+	fprintf( stderr, "Top ostack position %d: %d %d %d\n", op - 1, value->mode, value->size, value->inst.sta_val );
+
+	return value;
 }
 
 void pop_ostack()
@@ -167,6 +200,8 @@ void push_ostack( Odescr* value )
 		ostack = realloc( ostack, OSTACK_UNIT * ++osize );
 
 	ostack[ op++ ] = value;
+
+	fprintf( stderr, "Push ostack: %d %d %d\n", value->mode, value->size, value->inst.sta_val );
 }
 
 Adescr* top_astack()

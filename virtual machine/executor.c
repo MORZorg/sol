@@ -416,10 +416,10 @@ int sol_sto( Value* args )
 // Reads the value to assign, the field/index address and instantiates the field/index
 int sol_ist()
 {
-	Odescr* object = top_ostack();
-	int size = object->size;
+	ByteArray value_descriptor = pop_bytearray();
 
-	byte* value = pop_bytearray().value;
+	int size = value_descriptor.size;
+	byte* value = value_descriptor.value;
 	
 	int start_address = pop_int();
 	int i;
