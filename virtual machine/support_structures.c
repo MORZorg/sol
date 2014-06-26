@@ -9,24 +9,30 @@
 
 int pc;
 
-int ap, op, ip;
-int asize, osize, isize;
+int ap, op, ip, t_op;
+int asize, osize, isize, t_osize;
 
 Adescr** astack;
 Odescr** ostack;
 byte* istack;
 
+Odescr** t_ostack;
+
 int initialize_stacks()
 {
-	pc = ap = op = ip = 0;
+	pc = ap = op = ip = t_op = 0;
 
 	astack = malloc( ASTACK_UNIT );
 	ostack = malloc( OSTACK_UNIT );
 	istack = malloc( ISTACK_UNIT );
+
+	t_ostack = malloc( OSTACK_UNIT );
 	
 	asize = 1;
 	osize = 1;
 	isize = 1;
+
+	t_osize = 1;
 
 	return MEM_OK;
 }
@@ -55,11 +61,11 @@ void push_istack( byte value )
 	fprintf( stderr, "Pushed istack: %d (ip %d isize %d)\n", value, ip, isize );
 }
 
-// Write and read stuff on the istack
+// Write and read temporary stuff on the istack and the t_ostack;
 // All methods pass from the bytearray ones
 ByteArray pop_bytearray()
 {
-	Odescr* object = top_ostack();
+	Odescr* object = top_t_ostack();
 
 	ByteArray result;
     result.value = malloc( sizeof( byte ) * object->size );
@@ -77,7 +83,7 @@ ByteArray pop_bytearray()
 	while( --i >= 0 );
 	
 	// Must be last because it destroys the value referred by object
-	pop_ostack();
+	pop_t_ostack();
 
 	return result;
 }
@@ -97,7 +103,7 @@ void push_bytearray( byte* value, int size )
 	object->size = size;
 	object->inst.sta_val = ip - size;
 
-	push_ostack( object );
+	push_t_ostack( object );
 }
 
 int pop_int()
@@ -207,4 +213,29 @@ void push_astack( Adescr* value )
 		astack = realloc( astack, ASTACK_UNIT * ++asize );
 
 	astack[ ap++ ] = value;
+}
+
+Odescr* top_t_ostack()
+{
+	Odescr* value = t_ostack[ t_op - 1 ];
+
+	fprintf( stderr, "Top t_ostack position %d: %d %d %d\n", t_op - 1, value->mode, value->size, value->inst.sta_val );
+
+	return value;
+}
+
+void pop_t_ostack()
+{
+	fprintf( stderr, "Pop t_ostack: %d\n", t_op );
+	free( t_ostack[ --t_op ] );
+}
+
+void push_t_ostack( Odescr* value )
+{
+	if( t_op == t_osize )
+		t_ostack = realloc( t_ostack, OSTACK_UNIT * ++t_osize );
+
+	t_ostack[ t_op++ ] = value;
+
+	fprintf( stderr, "Push t_ostack: %d %d %d\n", value->mode, value->size, value->inst.sta_val );
 }

@@ -73,14 +73,17 @@ typedef struct
 extern int pc;
 
 // Pointers to first free positions in the stacks
-extern int ap, op, ip;
+extern int ap, op, ip, t_op;
 // Actual allocated sizes of the stacks
-extern int asize, osize, isize;
+extern int asize, osize, isize, t_osize;
 
 // The stacks (actually vectors)
 extern Adescr** astack;
 extern Odescr** ostack;
 extern byte* istack;
+
+// Stack for temporary objects
+extern Odescr** t_ostack;
 
 int initialize_stacks( void );
 
@@ -115,5 +118,10 @@ Adescr* top_astack( void );
 
 void pop_astack( void );
 void push_astack( Adescr* );
+
+Odescr* top_t_ostack( void );
+
+void pop_t_ostack( void );
+void push_t_ostack( Odescr* );
 
 #endif
