@@ -689,7 +689,7 @@ Boolean simplify_expression( Node* node )
  */
 Schema* infere_expression_schema( Node* node )
 {
-	Schema* result;
+	Schema* result = NULL;
 
 	switch( node->type )
 	{

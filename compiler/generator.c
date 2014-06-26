@@ -1,6 +1,8 @@
 #include "generator.h"
 #include "tree_print.h"
 
+#define STR_COMPILER_BUG "Compiler bug."
+
 extern FILE* yyin;
 extern Node* root;
 extern Symbol* symbol_table;
@@ -243,6 +245,8 @@ Code generate_code( Node* node )
 							break;
 
 						default:
+							printf(STR_COMPILER_BUG);
+							exit(1);
 							break;
 					}
 					break;
@@ -267,6 +271,8 @@ Code generate_code( Node* node )
 							break;
 
 						default:
+							printf(STR_COMPILER_BUG);
+							exit(1);
 							break;
 					}
 					break;
@@ -291,6 +297,8 @@ Code generate_code( Node* node )
 							break;
 
 						default:
+							printf(STR_COMPILER_BUG);
+							exit(1);
 							break;
 					}
 					break;
@@ -315,6 +323,8 @@ Code generate_code( Node* node )
 							break;
 
 						default:
+							printf(STR_COMPILER_BUG);
+							exit(1);
 							break;
 					}
 					break;
@@ -324,6 +334,8 @@ Code generate_code( Node* node )
 					break;
 						
 				default:
+					printf(STR_COMPILER_BUG);
+					exit(1);
 					break;
 			}
 
@@ -359,6 +371,8 @@ Code generate_code( Node* node )
 							break;
 
 						default:
+							printf(STR_COMPILER_BUG);
+							exit(1);
 							break;
 					}
 					break;
@@ -375,6 +389,8 @@ Code generate_code( Node* node )
 							break;
 
 						default:
+							printf(STR_COMPILER_BUG);
+							exit(1);
 							break;
 					}
 					break;
@@ -391,6 +407,8 @@ Code generate_code( Node* node )
 							break;
 
 						default:
+							printf(STR_COMPILER_BUG);
+							exit(1);
 							break;
 					}
 					break;
@@ -407,11 +425,15 @@ Code generate_code( Node* node )
 							break;
 
 						default:
+							printf(STR_COMPILER_BUG);
+							exit(1);
 							break;
 					}
 					break;
 
 				default:
+					printf(STR_COMPILER_BUG);
+					exit(1);
 					break;
 			}
 			
@@ -445,6 +467,8 @@ Code generate_code( Node* node )
 					break;
 
 				default:
+					printf(STR_COMPILER_BUG);
+					exit(1);
 					break;
 			}
 

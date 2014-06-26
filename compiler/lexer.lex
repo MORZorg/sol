@@ -7,7 +7,6 @@ char* STR_ERROR = "lexical error";
 
 int line = 1;
 Value lexval;
-static char* strbuf;
 map_t lex_symbol_table;
 
 int yyerror(char * type);
@@ -182,9 +181,9 @@ char parse_escape_seq( char* s )
 				if( s[ 2 ] == 0 )
 					result = '\0';
 				else
+					// TODO: Add support for octal, hexadecimal and unicode.
+					result = s[ 1 ];
 					break;
-
-				// TODO: Add support for octal, hexadecimal and unicode.
 		}
 	else
 		result = s[ 0 ];
