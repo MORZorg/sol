@@ -93,24 +93,9 @@ void push_bytearray( byte* value, int size )
 
 int pop_int()
 {
-	byte* object = (byte*) pop_bytearray().value;
-
 	int value = 0;
-	int i = 0;
 
-	/*do
-	{
-		value += (int) ( ( object[ i ] << ( i * 8 ) ) & (signed byte) 0xFF );
-		fprintf( stderr, "Byte %d: %X\n", i, object[i] );
-	}
-	while( ++i < sizeof( int ) );*/
-
-	memcpy( &value, object, sizeof( value ) );
-
-	for( i = 0; i < sizeof( value ); i++ )
-		fprintf( stderr, "Byte %d: %X\n", i, object[i] );
-
-	fprintf( stderr, "Popped int: %d\n", value );
+	memcpy( &value, pop_bytearray().value, sizeof( value ) );
 
 	return value;
 }
@@ -122,13 +107,6 @@ void push_int( int value )
 	byte object[ sizeof( value ) ];
 	
 	int i = 0;
-
-	/*do
-	{
-		object[ i ] = ( value >> ( i * 8 ) ) & (signed byte) 0xFF;
-		fprintf( stderr, "Byte %d: %X\n", i, object[i] );
-	}
-	while( ++i < sizeof( int ) );*/
 
 	memcpy( object, &value, sizeof( value ) );
 	

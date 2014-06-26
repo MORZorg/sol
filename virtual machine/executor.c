@@ -272,6 +272,8 @@ int sol_lod( Value* args )
 
 	push_bytearray( object->inst.emb_val, object->size );
 
+	exit(1);
+
 	return MEM_OK;
 }
 
@@ -290,7 +292,7 @@ int sol_cat( Value* args )
 	Odescr* object = malloc( sizeof( Odescr ) );
 	object->mode = STA;
 	object->size = total_size;
-	object->inst.sta_val = ip - total_size;
+	object->inst.sta_val = istack[ ip - total_size ];
 
 	push_ostack( object );
 
@@ -776,22 +778,7 @@ int sol_pop()
 // Leaves the input result available on the istack
 int sol_rd( Value* args )
 {
-	int env_offset = args[ 0 ].i_val;
-	int oid = args[ 1 ].i_val;
-	char* format = args[ 2 ].s_val;
-
-	ByteArray input = userInput( format );
-
-	Odescr* lhs = &( astack[ ap - 1 - env_offset ]->objects[ oid ] );
-
-	if( lhs->mode == EMB )
-		lhs->inst.emb_val = input.value;
-	else
-	{
-		lhs->inst.sta_val = ip;
-		push_bytearray( input.value, input.size );
-		pop_ostack();
-	}
+	ByteArray input = userInput( args[ 0 ].s_val );
 
 	push_bytearray( input.value, input.size );
 
