@@ -29,20 +29,6 @@ p, li { white-space: pre-wrap; }
       </property>
      </widget>
     </item>
-    <item row="1" column="1">
-     <widget class="QLineEdit" name="debugText">
-      <property name="text">
-       <string>debug text</string>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="1">
-     <widget class="QLineEdit" name="debugData">
-      <property name="text">
-       <string>debug data</string>
-      </property>
-     </widget>
-    </item>
     <item row="1" column="3">
      <widget class="QPushButton" name="inputButton">
       <property name="text">
@@ -54,6 +40,20 @@ p, li { white-space: pre-wrap; }
      <widget class="QPushButton" name="outputButton">
       <property name="text">
        <string>Output</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="1">
+     <widget class="QLineEdit" name="debugData">
+      <property name="text">
+       <string>debug data</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="1">
+     <widget class="QLineEdit" name="debugText">
+      <property name="text">
+       <string>debug text</string>
       </property>
      </widget>
     </item>

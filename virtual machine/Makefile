@@ -2,10 +2,10 @@ solvm: main.c
 	$(CC) -o $@ $^
 
 machine: main.c executor.o support_structures.o parser.o lexer.o dataIO.o
-	$(CC) `python2.7-config --cflags --ldflags` -g -o $@ $^ -DMACHINE 
+	$(CC) `python3-config --cflags --ldflags` -g -o $@ $^ -DMACHINE
 
 executor.o: executor.c executor.h support_structures.h dataIO.h
-	$(CC) `python2.7-config --cflags` -g -c $<
+	$(CC) `python3-config --cflags` -g -c $<
 
 support_structures.o: support_structures.c support_structures.h def.h
 	$(CC) -g -c $<
@@ -29,7 +29,7 @@ parser.h: parser.y def.h
 	bison -vd -o parser.c $<
 
 dataIO.o: dataIO.c dataIO.h
-	$(CC) `python2.7-config --cflags` -g -c $<
+	$(CC) `python3-config --cflags` -g -c $<
 
 .PHONY : clean
 clean:

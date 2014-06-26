@@ -1,15 +1,15 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import sys
 import os
 from subprocess import Popen, PIPE
 
-from PyQt4 import QtCore, QtGui, uic
+from PyQt5 import QtCore, QtWidgets, uic
 
 from interface import requestInput, requestOutput
 
 
-class MainWindow(QtGui.QMainWindow):
+class MainWindow(QtWidgets.QMainWindow):
     EXT_SOURCE = ".sol"
     EXT_SCODE = ".ohana"
     EXE_COMPILER = "./solc"
@@ -20,7 +20,7 @@ class MainWindow(QtGui.QMainWindow):
     STR_EXECUTABLE = "The file can be executed."
 
     def __init__(self):
-        QtGui.QMainWindow.__init__(self)
+        QtWidgets.QMainWindow.__init__(self)
         self.ui = uic.loadUi("MainWindow.ui", self)
 
         self.ui.actionOpen.triggered.connect(self.open)
@@ -41,12 +41,12 @@ class MainWindow(QtGui.QMainWindow):
         file
         """
 
-        fileName = QtGui.QFileDialog.getOpenFileName(
+        fileName, ok = QtWidgets.QFileDialog.getOpenFileName(
             self,
             "Open file",
-            filter="*{}; *{}".format(self.EXT_SOURCE, self.EXT_SCODE))
+            filter="(SOL) *{};; (S-CODE) *{}".format(self.EXT_SOURCE, self.EXT_SCODE))
 
-        if fileName != "":
+        if ok:
             self.ui.outputText.setText(fileName)
             self.fileName, fileExtension = os.path.splitext(str(fileName))
 
@@ -57,6 +57,7 @@ class MainWindow(QtGui.QMainWindow):
                 self.ui.actionRun.setEnabled(False)
             else:
                 self.ui.outputText.append(self.STR_EXECUTABLE)
+
                 self.ui.actionCompile.setEnabled(False)
                 self.ui.actionRun.setEnabled(True)
         else:
@@ -75,7 +76,7 @@ class MainWindow(QtGui.QMainWindow):
                                                        self.EXT_SOURCE)],
                      stdout=PIPE)
         output, _ = proc.communicate()
-        self.ui.outputText.append(output)
+        self.ui.outputText.append(output.decode("utf-8"))
 
         if proc.returncode == 0:
             self.ui.outputText.append(self.STR_EXECUTABLE)
@@ -94,10 +95,10 @@ class MainWindow(QtGui.QMainWindow):
         # TODO Iterative output (or no output in the vm?)
         output, _ = proc.communicate()
 
-        self.ui.outputText.append(output)
+        self.ui.outputText.append(output.decode("utf-8"))
 
 
 if __name__ == '__main__':
-    app = QtGui.QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
     MainWindow().show()
     sys.exit(app.exec_())

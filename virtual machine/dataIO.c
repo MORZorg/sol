@@ -7,15 +7,15 @@ void initialize_gui(void)
 {
 	Py_Initialize();
 
-	char *path, *new_path;
-	path = Py_GetPath();
-	new_path = malloc(sizeof(char) * (strlen(path) + strlen(PYTHON_PATH) + 2));
-	strcpy(new_path, path);
-	strcat(new_path, PYTHON_PATH);  
-	PySys_SetPath(new_path);
-	free(new_path);
+	/* char *path, *new_path; */
+	/* path = Py_GetPath(); */
+	/* new_path = malloc(sizeof(char) * (strlen(path) + strlen(PYTHON_PATH) + 2)); */
+	/* strcpy(new_path, path); */
+	/* strcat(new_path, PYTHON_PATH); */  
+	/* PySys_SetPath(new_path); */
+	/* free(new_path); */
 
-	gui_module = PyImport_Import(PyString_FromString(PYTHON_MODULE_NAME));
+	gui_module = PyImport_Import(PyUnicode_FromString(PYTHON_MODULE_NAME));
 
 	gui_initialized = GUI_EXT_INIT;
 }
@@ -36,10 +36,10 @@ ByteArray userInput(char* schema)
 
 	PyObject* gui_function = PyObject_GetAttrString(gui_module,
 													PYTHON_REQUEST_INPUT_NAME);
-	PyObject* gui_args = PyTuple_Pack(1, PyString_FromString(schema));
+	PyObject* gui_args = PyTuple_Pack(1, PyUnicode_FromString(schema));
 
 	ByteArray result;
-	PyString_AsStringAndSize(
+	PyUnicode_AsStringAndSize(
 		PyObject_CallObject(gui_function, gui_args),
 		&result.value,
 		&result.size);
@@ -62,8 +62,8 @@ void userOutput(char* schema, ByteArray data)
 													PYTHON_REQUEST_OUTPUT_NAME);
 	PyObject* gui_args =
 		PyTuple_Pack(2,
-					 PyString_FromString(schema),
-					 PyString_FromStringAndSize(data.value, data.size));
+					 PyUnicode_FromString(schema),
+					 PyUnicode_FromStringAndSize(data.value, data.size));
 
 	PyObject_CallObject(gui_function, gui_args);
 

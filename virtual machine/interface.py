@@ -1,19 +1,19 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import math
 import struct
 from collections import deque
 
-from PyQt4 import QtCore, QtGui, uic
+from PyQt5 import QtCore, uic, QtWidgets
 
 
-class DataDialog(QtGui.QDialog):
+class DataDialog(QtWidgets.QDialog):
     """
     Generic dialog to ask for/show data based on a given schema.
     """
 
     def __init__(self, schema, editable):
-        QtGui.QDialog.__init__(self)
+        QtWidgets.QDialog.__init__(self)
         self.ui = uic.loadUi("DataDialog.ui", self)
 
         self.ui.buttonBox.accepted.connect(self.retrieveData)
@@ -82,7 +82,7 @@ class DataDialog(QtGui.QDialog):
         """
         if data is not None:
             self.ui.widgetSchema.setData(data)
-        QtGui.QDialog.show(self)
+        QtWidgets.QDialog.show(self)
 
     def retrieveData(self):
         """
@@ -103,13 +103,13 @@ class InputDialog(DataDialog):
         DataDialog.__init__(self, schema, True)
 
 
-class DataWidget(QtGui.QWidget):
+class DataWidget(QtWidgets.QWidget):
     """
     Generic widget to be implemented for each type.
     """
 
     def __init__(self):
-        QtGui.QWidget.__init__(self)
+        QtWidgets.QWidget.__init__(self)
 
     def setEditable(self, editable):
         try:
@@ -258,7 +258,7 @@ class StructWidget(DataWidget):
             name += DataDialog.decryptString(schema, ":")
 
             widget = DataDialog.resolveSchema(schema, nesting+0.5, editable)
-            label = QtGui.QLabel(name)
+            label = QtWidgets.QLabel(name)
             label.setAlignment(QtCore.Qt.AlignTop)
             label.setBuddy(widget)
             self.ui.widgets.append((label, widget))
@@ -323,7 +323,7 @@ def requestInput(textualSchema):
     """
     External function to ask for data.
     """
-    app = QtGui.QApplication([])
+    app = QtWidgets.QApplication([])
 
     inputDialog = InputDialog(deque(textualSchema))
     inputDialog.show()
@@ -337,7 +337,7 @@ def requestOutput(textualSchema, data):
     """
     External function to show data.
     """
-    app = QtGui.QApplication([])
+    app = QtWidgets.QApplication([])
 
     OutputDialog(deque(textualSchema)).show(deque(data))
 
