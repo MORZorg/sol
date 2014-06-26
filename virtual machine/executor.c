@@ -715,7 +715,9 @@ int sol_push( Value* args )
 	int chain = args[ 1 ].i_val;
 
 	push_int( element_number );
+	fprintf( stderr, "SOL pushed el#: %d\n", element_number );
 	push_int( chain );
+	fprintf( stderr, "SOL pushed chain: %d\n", chain );
 
 	return MEM_OK;
 }
@@ -726,7 +728,9 @@ int sol_goto( Value* args )
 	int entry_point = args[ 0 ].i_val;
 
 	int chain = pop_int();
+	fprintf( stderr, "SOL goto chain: %d\n", chain );
 	int element_number = pop_int();
+	fprintf( stderr, "SOL goto el#: %d\n", element_number );
 
     // The number of elements is given, the start point for its objects is the
     // top of the stack (the objects will be instantiated as part of the

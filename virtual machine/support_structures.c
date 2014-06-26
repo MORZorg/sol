@@ -39,6 +39,8 @@ void push_istack( byte value )
 		istack = realloc( istack, ISTACK_UNIT * ++isize );
 
 	istack[ ip++ ] = value;
+
+	fprintf( stderr, "Pushed istack: %d\n", value );
 }
 
 // Write and read stuff on the istack
@@ -88,32 +90,23 @@ int pop_int()
 
 	int value = 0;
 
-	// FIXME Conversion for SIGNED integers
-	/* int i = 0; */
-	/* do */
-	/* { */
-	/* 	value += ( ( object[ i ] << ( i * 8 ) ) & 0xFF ); */
-	/* } */
-	/* while( ++i < sizeof( int ) ); */
 	memcpy( &value, object, sizeof( value ) );
+
+	fprintf( stderr, "Popped int: %d\n", value );
 
 	return value;
 }
 
 void push_int( int value )
 {
-	byte object[ sizeof( int ) ];
+	fprintf( stderr, "Push int: %d (%lu)\n", value, sizeof( value ) );
 
-	// FIXME Conversion for SIGNED integers
-	/* int i = 0; */
-	/* do */
-	/* { */
-	/* 	object[ i ] = ( value >> ( i * 8 ) ) & 0xFF; */
-	/* } */
-	/* while( ++i < sizeof( int ) ); */
-	memcpy( &value, object, sizeof( value ) );
+	byte object[ sizeof( value ) ];
 
-	push_bytearray( object, sizeof( int ) );
+	//memcpy( &value, object, sizeof( value ) );
+	memcpy( object, &value, sizeof( value ) );
+
+	push_bytearray( object, sizeof( value ) );
 }
 
 float pop_real()
@@ -164,6 +157,7 @@ Odescr* top_ostack()
 
 void pop_ostack()
 {
+	fprintf( stderr, "Pop ostack: %d\n", op );
 	free( ostack[ --op ] );
 }
 
