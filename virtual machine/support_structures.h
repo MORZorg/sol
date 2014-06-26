@@ -82,38 +82,38 @@ extern Adescr** astack;
 extern Odescr** ostack;
 extern byte* istack;
 
-int initialize_stacks();
+int initialize_stacks( void );
 
 // Interaction with the istack
-byte top_istack();
+byte top_istack( void );
 
-void pop_istack();
+void pop_istack( void );
 void push_istack( byte );
 
-ByteArray pop_bytearray();
+ByteArray pop_bytearray( void );
 void push_bytearray( byte*, int );
 
-int pop_int();
+int pop_int( void );
 void push_int( int );
 
-float pop_real();
+float pop_real( void );
 void push_real( float );
 
-char pop_char();
+char pop_char( void );
 void push_char( char );
 
-char* pop_string();
+char* pop_string( void );
 void push_string( char* );
 
 // Interactions with the other stacks
-Odescr* top_ostack();
+Odescr* top_ostack( void );
 
-void pop_ostack();
+void pop_ostack( void );
 void push_ostack( Odescr* );
 
-Adescr* top_astack();
+Adescr* top_astack( void );
 
-void pop_astack();
+void pop_astack( void );
 void push_astack( Adescr* );
 
 #endif

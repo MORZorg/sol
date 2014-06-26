@@ -16,7 +16,7 @@
 #define ERROR_UNDEFINED_FLAG "No such flag."
 
 extern FILE* yyin;
-extern int yyparse();
+extern int yyparse( void );
 extern int program_size;
 
 int main( int argc, char** argv )
@@ -102,7 +102,7 @@ int main( int argc, char** argv )
 #include "def.h"
 #include "tree_print.h"
 
-extern int yyparse();
+extern int yyparse( void );
 extern Stat* program;
 extern int program_size;
 
