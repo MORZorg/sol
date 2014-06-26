@@ -272,7 +272,7 @@ int sol_lod( Value* args )
 
 	push_bytearray( object->inst.emb_val, object->size );
 
-	exit(1);
+	//exit(1);
 
 	return MEM_OK;
 }

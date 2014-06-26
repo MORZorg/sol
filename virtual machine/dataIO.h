@@ -7,7 +7,7 @@
 
 // ":." for unix, or ";." for windows
 #define PYTHON_PATH_MAC ":/usr/local/lib/python2.7/site-packages"
-#define PYTHON_PATH_UNIX ":/usr/lib/python2.7/dist-packages"
+#define PYTHON_PATH_UNIX ":/usr/lib/python3/dist-packages"
 #define PYTHON_PATH_LOCAL ":."
 #define PYTHON_PATH PYTHON_PATH_MAC PYTHON_PATH_UNIX PYTHON_PATH_LOCAL
 
