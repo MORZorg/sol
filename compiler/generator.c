@@ -630,8 +630,8 @@ Code generate_code( Node* node )
 						{
 							news_code = append_code( news_code, make_decl( fetch_scope( current_par->value.s_val )->schema ) );
 
-							stos_code = append_code( stos_code,
-													 generate_lhs_code( current_par, NULL, TRUE ) );
+							stos_code = append_code( generate_lhs_code( current_par, NULL, TRUE ),
+                                                     stos_code );
 
 							current_par = current_par->brother;
 						}
