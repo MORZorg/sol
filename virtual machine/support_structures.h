@@ -11,6 +11,7 @@
 #include <string.h>
 
 #include "def.h"
+#include "../libs/hashmap.h"
 
 #define byte char
 

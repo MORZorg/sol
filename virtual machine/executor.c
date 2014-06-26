@@ -11,6 +11,7 @@ extern Stat* program;
 
 int yyvm( void )
 {
+	int result;
 	initialize_gui();
 	initialize_stacks();
 
@@ -18,14 +19,13 @@ int yyvm( void )
 	{
 		printf( "%d\n", program[pc].op );
 
-        int result;
 		if( ( result = execute( program[pc] ) != 0 ) )
-        {
-          printf( "Error number: %d\n", result );
-          return result;
-        }
+		{
+			printf( "Error number: %d\n", result );
+			return result;
+		}
 
-        pc++;
+		pc++;
 	}
 
 	finalize_gui();
@@ -261,6 +261,7 @@ int sol_lod( Value* args )
 {
 	int env_offset = args[ 0 ].i_val;
 	int oid = args[ 1 ].i_val;
+	Odescr* object;
 
 	if( ap - 1 - env_offset < 0 )
 		return ERROR_ASTACK_OUT_OF_BOUND;
@@ -268,7 +269,7 @@ int sol_lod( Value* args )
 	if( oid >= astack[ ap - 1 - env_offset ]->obj_number )
 		return ERROR_OSTACK_OUT_OF_BOUND;
 
-	Odescr* object = &( astack[ ap - 1 - env_offset ]->objects[ oid ] );
+	object = &( astack[ ap - 1 - env_offset ]->objects[ oid ] );
 
 	push_bytearray( object->inst.emb_val, object->size );
 
@@ -283,13 +284,14 @@ int sol_cat( Value* args )
 {
 	int element_number = args[ 0 ].i_val;
 	int total_size = args[ 1 ].i_val;
+	Odescr* object;
 
 	// Remove the descriptor of the single elements
 	// A descriptor of the whole structure is created as purpose of this instruction 
 	while( element_number-- > 0 )
 		pop_ostack();
 
-	Odescr* object = malloc( sizeof( Odescr ) );
+	object = malloc( sizeof( Odescr ) );
 	object->mode = STA;
 	object->size = total_size;
 	object->inst.sta_val = istack[ ip - total_size ];
@@ -304,16 +306,17 @@ int sol_lda( Value* args )
 {
 	int env_offset = args[ 0 ].i_val;
 	int oid = args[ 1 ].i_val;
-	
+	Odescr* object;
+
 	if( ap - 1 - env_offset < 0 )
 		return ERROR_ASTACK_OUT_OF_BOUND;
 
 	if( oid >= astack[ ap - 1 - env_offset ]->obj_number )
 		return ERROR_OSTACK_OUT_OF_BOUND;
 
-	Odescr* source_object = &( astack[ ap - 1 - env_offset ]->objects[ oid ] );
+	object = &( astack[ ap - 1 - env_offset ]->objects[ oid ] );
 
-	push_int( source_object->inst.sta_val );
+	push_int( object->inst.sta_val );
 
 	return MEM_OK;
 }
@@ -349,14 +352,14 @@ int sol_ixa( Value* args )
 int sol_eil( Value* args )
 {
 	int field_size = args[ 0 ].i_val;
-
 	int start_offset = pop_int(); // Offset calculated via multiple IXA/FDA + LDA
+	byte* value;
+	int i = 0;
 
 	if( start_offset + field_size > ip - 1 )
 		return ERROR_ISTACK_OUT_OF_BOUND;
 
-	byte* value = malloc( sizeof( byte ) * field_size );
-	int i = 0;
+	value = malloc( sizeof( byte ) * field_size );
 
 	do
 	{
@@ -374,14 +377,15 @@ int sol_eil( Value* args )
 int sol_sil( Value* args )
 {
 	int field_size = args[ 0 ].i_val;
-
 	int start_offset = pop_int(); // Offset calculated via multiple IXA/FDA + LDA
+	byte* value;
+	int i;
 
 	if( start_offset + field_size > ip - 1 )
 		return ERROR_ISTACK_OUT_OF_BOUND;
 
-	byte* value = malloc( sizeof( byte ) * field_size );
-	int i = 0;
+	value = malloc( sizeof( byte ) * field_size );
+	i = 0;
 
 	// Mh wat?
 	do
@@ -401,6 +405,7 @@ int sol_sto( Value* args )
 {
 	int env_offset = args[ 0 ].i_val;
 	int oid = args[ 1 ].i_val;
+	Odescr* object;
 
 	if( ap - 1 - env_offset < 0 )
 		return ERROR_ASTACK_OUT_OF_BOUND;
@@ -408,7 +413,7 @@ int sol_sto( Value* args )
 	if( oid >= astack[ ap - 1 - env_offset ]->obj_number )
 		return ERROR_OSTACK_OUT_OF_BOUND;
 
-	Odescr* object = &( astack[ ap - 1 - env_offset ]->objects[ oid ] );
+	object = &( astack[ ap - 1 - env_offset ]->objects[ oid ] );
 
 	object->inst.emb_val = pop_bytearray().value;
 
@@ -422,7 +427,7 @@ int sol_ist()
 
 	int size = value_descriptor.size;
 	byte* value = value_descriptor.value;
-	
+
 	int start_address = pop_int();
 	int i;
 
@@ -460,6 +465,7 @@ int sol_equ()
 {
 	ByteArray left_object = pop_bytearray();
 	ByteArray right_object = pop_bytearray();
+	int i;
 
 	if( left_object.size != right_object.size )
 	{
@@ -467,7 +473,6 @@ int sol_equ()
 		return MEM_OK;
 	}
 
-	int i;
 	for( i = 0; i < left_object.size; i++ )
 		if( left_object.value[ i ] != right_object.value[ i ] )
 		{
@@ -728,20 +733,21 @@ int sol_push( Value* args )
 int sol_goto( Value* args )
 {
 	int entry_point = args[ 0 ].i_val;
-
 	int chain = pop_int();
-	fprintf( stderr, "SOL goto chain: %d\n", chain );
 	int element_number = pop_int();
+	Adescr* function_ar;
+
+	fprintf( stderr, "SOL goto chain: %d\n", chain );
 	fprintf( stderr, "SOL goto el#: %d\n", element_number );
 
-    // The number of elements is given, the start point for its objects is the
-    // top of the stack (the objects will be instantiated as part of the
-    // function call, not before)
-	Adescr* function_ar = malloc( sizeof( Adescr ) );
+	// The number of elements is given, the start point for its objects is the
+	// top of the stack (the objects will be instantiated as part of the
+	// function call, not before)
+	function_ar = malloc( sizeof( Adescr ) );
 	function_ar->obj_number = element_number;
 	function_ar->objects = ostack[ op ];
 	function_ar->raddr = pc + 1;
-    push_astack( function_ar );
+	push_astack( function_ar );
 
 	// Jump to the entry point (first instruction will be the definition of the formals)
 	pc = entry_point - 1;
@@ -817,7 +823,7 @@ int sol_frd( Value* args )
 int sol_toint()
 {
 	float value = pop_real();
-	
+
 	push_int( (int) value );
 
 	return MEM_OK;

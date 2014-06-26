@@ -23,17 +23,20 @@ void finalize_gui(void)
 
 ByteArray userInput(char* schema)
 {
+	PyObject* gui_function;
+	PyObject* gui_args;
+	ByteArray result;
+
 	if( !gui_initialized )
 	{
 		initialize_gui();
 		gui_initialized = GUI_SELF_INIT;
 	}
 
-	PyObject* gui_function = PyObject_GetAttrString(gui_module,
-													PYTHON_REQUEST_INPUT_NAME);
-	PyObject* gui_args = PyTuple_Pack(1, PyUnicode_FromString(schema));
+	gui_function = PyObject_GetAttrString(gui_module,
+										  PYTHON_REQUEST_INPUT_NAME);
+	gui_args = PyTuple_Pack(1, PyUnicode_FromString(schema));
 
-	ByteArray result;
 	PyBytes_AsStringAndSize(
 		PyObject_CallObject(gui_function, gui_args),
 		&result.value,
@@ -47,15 +50,18 @@ ByteArray userInput(char* schema)
 
 void userOutput(char* schema, ByteArray data)
 {
+	PyObject* gui_function;
+	PyObject* gui_args;
+
 	if( !gui_initialized )
 	{
 		initialize_gui();
 		gui_initialized = GUI_SELF_INIT;
 	}
 
-	PyObject* gui_function = PyObject_GetAttrString(gui_module,
-													PYTHON_REQUEST_OUTPUT_NAME);
-	PyObject* gui_args =
+	gui_function = PyObject_GetAttrString(gui_module,
+										  PYTHON_REQUEST_OUTPUT_NAME);
+	gui_args =
 		PyTuple_Pack(2,
 					 PyUnicode_FromString(schema),
 					 PyBytes_FromStringAndSize(data.value, data.size));

@@ -24,8 +24,9 @@ int main( int argc, char** argv )
 	char* fileInput = NULL;
 	FILE* input;
 	FILE* console_output = stdout;
-
+	int result;
 	int i = 0;
+
 	while( ++i < argc )
 	{
 		if( argv[ i ][ 0 ] != '-' )
@@ -79,8 +80,6 @@ int main( int argc, char** argv )
 		fprintf( console_output, "Reading from '%s'!\n", fileInput );
 		input = fopen( fileInput, "r" );
 	}
-
-	int result;
 
 	fprintf( stdout, "I want to do something! ノ┬─┬ノ ︵ ( \\o°o)\\\n" );
 

@@ -15,6 +15,7 @@ int asize, osize, isize, t_osize;
 Adescr** astack;
 Odescr** ostack;
 byte* istack;
+any_t string_map;
 
 Odescr** t_ostack;
 
@@ -33,6 +34,8 @@ int initialize_stacks()
 	isize = 1;
 
 	t_osize = 1;
+
+	string_map = hashmap_new();
 
 	return MEM_OK;
 }
@@ -128,7 +131,7 @@ void push_int( int value )
 	for( i = 0; i < sizeof( value ); i++ )
 		fprintf( stderr, "Byte %d: %X\n", i, object[i] );
 
-	push_bytearray( (byte*) &value, sizeof( value ) );
+	push_bytearray( object, sizeof( value ) );
 }
 
 float pop_real()
@@ -161,14 +164,40 @@ void push_char( char value )
 	push_bytearray( (byte*) &value, 1 );
 }
 
-char* pop_string()
+/**
+ * @brief Inserts an element checking name integrity in the rest of the scope.
+ *
+ * @param element
+ *
+ * @return 
+ */
+char* insert_unconflicted_element( char* string )
 {
-	return pop_bytearray().value;
+	any_t pointer;
+	if( hashmap_get( string_map, string, &pointer ) == MAP_OK )
+		return pointer;
+
+	hashmap_put( string_map, string, string );
+	return string;
 }
 
-void push_string( char* object )
+char* pop_string()
 {
-	push_bytearray( object, strlen( object ) + 1 );
+	byte* byte_pointer = pop_bytearray().value;
+	char* pointer;
+	memcpy( &pointer, byte_pointer, sizeof( pointer ) );
+	return pointer;
+}
+
+void push_string( char* string )
+{
+	// Pushing the string in the hashmap and pushing its pointer to the ostack
+	char* pointer = insert_unconflicted_element( string );
+	byte object[ sizeof( pointer ) ];
+	memcpy( object, &pointer, sizeof( pointer ) );
+	push_bytearray( object, sizeof( pointer ) );
+
+	//push_bytearray( object, strlen( object ) + 1 );
 }
 
 // Interactions with the other stacks
