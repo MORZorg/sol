@@ -9,6 +9,26 @@
 #define PYTHON_REQUEST_INPUT_NAME "requestInput"
 #define PYTHON_REQUEST_OUTPUT_NAME "requestOutput"
 
+#define GUI_NO_INIT 0
+#define GUI_EXT_INIT 1
+#define GUI_SELF_INIT 2
+
+
+/**
+ * @brief Initialized the user interface variables.
+ * This method can be called to make every subsequent call to the UI functions
+ * faster.
+ * If used, also finalize_gui() must be called before exiting the program.
+ */
+void initialize_gui(void);
+
+/**
+ * @brief Finalizes the user interface variables.
+ * This method must only be called if initialize_gui() is called. Otherwise the
+ * functions will handle it themselves.
+ */
+void finalize_gui(void);
+
 /**
  * @brief Asks the user for data.
  *

@@ -1,6 +1,9 @@
 #include "dataIO.h"
 
-ByteArray userInput(char* schema)
+PyObject* gui_module;
+int gui_initialized = GUI_NO_INIT;
+
+void initialize_gui(void)
 {
 	Py_Initialize();
 
@@ -13,7 +16,25 @@ ByteArray userInput(char* schema)
 	PySys_SetPath(new_path);
 	free(new_path);
 
-	PyObject* gui_module = PyImport_Import(PyString_FromString(PYTHON_MODULE_NAME));
+	gui_module = PyImport_Import(PyString_FromString(PYTHON_MODULE_NAME));
+
+	gui_initialized = GUI_EXT_INIT;
+}
+
+void finalize_gui(void)
+{
+	Py_Finalize();
+	gui_initialized = GUI_NO_INIT;
+}
+
+ByteArray userInput(char* schema)
+{
+	if( !gui_initialized )
+	{
+		initialize_gui();
+		gui_initialized = GUI_SELF_INIT;
+	}
+
 	PyObject* gui_function = PyObject_GetAttrString(gui_module,
 													PYTHON_REQUEST_INPUT_NAME);
 	PyObject* gui_args = PyTuple_Pack(1, PyString_FromString(schema));
@@ -24,27 +45,19 @@ ByteArray userInput(char* schema)
 		&result.value,
 		&result.size);
 
-	Py_Finalize();
+	if( gui_initialized == GUI_SELF_INIT )
+		finalize_gui();
 
 	return result;
 }
 
 void userOutput(char* schema, ByteArray data)
 {
-	Py_Initialize();
-	
-	char *path, *new_path;
-	char* added_path = ":/usr/local/lib/python2.7/site-packages:.";
-	path = Py_GetPath();
-	new_path = malloc(sizeof(char) * (strlen(path) + strlen(added_path) + 2));
-	strcpy(new_path, path);
-	strcat(new_path, added_path);  // ":." for unix, or ";." for windows
-	PySys_SetPath(new_path);
-	free(new_path);
-
-	PyObject* gui_name = PyString_FromString(PYTHON_MODULE_NAME);
-	PyObject* gui_module = PyImport_Import(PyString_FromString(PYTHON_MODULE_NAME));
-	Py_DECREF(gui_name);
+	if( !gui_initialized )
+	{
+		initialize_gui();
+		gui_initialized = GUI_SELF_INIT;
+	}
 
 	PyObject* gui_function = PyObject_GetAttrString(gui_module,
 													PYTHON_REQUEST_OUTPUT_NAME);
@@ -55,7 +68,8 @@ void userOutput(char* schema, ByteArray data)
 
 	PyObject_CallObject(gui_function, gui_args);
 
-	Py_Finalize();
+	if( gui_initialized == GUI_SELF_INIT )
+		finalize_gui();
 }
 
 ByteArray fileInput(char* filename)

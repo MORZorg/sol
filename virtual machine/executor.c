@@ -11,6 +11,7 @@ extern Stat* program;
 
 int yyvm()
 {
+	initialize_gui();
 	initialize_stacks();
 
 	while( program[pc].op != SOL_HALT )
@@ -26,6 +27,8 @@ int yyvm()
 
         pc++;
 	}
+
+	finalize_gui();
 
 	return MEM_OK;
 }
