@@ -22,11 +22,8 @@ extern int program_size;
 int main( int argc, char** argv )
 {
 	char* fileInput = NULL;
-	char* fileOutput = NULL;
 	FILE* input;
-	FILE* output = stdout; // So the vm could read everything.
-	// FIXME: isn't better to write this on stdout?
-	FILE* console_output = stderr;
+	FILE* console_output = stdout;
 
 	int i = 0;
 	while( ++i < argc )

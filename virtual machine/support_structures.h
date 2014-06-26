@@ -70,17 +70,17 @@ typedef struct
 // Position of the actual statement to execute
 // Normally, the pc is increased by one after every instruction execution, but it can
 // be modified completely, for example, to perform a jump in the code (the statements vector)
-int pc;
+extern int pc;
 
 // Pointers to first free positions in the stacks
-int ap, op, ip;
+extern int ap, op, ip;
 // Actual allocated sizes of the stacks
-int asize, osize, isize;
+extern int asize, osize, isize;
 
 // The stacks (actually vectors)
-Adescr** astack;
-Odescr** ostack;
-byte* istack;
+extern Adescr** astack;
+extern Odescr** ostack;
+extern byte* istack;
 
 int initialize_stacks();
 

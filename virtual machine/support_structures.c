@@ -7,6 +7,15 @@
  */
 #include "support_structures.h"
 
+int pc;
+
+int ap, op, ip;
+int asize, osize, isize;
+
+Adescr** astack;
+Odescr** ostack;
+byte* istack;
+
 int initialize_stacks()
 {
 	pc = ap = op = ip = 0;
