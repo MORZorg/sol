@@ -323,21 +323,34 @@ int sol_fda( Value* args )
 {
 	int field_offset = args[ 0 ].i_val;
 
-	int ref_offset_on_stack = pop_int();
+	int ref_offset_on_stack = pop_int(); // Field offset previously calculated (either LDA or other FDAs)
 
 	push_int( field_offset + ref_offset_on_stack );
 
 	return MEM_OK;
 }
 
-// Gets the start_offset from the istack, previously calculated with LDA and
-// various FDA (or IXA), goes on the istack to the field, copies it in its
-// entirety and puts it on the stack
+// Identical to FDA but specific for vectors
+// The only given parameter is the size of the vector's elements dimension (eg vector [ 10 ] of int has dimension |int|, while vector [ 10 ] of vector [ 20 ] of int has 2 dimensions which elements have size 20*|int| and |int|)
+// The index value must have been previously calculated (and therefore be present as last value on the istack), the same applies for the base address of the vector, loaded with a LDA
+int sol_ixa( Value* args )
+{
+	int vector_dimension = args[ 0 ].i_val;
+
+	int index_value = pop_int(); // Index value calculated via expression
+	int start_offset = pop_int(); // Previously calculated offset (either LDA or other IXAs)
+
+	push_int( start_offset + vector_dimension * index_value );
+
+	return MEM_OK;
+}
+
+// Gets the start_offset from the istack, previously calculated with LDA and various FDA (or IXA), goes on the istack to the field, copies it in its entirety and puts it on the stack
 int sol_eil( Value* args )
 {
 	int field_size = args[ 0 ].i_val;
 
-	int start_offset = pop_int();
+	int start_offset = pop_int(); // Offset calculated via multiple IXA/FDA + LDA
 
 	if( start_offset + field_size > ip - 1 )
 		return ERROR_ISTACK_OUT_OF_BOUND;
@@ -362,7 +375,7 @@ int sol_sil( Value* args )
 {
 	int field_size = args[ 0 ].i_val;
 
-	int start_offset = pop_int();
+	int start_offset = pop_int(); // Offset calculated via multiple IXA/FDA + LDA
 
 	if( start_offset + field_size > ip - 1 )
 		return ERROR_ISTACK_OUT_OF_BOUND;
@@ -379,25 +392,6 @@ int sol_sil( Value* args )
 
 	push_bytearray( value, field_size );
 
-
-	return MEM_OK;
-}
-
-// Identical to FDA but specific for vectors
-// The only given parameter is the size of the vector's elements dimension (eg
-// vector [ 10 ] of int has dimension |int|, while vector [ 10 ] of vector [ 20
-// ] of int has 2 dimensions which elements have size 20*|int| and |int|)
-// The index value must have been previously calculated (and therefore be
-// present as last value on the istack), the same applies for the base address
-// of the vector, loaded with a LDA
-int sol_ixa( Value* args )
-{
-	int vector_dimension = args[ 0 ].i_val;
-
-	int index_value = pop_int();
-	int start_offset = pop_int(); // LDA FIXME
-
-	push_int( vector_dimension * index_value + vector_dimension );
 
 	return MEM_OK;
 }
@@ -633,8 +627,6 @@ int sol_int_math( Operator op )
 		result = left_value * right_value;
 	else if( op == SOL_IDIV )
 		result = left_value / right_value;
-	else
-		return ERROR_UNRECOGNISED;
 
 	push_int( result );
 
@@ -656,8 +648,6 @@ int sol_real_math( Operator op )
 		result = left_value * right_value;
 	else if( op == SOL_RDIV )
 		result = left_value / right_value;
-	else
-		return ERROR_UNRECOGNISED;
 
 	push_real( result );
 
