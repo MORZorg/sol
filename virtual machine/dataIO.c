@@ -8,11 +8,10 @@ void initialize_gui(void)
 	Py_Initialize();
 
 	char *path, *new_path;
-	char* added_path = ":/usr/local/lib/python2.7/site-packages:.";
 	path = Py_GetPath();
-	new_path = malloc(sizeof(char) * (strlen(path) + strlen(added_path) + 2));
+	new_path = malloc(sizeof(char) * (strlen(path) + strlen(PYTHON_PATH) + 2));
 	strcpy(new_path, path);
-	strcat(new_path, added_path);  // ":." for unix, or ";." for windows
+	strcat(new_path, PYTHON_PATH);  
 	PySys_SetPath(new_path);
 	free(new_path);
 
