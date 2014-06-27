@@ -360,8 +360,9 @@ class NestedWidget(DataWidget):
 
 
 class SimpleInterface:
-    def __init__(self):
-        self.app = QtWidgets.QApplication([])
+    def __init__(self, startApp=True):
+        if startApp:
+            self.app = QtWidgets.QApplication([])
 
     def requestInput(self, textualSchema):
         """

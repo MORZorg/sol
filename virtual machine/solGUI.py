@@ -28,7 +28,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.actionRun.triggered.connect(self.run)
 
         # Debug
-        self.debugInterface = SimpleInterface()
+        self.debugInterface = SimpleInterface(False)
         self.ui.inputButton.clicked \
             .connect(lambda: self.debugInterface.requestInput(str(self.ui.debugText.text())))
         self.ui.outputButton.clicked \
