@@ -689,8 +689,10 @@ int sol_neg()
 int sol_wr( Value* args )
 {
 	char* format = args[ 0 ].s_val;
+	ByteArray popped = pop_bytearray();
+	ByteArray expr;
 
-	ByteArray expr = pop_bytearray();
+	decrypt_bytearray( &popped, &expr, format );
 
 	userOutput( format, expr );
 
@@ -703,10 +705,12 @@ int sol_wr( Value* args )
 // Leaves the expr result available on the istack
 int sol_fwr( Value* args )
 {
-	// char* format = args[ 0 ].s_val;
-
+	char* format = args[ 0 ].s_val;
 	char* filename = pop_string();
-	ByteArray expr = pop_bytearray();
+	ByteArray expr;
+	ByteArray popped = pop_bytearray();
+
+	decrypt_bytearray( &popped, &expr, format );
 
 	fileOutput( filename, expr );
 

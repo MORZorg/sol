@@ -125,4 +125,6 @@ Odescr* top_t_ostack( void );
 void pop_t_ostack( void );
 void push_t_ostack( Odescr* );
 
+void decrypt_bytearray( ByteArray*, ByteArray*, char* );
+
 #endif

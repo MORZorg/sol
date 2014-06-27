@@ -268,3 +268,91 @@ void push_t_ostack( Odescr* value )
 
 	fprintf( stderr, "Push t_ostack: %d %d %d\n", value->mode, value->size, value->inst.sta_val );
 }
+
+void decrypt_bytearray( ByteArray* array, ByteArray* result, char* format )
+{
+	fprintf( stderr, "Starting decrypting\n" );
+
+	while( *(format) != '\0' )
+	{
+		switch( *(format) )
+		{
+			case '"':
+				format++;
+				break;
+
+			case '(':
+				while( *(format) != ')' )
+				{
+					while( *(format) != ':' )
+						format++;
+					decrypt_bytearray( array, result, format );
+				}
+				break;
+
+			case '[':
+			{
+				int array_times, i;
+				memcpy( &array_times, format, sizeof( int ) );
+				format += sizeof( int );
+				for( i = 0; i < array_times; i++ )
+					decrypt_bytearray( array, result, format );
+
+				break;
+			}
+
+			case 'i':
+			{
+				int i;
+				result->value = realloc( result->value, sizeof( int ) );
+				for( i = 0; i < sizeof( int ); i++ )
+					result->value[ result->size + i ] = array->value[ i ];
+				result->size += sizeof( int );
+				array->value = &( array->value[ sizeof( int ) ] );
+				format++;
+				break;
+			}
+
+			case 'c':
+			case 'b':
+			{
+				int i;
+				result->value = realloc( result->value, sizeof( char ) );
+				for( i = 0; i < sizeof( char ); i++ )
+					result->value[ result->size + i ] = array->value[ i ];
+				result->size += sizeof( char );
+				array->value = &( array->value[ sizeof( char ) ] );
+				format++;
+				break;
+			}
+
+			case 's':
+			{
+				// Getting the pointer to the string from its bytes
+				char str_pointer[ sizeof( char* ) ];
+				int i;
+				for( i = 0; i < sizeof( char* ); i++ )
+					str_pointer[ i ] = array->value[ i ];
+				array->value = &( array->value[ sizeof( char* ) ] );
+
+				result->value = realloc( result->value, sizeof( char )* strlen( str_pointer ) );
+				byte* string;
+				memcpy( string, str_pointer, sizeof( char ) * strlen( str_pointer ) );
+
+				for( i = 0; i < sizeof( char ) * strlen( str_pointer ); i++ )
+					result->value[ result->size + i ] = string[ i ];
+
+				result->size += sizeof( char ) * strlen( str_pointer );
+				format++;
+				break;
+			}
+
+			default:
+				fprintf( stderr, "Nothing to do with '%c'\n", *(format) );
+				format++;
+				break;
+		}
+	}
+
+	fprintf( stderr, "Finished decrypting\n" );
+}
