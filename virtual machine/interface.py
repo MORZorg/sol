@@ -7,6 +7,24 @@ from collections import deque
 from PyQt5 import QtCore, uic, QtWidgets
 
 
+class ByteDeque:
+    def __init__(self, byteData):
+        if byteData is ByteDeque:
+            self.data = byteData.data
+            self.start = byteData.start
+        else:
+            self.data = byteData
+            self.start = 0
+
+    def unpack(self, format):
+        result = struct.unpack_from(format, self.data, self.start)
+        self.start += 1
+        return result
+
+    def __len__(self):
+        return len(self.data) - self.start
+
+
 class DataDialog(QtWidgets.QDialog):
     """
     Generic dialog to ask for/show data based on a given schema.
@@ -65,14 +83,21 @@ class DataDialog(QtWidgets.QDialog):
         Reads a string from a deque of characters, until the terminator (single
         value or list of values) is found.
         """
+        if not stringDeque:
+            return b""
+
         if terminator is not tuple:
             terminator = (terminator)
 
-        result = ""
-        character = stringDeque.popleft()
+        result = b""
+        character = stringDeque.unpack("c")[0]
         while character not in terminator:
             result += character
-            character = stringDeque.popleft()
+
+            if stringDeque:
+                character = stringDeque.unpack("c")[0]
+            else:
+                return result
 
         return result
 
@@ -138,12 +163,7 @@ class IntegerWidget(DataWidget):
                                 int(self.ui.inputBox.text())))
 
     def setData(self, data):
-        dataOfInterest = ""
-        for i in range(struct.calcsize(self.DATA_FORMAT)):
-            dataOfInterest += data.popleft()
-
-        DataWidget.setData(self, struct.unpack(self.DATA_FORMAT,
-                                               dataOfInterest)[0])
+        DataWidget.setData(self, data.unpack(self.DATA_FORMAT)[0])
 
 
 class RealWidget(DataWidget):
@@ -158,12 +178,7 @@ class RealWidget(DataWidget):
                                 float(self.ui.inputBox.text())))
 
     def setData(self, data):
-        dataOfInterest = ""
-        for i in range(struct.calcsize(self.DATA_FORMAT)):
-            dataOfInterest += data.popleft()
-
-        DataWidget.setData(self, struct.unpack(self.DATA_FORMAT,
-                                               dataOfInterest)[0])
+        DataWidget.setData(self, data.unpack(self.DATA_FORMAT)[0])
 
 
 class CharacterWidget(DataWidget):
@@ -173,7 +188,7 @@ class CharacterWidget(DataWidget):
         self.ui = uic.loadUi("CharacterWidget.ui", self)
 
     def setData(self, data):
-        DataWidget.setData(self, data.popleft())
+        DataWidget.setData(self, data.unpack("c")[0])
 
 
 class StringWidget(DataWidget):
@@ -183,7 +198,9 @@ class StringWidget(DataWidget):
         self.ui = uic.loadUi("StringWidget.ui", self)
 
     def setData(self, data):
-        self.ui.inputBox.setPlainText(DataDialog.decryptString(data, '\0'))
+        # FIXME Change to .decode("utf-8") when the string problem has been
+        # solved
+        self.ui.inputBox.setPlainText(str(DataDialog.decryptString(data, b'\0')))
 
     def getData(self):
         return list(str(self.ui.inputBox.toPlainText()) + '\0')
@@ -196,7 +213,7 @@ class BooleanWidget(DataWidget):
         self.ui = uic.loadUi("BooleanWidget.ui", self)
 
     def setData(self, data):
-        if data.popleft() == '1':
+        if data.unpack("c")[0] == b'1':
             self.ui.inputBox.setChecked(True)
         else:
             self.ui.inputBox.setChecked(False)
@@ -210,7 +227,7 @@ class VectorWidget(DataWidget):
     def __init__(self, schema, nesting, editable):
         DataWidget.__init__(self)
         self.ui = uic.loadUi("VectorWidget.ui", self)
-        self.size = int(DataDialog.decryptString(schema, ','))
+        self.size = int(DataDialog.decryptString(schema, b','))
 
         self.ui.widgets = []
         self.ui.horizontal = (math.floor(nesting) % 2 == 0)
@@ -229,7 +246,7 @@ class VectorWidget(DataWidget):
                                      0 if self.ui.horizontal else self.size-1)
         self.ui.gridLayout.update()
 
-        schema.popleft()  # Closed square bracket ending the vector's schema
+        schema.unpack("c")  # Closed square bracket ending the vector's schema
 
     def setData(self, data):
         for widget in self.ui.widgets:
@@ -251,11 +268,11 @@ class StructWidget(DataWidget):
         self.ui = uic.loadUi("StructWidget.ui", self)
         self.ui.widgets = []
 
-        character = schema.popleft()
+        character = schema.unpack("c")
         i = 0
         while character != ")":
             name = character if character != "," else ""
-            name += DataDialog.decryptString(schema, ":")
+            name += DataDialog.decryptString(schema, b':')
 
             widget = DataDialog.resolveSchema(schema, nesting+0.5, editable)
             label = QtWidgets.QLabel(name)
@@ -266,7 +283,7 @@ class StructWidget(DataWidget):
             self.ui.gridLayout.addWidget(self.ui.widgets[i][1], i, 1)
 
             # Comma separating elements of the struct or closed bracket
-            character = schema.popleft()
+            character = schema.unpack("c")
             i += 1
 
         self.ui.gridLayout.update()
@@ -306,7 +323,7 @@ class NestedWidget(DataWidget):
     def setData(self, data):
         # A bit of an hack... Copies the data and then consumes the part
         # relative to its content
-        self.data = deque(data)
+        self.data = ByteDeque(data)
         self.dataDialog.widgetSchema.setData(data)
 
     def getData(self):
@@ -340,6 +357,6 @@ def requestOutput(textualSchema, data):
     app = QtWidgets.QApplication([])
 
     # TODO Would be nice to use the bytes everywhere.
-    OutputDialog(deque(textualSchema)).show(deque(data.decode("utf-8")))
+    OutputDialog(deque(textualSchema)).show(ByteDeque(data))
 
     app.exec_()
