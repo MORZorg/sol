@@ -6,7 +6,7 @@ from subprocess import Popen, PIPE
 
 from PyQt5 import QtCore, QtWidgets, uic
 
-from interface import requestInput, requestOutput
+from interface import SimpleInterface
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -28,11 +28,12 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.actionRun.triggered.connect(self.run)
 
         # Debug
+        self.debugInterface = SimpleInterface()
         self.ui.inputButton.clicked \
-            .connect(lambda: requestInput(str(self.ui.debugText.text())))
+            .connect(lambda: self.debugInterface.requestInput(str(self.ui.debugText.text())))
         self.ui.outputButton.clicked \
-            .connect(lambda: requestOutput(str(self.ui.debugText.text()),
-                                           str(self.ui.debugData.text())))
+            .connect(lambda: self.debugInterface.requestOutput(str(self.ui.debugText.text()),
+                                                               str(self.ui.debugData.text())))
 
     @QtCore.pyqtSlot()
     def open(self):
