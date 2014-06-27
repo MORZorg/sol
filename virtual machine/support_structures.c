@@ -201,8 +201,6 @@ void push_string( char* string )
 	byte object[ sizeof( pointer ) ];
 	memcpy( object, &pointer, sizeof( pointer ) );
 	push_bytearray( object, sizeof( pointer ) );
-
-	//push_bytearray( object, strlen( object ) + 1 );
 }
 
 // Interactions with the other stacks
@@ -321,6 +319,7 @@ void adjust_bytearray( ByteArray* array, ByteArray* result, char* format, char t
 
 			case '[':
 			{
+				format++;
 				int array_times, i;
 				array_times = 0;
 				while( *(format) != ',' )
@@ -329,6 +328,8 @@ void adjust_bytearray( ByteArray* array, ByteArray* result, char* format, char t
 					format++;
 				}
 				format++;
+
+				fprintf( stderr, "Vectoring %d times \n", array_times );
 				for( i = 0; i < array_times; i++ )
 					adjust_bytearray( array, result, format, type );
 

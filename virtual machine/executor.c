@@ -219,10 +219,10 @@ int sol_news( Value* args )
 	Odescr* object = malloc( sizeof( Odescr ) );
 	object->mode = STA;
 	object->size = size;
-    object->inst.sta_val = ip;
+	object->inst.sta_val = ip;
 
-    dummy_instantiation = calloc( sizeof( byte ), size );
-    push_bytearray( dummy_instantiation, size );
+	dummy_instantiation = calloc( sizeof( byte ), size );
+	push_bytearray( dummy_instantiation, size );
 
 	push_ostack( object );
 
@@ -267,6 +267,8 @@ int sol_lod( Value* args )
 	int env = ap - 1 - args[ 0 ].i_val;
 	int oid = args[ 1 ].i_val - 1;
 	Odescr* object;
+	int i;
+	ByteArray instance;
 
 	if( env < 0 )
 		return ERROR_ASTACK_OUT_OF_BOUND;
@@ -274,14 +276,21 @@ int sol_lod( Value* args )
 	if( oid >= astack[ env ]->obj_number )
 		return ERROR_OSTACK_OUT_OF_BOUND;
 
-    printf("I'm gonna load the value at env %d with oid %d!\n", env, oid );
+	printf("I'm gonna load the value at env %d with oid %d!\n", env, oid );
 	object = ostack[ astack[ env ]->first_object + oid ];
-    printf("I took %p.\n", object);
+	printf("I took %p.\n", object);
 
-    if( object->mode == EMB )
-      push_bytearray( object->inst.emb_val, object->size );
-    else
-      printf("Pasta ipsum dolor sit amet lasagnotte occhi di lupo mezzani\n");
+	if( object->mode == EMB )
+		push_bytearray( object->inst.emb_val, object->size );
+	else
+	{
+		instance.value = malloc( sizeof( byte ) * object->size );
+
+		for( i = 0; i < object->size; i++ )
+			instance.value[ i ] = istack[ object->inst.sta_val + i ];
+
+		push_bytearray( instance.value, object->size );
+	}
 
 	return MEM_OK;
 }
@@ -414,6 +423,8 @@ int sol_sto( Value* args )
 	int env = ap - 1 - args[ 0 ].i_val;
 	int oid = args[ 1 ].i_val - 1;
 	Odescr* object;
+	int i;
+	ByteArray instance;
 
 	if( env < 0 )
 		return ERROR_ASTACK_OUT_OF_BOUND;
@@ -421,18 +432,17 @@ int sol_sto( Value* args )
 	if( oid >= astack[ env ]->obj_number )
 		return ERROR_OSTACK_OUT_OF_BOUND;
 
-    printf("I'm gonna store the value at env %d with oid %d!\n", env, oid );
+	printf("I'm gonna store the value at env %d with oid %d!\n", env, oid );
 	object = ostack[ astack[ env ]->first_object + oid ];
-    printf("I took %p.\n", object);
+	printf("I took %p.\n", object);
 
-    if( object->mode == EMB )	
+	if( object->mode == EMB )	
 		object->inst.emb_val = pop_bytearray().value;
-    else
+	else
 	{
-		// Copy the last value on the stack at the position of the sta_val of the given array or structure, w/e
-		ByteArray instance = pop_bytearray();
-
-		int i;
+		// Copy the last value on the stack at the position of the sta_val of
+		// the given array or structure, w/e
+		instance = pop_bytearray();
 
 		for( i = 0; i < instance.size; i++ )
 			istack[ object->inst.sta_val + i ] = instance.value[ i ];
@@ -448,7 +458,7 @@ int sol_ist()
 	int start_address = pop_int();
 	int i;
 
-    printf("Imma write from %d for %ld bytes, the istack is this big: %d!\n", start_address, value_descriptor.size, isize );
+	printf("Imma write from %d for %ld bytes, the istack is this big: %d!\n", start_address, value_descriptor.size, isize );
 
 	for( i = 0; i < value_descriptor.size; i++ )
 		istack[ start_address + i ] = value_descriptor.value[ i ];

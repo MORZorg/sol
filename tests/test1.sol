@@ -56,15 +56,15 @@ begin prog
 	endforeach;
 
     t[ 0 ] = "a";
-    t[ 1 ] = "a";
-    t[ 2 ] = "a";
-    t[ 3 ] = "a";
-    t[ 4 ] = "a";
-    t[ 5 ] = "a";
-    t[ 6 ] = "a";
-    t[ 7 ] = "a";
-    t[ 8 ] = "a";
-    t[ 9 ] = "a";
+    t[ 1 ] = "b";
+    t[ 2 ] = "c";
+    t[ 3 ] = "d";
+    t[ 4 ] = "e";
+    t[ 5 ] = "f";
+    t[ 6 ] = "g";
+    t[ 7 ] = "h";
+    t[ 8 ] = "i";
+    t[ 9 ] = "j";
 
 	read [ "asd" ] z;
 	write [ "asdpino" ] t;
