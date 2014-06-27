@@ -271,10 +271,11 @@ void push_t_ostack( Odescr* value )
 
 void decrypt_bytearray( ByteArray* array, ByteArray* result, char* format )
 {
-	fprintf( stderr, "Starting decrypting\n" );
+	fprintf( stderr, "Starting decrypting '%s'  %lu long with '%s' format\n", array->value, array->size, format );
 
 	while( *(format) != '\0' )
 	{
+		fprintf( stderr, "Processing '%c'\n", *format );
 		switch( *(format) )
 		{
 			case '"':
@@ -329,20 +330,19 @@ void decrypt_bytearray( ByteArray* array, ByteArray* result, char* format )
 			case 's':
 			{
 				// Getting the pointer to the string from its bytes
-				char str_pointer[ sizeof( char* ) ];
-				int i;
-				for( i = 0; i < sizeof( char* ); i++ )
-					str_pointer[ i ] = array->value[ i ];
-				array->value = &( array->value[ sizeof( char* ) ] );
+				char* str_pointer;
+				memcpy( &str_pointer, array->value, sizeof( char* ) );
+				array->value += sizeof( char* );
 
-				result->value = realloc( result->value, sizeof( char )* strlen( str_pointer ) );
-				byte* string;
-				memcpy( string, str_pointer, sizeof( char ) * strlen( str_pointer ) );
+				result->value = realloc( 
+									result->value,
+									sizeof( byte ) * ( strlen( str_pointer ) + 1 ) + result->size );
+				memcpy( 
+					&( result->value[ result->size ] ),
+					str_pointer,
+					sizeof( char ) * ( strlen( str_pointer ) + 1 ) );
 
-				for( i = 0; i < sizeof( char ) * strlen( str_pointer ); i++ )
-					result->value[ result->size + i ] = string[ i ];
-
-				result->size += sizeof( char ) * strlen( str_pointer );
+				result->size += sizeof( char ) * ( strlen( str_pointer ) + 1 );
 				format++;
 				break;
 			}
@@ -354,5 +354,5 @@ void decrypt_bytearray( ByteArray* array, ByteArray* result, char* format )
 		}
 	}
 
-	fprintf( stderr, "Finished decrypting\n" );
+	fprintf( stderr, "Finished decrypting '%s' %lu long\n", result->value, result->size );
 }

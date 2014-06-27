@@ -892,7 +892,14 @@ int sol_fread( Value* args )
 
 int sol_write( Value* args )
 {
-	userOutput( args[ 0 ].s_val, pop_bytearray() );
+	char* format = args[ 0 ].s_val;
+	ByteArray popped = pop_bytearray();
+	ByteArray expr;
+	expr.value = malloc( sizeof( byte ) );
+	expr.size = 0;
+
+	decrypt_bytearray( &popped, &expr, format );
+	userOutput( format, expr );
 
 	return MEM_OK;
 }
@@ -901,9 +908,14 @@ int sol_fwrite( Value* args )
 {
 	// char* format = args[ 0 ].s_val;
 
+	char* format = args[ 0 ].s_val;
 	char* filename = pop_string();
-	ByteArray expr = pop_bytearray();
+	ByteArray popped = pop_bytearray();
+	ByteArray expr;
+	expr.value = malloc( sizeof( byte ) );
+	expr.size = 0;
 
+	decrypt_bytearray( &popped, &expr, format );
 	fileOutput( filename, expr );
 
 	return MEM_OK;
