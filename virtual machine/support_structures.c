@@ -297,7 +297,7 @@ void decrypt_bytearray( ByteArray* array, ByteArray* result, char* format )
 
 void adjust_bytearray( ByteArray* array, ByteArray* result, char* format, char type )
 {
-	fprintf( stderr, "Starting %c crypting '%s'  %lu long with '%s' format\n", type, array->value, array->size, format );
+	fprintf( stderr, "Starting '%c' crypting '%s'  %lu long with '%s' format\n", type, array->value, array->size, format );
 
 	while( *(format) != '\0' )
 	{
@@ -376,23 +376,6 @@ void adjust_bytearray( ByteArray* array, ByteArray* result, char* format, char t
 
 				format++;
 				break;
-
-			//	// Getting the pointer to the string from its bytes
-			//	char* str_pointer;
-			//	memcpy( &str_pointer, array->value, sizeof( char* ) );
-			//	array->value += sizeof( char* );
-
-			//	result->value = realloc( 
-			//						result->value,
-			//						sizeof( byte ) * ( strlen( str_pointer ) + 1 ) + result->size );
-			//	memcpy( 
-			//		&( result->value[ result->size ] ),
-			//		str_pointer,
-			//		sizeof( char ) * ( strlen( str_pointer ) + 1 ) );
-
-			//	result->size += sizeof( char ) * ( strlen( str_pointer ) + 1 );
-			//	format++;
-			//	break;
 			}
 
 			default:
@@ -402,7 +385,7 @@ void adjust_bytearray( ByteArray* array, ByteArray* result, char* format, char t
 		}
 	}
 
-	fprintf( stderr, "Finished decrypting '%s' %lu long\n", result->value, result->size );
+	fprintf( stderr, "Finished '%c' crypting '%s' %lu long\n", type, result->value, result->size );
 }
 
 void encrypt_string( ByteArray* array, ByteArray* result )

@@ -42,3 +42,6 @@ machine
 
 # Sol compiled code
 *.ohana
+
+# .sbra files
+*.sbra
