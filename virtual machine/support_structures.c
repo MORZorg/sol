@@ -15,9 +15,34 @@ int asize, osize, isize, t_osize;
 Adescr** astack;
 Odescr** ostack;
 byte* istack;
-any_t string_map;
+map_t string_map;
 
 Odescr** t_ostack;
+
+/*
+ * PRIVATE FUNCTION
+ */
+
+/**
+ * @brief Inserts an element checking name integrity in the rest of the scope.
+ *
+ * @param element
+ *
+ * @return 
+ */
+char* insert_unconflicted_element( char* string )
+{
+	any_t pointer;
+	if( hashmap_get( string_map, string, &pointer ) == MAP_OK )
+		return pointer;
+
+	hashmap_put( string_map, string, string );
+	return string;
+}
+
+/*
+ * PUBLIC FUNCTIONS
+ */
 
 int initialize_stacks()
 {
@@ -160,22 +185,6 @@ void push_char( char value )
 	push_bytearray( (byte*) &value, 1 );
 }
 
-/**
- * @brief Inserts an element checking name integrity in the rest of the scope.
- *
- * @param element
- *
- * @return 
- */
-char* insert_unconflicted_element( char* string )
-{
-	any_t pointer;
-	if( hashmap_get( string_map, string, &pointer ) == MAP_OK )
-		return pointer;
-
-	hashmap_put( string_map, string, string );
-	return string;
-}
 
 char* pop_string()
 {
@@ -278,9 +287,19 @@ void push_t_ostack( Odescr* value )
 	t_ostack[ t_op++ ] = value;
 }
 
+void encrypt_bytearray( ByteArray* array, ByteArray* result, char* format )
+{
+	adjust_bytearray( array, result, format, 'e' );
+}
+
 void decrypt_bytearray( ByteArray* array, ByteArray* result, char* format )
 {
-	fprintf( stderr, "Starting decrypting '%s'  %lu long with '%s' format\n", array->value, array->size, format );
+	adjust_bytearray( array, result, format, 'd' );
+}
+
+void adjust_bytearray( ByteArray* array, ByteArray* result, char* format, char type )
+{
+	fprintf( stderr, "Starting %c crypting '%s'  %lu long with '%s' format\n", type, array->value, array->size, format );
 
 	while( *(format) != '\0' )
 	{
@@ -296,17 +315,22 @@ void decrypt_bytearray( ByteArray* array, ByteArray* result, char* format )
 				{
 					while( *(format) != ':' )
 						format++;
-					decrypt_bytearray( array, result, format );
+					adjust_bytearray( array, result, format, type );
 				}
 				break;
 
 			case '[':
 			{
 				int array_times, i;
-				memcpy( &array_times, format, sizeof( int ) );
-				format += sizeof( int );
+				array_times = 0;
+				while( *(format) != ',' )
+				{
+					array_times = ( array_times * 10 ) + ( *(format) - '0' );
+					format++;
+				}
+				format++;
 				for( i = 0; i < array_times; i++ )
-					decrypt_bytearray( array, result, format );
+					adjust_bytearray( array, result, format, type );
 
 				break;
 			}
@@ -338,22 +362,36 @@ void decrypt_bytearray( ByteArray* array, ByteArray* result, char* format )
 
 			case 's':
 			{
-				// Getting the pointer to the string from its bytes
-				char* str_pointer;
-				memcpy( &str_pointer, array->value, sizeof( char* ) );
-				array->value += sizeof( char* );
+				switch( type )
+				{
+					case 'e':
+						encrypt_string( array, result );
+						break;
 
-				result->value = realloc( 
-									result->value,
-									sizeof( byte ) * ( strlen( str_pointer ) + 1 ) + result->size );
-				memcpy( 
-					&( result->value[ result->size ] ),
-					str_pointer,
-					sizeof( char ) * ( strlen( str_pointer ) + 1 ) );
+					case 'd':
+						decrypt_string( array, result );
+						break;
+				}
 
-				result->size += sizeof( char ) * ( strlen( str_pointer ) + 1 );
 				format++;
 				break;
+
+			//	// Getting the pointer to the string from its bytes
+			//	char* str_pointer;
+			//	memcpy( &str_pointer, array->value, sizeof( char* ) );
+			//	array->value += sizeof( char* );
+
+			//	result->value = realloc( 
+			//						result->value,
+			//						sizeof( byte ) * ( strlen( str_pointer ) + 1 ) + result->size );
+			//	memcpy( 
+			//		&( result->value[ result->size ] ),
+			//		str_pointer,
+			//		sizeof( char ) * ( strlen( str_pointer ) + 1 ) );
+
+			//	result->size += sizeof( char ) * ( strlen( str_pointer ) + 1 );
+			//	format++;
+			//	break;
 			}
 
 			default:
@@ -364,4 +402,46 @@ void decrypt_bytearray( ByteArray* array, ByteArray* result, char* format )
 	}
 
 	fprintf( stderr, "Finished decrypting '%s' %lu long\n", result->value, result->size );
+}
+
+void encrypt_string( ByteArray* array, ByteArray* result )
+{
+	// I have the string, I'll insert it in the hashmap and then substituting it in the result with its pointer
+	char* str_copy;
+	memcpy(
+		str_copy,
+		array->value,
+		sizeof( char ) * ( strlen( array->value ) + 1 ) );
+
+	char* string = insert_unconflicted_element( str_copy );
+	array->value += sizeof( char ) * ( strlen( string ) + 1 );
+
+	result->value = realloc(
+						result->value,
+						sizeof( char* ) + result->size );
+
+	memcpy(
+		&( result->value[ result->size ] ),
+		string,
+		sizeof( char* ) );
+
+	result->size += sizeof( char* );
+}
+
+void decrypt_string( ByteArray* array, ByteArray* result )
+{
+	// Getting the pointer to the string from its bytes
+	char* str_pointer;
+	memcpy( &str_pointer, array->value, sizeof( char* ) );
+	array->value += sizeof( char* );
+
+	result->value = realloc( 
+						result->value,
+						sizeof( byte ) * ( strlen( str_pointer ) + 1 ) + result->size );
+	memcpy( 
+		&( result->value[ result->size ] ),
+		str_pointer,
+		sizeof( char ) * ( strlen( str_pointer ) + 1 ) );
+
+	result->size += sizeof( char ) * ( strlen( str_pointer ) + 1 );
 }

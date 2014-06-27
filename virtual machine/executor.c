@@ -213,6 +213,7 @@ int sol_new( Value* args )
 // Creates a new empty stack object and puts it on ostack
 int sol_news( Value* args )
 {
+	byte* dummy_instantiation;
 	int size = args[ 0 ].i_val;
 
 	Odescr* object = malloc( sizeof( Odescr ) );
@@ -220,7 +221,7 @@ int sol_news( Value* args )
 	object->size = size;
     object->inst.sta_val = ip;
 
-    byte* dummy_instantiation = calloc( sizeof( byte ), size );
+    dummy_instantiation = calloc( sizeof( byte ), size );
     push_bytearray( dummy_instantiation, size );
 
 	push_ostack( object );
@@ -444,12 +445,11 @@ int sol_sto( Value* args )
 int sol_ist()
 {
 	ByteArray value_descriptor = pop_bytearray();
-
 	int start_address = pop_int();
+	int i;
 
     printf("Imma write from %d for %ld bytes, the istack is this big: %d!\n", start_address, value_descriptor.size, isize );
 
-	int i;
 	for( i = 0; i < value_descriptor.size; i++ )
 		istack[ start_address + i ] = value_descriptor.value[ i ];
 
@@ -807,7 +807,9 @@ int sol_pop()
 // Leaves the input result available on the istack
 int sol_rd( Value* args )
 {
-	ByteArray input = userInput( args[ 0 ].s_val );
+	char* format = userInput( args[ 0 ].s_val );
+	ByteArray input;
+	encrypt_bytearray( userInput( format ), &input, format );
 
 	push_bytearray( input.value, input.size );
 
@@ -820,13 +822,14 @@ int sol_frd( Value* args )
 {
 	int env = ap - 1 - args[ 0 ].i_val;
 	int oid = args[ 1 ].i_val - 1;
-	// char* format = args[ 2 ].s_val;
-
+	char* format = args[ 2 ].s_val;
 	char* filename = pop_string();
+	ByteArray input; 
+	Odescr* lhs;
 
-	ByteArray input = fileInput( filename );
+	encrypt_bytearray( fileInput( filename ), &input, format );
 
-	Odescr* lhs = ostack[ astack[ env ]->first_object + oid ];
+	lhs = ostack[ astack[ env ]->first_object + oid ];
 
 	if( lhs->mode == EMB )
 		lhs->inst.emb_val = input.value;
@@ -868,10 +871,12 @@ int sol_read( Value* args )
 	int env = ap - 1 - args[ 0 ].i_val;
 	int oid = args[ 1 ].i_val - 1;
 	char* format = args[ 2 ].s_val;
+	ByteArray input;
+	Odescr* lhs;
 
-	ByteArray input = userInput( format );
+	encrypt_bytearray( userInput( format ), &input, format );
 
-	Odescr* lhs = ostack[ astack[ env ]->first_object + oid ];
+	lhs = ostack[ astack[ env ]->first_object + oid ];
 
 	if( lhs->mode == EMB )
 		lhs->inst.emb_val = input.value;
@@ -889,13 +894,14 @@ int sol_fread( Value* args )
 {
 	int env = ap - 1 - args[ 0 ].i_val;
 	int oid = args[ 1 ].i_val - 1;
-	// char* format = args[ 2 ].s_val;
-
+	char* format = args[ 2 ].s_val;
 	char* filename = pop_string();
+	ByteArray input;
+	Odescr* lhs;
+	
+	encrypt_bytearray( fileInput( filename ), &input, format );
 
-	ByteArray input = fileInput( filename );
-
-	Odescr* lhs = ostack[ astack[ env ]->first_object + oid ];
+	lhs = ostack[ astack[ env ]->first_object + oid ];
 
 	if( lhs->mode == EMB )
 		lhs->inst.emb_val = input.value;
