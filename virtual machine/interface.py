@@ -148,7 +148,7 @@ class DataWidget(QtWidgets.QWidget):
         self.ui.inputBox.setText(str(data))
 
     def getData(self):
-        return list(str(self.ui.inputBox.text()))
+        return bytes(self.ui.inputBox.text())
 
 
 class IntegerWidget(DataWidget):
@@ -159,8 +159,8 @@ class IntegerWidget(DataWidget):
         self.ui = uic.loadUi("IntegerWidget.ui", self)
 
     def getData(self):
-        return list(struct.pack(self.DATA_FORMAT,
-                                int(self.ui.inputBox.text())))
+        return struct.pack(self.DATA_FORMAT,
+                           int(self.ui.inputBox.text()))
 
     def setData(self, data):
         DataWidget.setData(self, data.unpack(self.DATA_FORMAT)[0])
@@ -174,8 +174,8 @@ class RealWidget(DataWidget):
         self.ui = uic.loadUi("RealWidget.ui", self)
 
     def getData(self):
-        return list(struct.pack(self.DATA_FORMAT,
-                                float(self.ui.inputBox.text())))
+        return struct.pack(self.DATA_FORMAT,
+                           float(self.ui.inputBox.text()))
 
     def setData(self, data):
         DataWidget.setData(self, data.unpack(self.DATA_FORMAT)[0])
@@ -203,7 +203,7 @@ class StringWidget(DataWidget):
         self.ui.inputBox.setPlainText(str(DataDialog.decryptString(data, b'\0')))
 
     def getData(self):
-        return list(str(self.ui.inputBox.toPlainText()) + '\0')
+        return str(self.ui.inputBox.toPlainText()).encode("utf-8") + b'\0'
 
 
 class BooleanWidget(DataWidget):
@@ -219,7 +219,7 @@ class BooleanWidget(DataWidget):
             self.ui.inputBox.setChecked(False)
 
     def getData(self):
-        return ['1' if self.ui.inputBox.isChecked() else '0']
+        return b'1' if self.ui.inputBox.isChecked() else b'0'
 
 
 class VectorWidget(DataWidget):
@@ -345,6 +345,7 @@ def requestInput(textualSchema):
     inputDialog = InputDialog(deque(textualSchema))
     inputDialog.show()
     if inputDialog.exec_():
+        print("Python data: {}".format(inputDialog.data))
         return inputDialog.data
 
     app.exec_()
