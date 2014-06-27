@@ -208,7 +208,7 @@ Odescr* top_ostack()
 {
 	Odescr* value = ostack[ op - 1 ];
 
-	fprintf( stderr, "Top ostack position %d: %d %d %d\n", op - 1, value->mode, value->size, value->inst.sta_val );
+	/* fprintf( stderr, "Top ostack position %d: %d %d %d\n", op - 1, value->mode, value->size, value->inst.sta_val ); */
 
 	return value;
 }

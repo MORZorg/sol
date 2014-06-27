@@ -793,14 +793,16 @@ int sol_pop()
 {
 	int i;
 
-	for( i = 0; i < astack[ ap - 1 ]->obj_number; i++ )
+	for( i = 0; i < top_astack()->obj_number; i++ )
 	{
-		// All the instances of the current environment are on top of the istack, all I care about is to pop the correct total number of cells, not the exact cells for every object
-		if( ostack[ op - 1 ]->mode == STA )
+		// All the instances of the current environment are on top of the
+		// istack, all I care about is to pop the correct total number of
+		// cells, not the exact cells for every object
+		if( top_ostack()->mode == STA )
 		{
 			int j;
 
-			for( j = 0; j < ostack[ op - 1 ]->size; j++ )
+			for( j = 0; j < top_ostack()->size; j++ )
 				pop_istack();
 		}
 
