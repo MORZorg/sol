@@ -57,7 +57,7 @@ typedef struct
 	// Number of objects contained in the activation record
 	int obj_number;
 	// Pointer to the first object of the activation record in object_stack
-	Odescr* objects;
+	int first_object;
 	// Address were to return
 	int raddr;
 } Adescr;

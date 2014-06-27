@@ -198,9 +198,8 @@ class StringWidget(DataWidget):
         self.ui = uic.loadUi("StringWidget.ui", self)
 
     def setData(self, data):
-        # FIXME Change to .decode("utf-8") when the string problem has been
-        # solved
-        self.ui.inputBox.setPlainText(str(DataDialog.decryptString(data, b'\0')))
+        self.ui.inputBox \
+            .setPlainText(DataDialog.decryptString(data, b'\0').decode("utf-8"))
 
     def getData(self):
         return str(self.ui.inputBox.toPlainText()).encode("utf-8") + b'\0'
@@ -357,7 +356,6 @@ def requestOutput(textualSchema, data):
     """
     app = QtWidgets.QApplication([])
 
-    # TODO Would be nice to use the bytes everywhere.
     OutputDialog(deque(textualSchema)).show(ByteDeque(data))
 
     app.exec_()

@@ -93,13 +93,9 @@ ByteArray pop_bytearray()
 
 void push_bytearray( byte* value, int size )
 {
-	int i = 0;
-
-	do
-	{
+	int i;
+	for( i = 0; i < size; i++ )
 		push_istack( value[ i ] );
-	}
-	while( ++i < size );
 
 	Odescr* object = malloc( sizeof( Odescr ) );
 	object->mode = STA;
@@ -219,11 +215,19 @@ void pop_ostack()
 void push_ostack( Odescr* value )
 {
 	if( op == osize )
+	{
+		printf("Have to reallocate ostack.\n");
 		ostack = realloc( ostack, OSTACK_UNIT * ++osize );
+	}
+
+	fprintf( stderr, "Push ostack @ %d: %d %d ", op, value->mode, value->size );
+	if( value->mode == EMB )
+		fprintf( stderr, "%p", value->inst.emb_val );
+	else
+		fprintf( stderr, "%d", value->inst.sta_val );
+	fprintf( stderr, " in %p.\n", value );
 
 	ostack[ op++ ] = value;
-
-	fprintf( stderr, "Push ostack: %d %d %d\n", value->mode, value->size, value->inst.sta_val );
 }
 
 Adescr* top_astack()
@@ -264,9 +268,14 @@ void push_t_ostack( Odescr* value )
 	if( t_op == t_osize )
 		t_ostack = realloc( t_ostack, OSTACK_UNIT * ++t_osize );
 
-	t_ostack[ t_op++ ] = value;
+	fprintf( stderr, "Push t_ostack @ %d: %d %d ", t_op, value->mode, value->size );
+	if( value->mode == EMB )
+		fprintf( stderr, "%p", value->inst.emb_val );
+	else
+		fprintf( stderr, "%d", value->inst.sta_val );
+	fprintf( stderr, " in %p.\n", value );
 
-	fprintf( stderr, "Push t_ostack: %d %d %d\n", value->mode, value->size, value->inst.sta_val );
+	t_ostack[ t_op++ ] = value;
 }
 
 void decrypt_bytearray( ByteArray* array, ByteArray* result, char* format )

@@ -229,8 +229,11 @@ void analyse_decl_list( Node* node, int* oid, ClassSymbol clazz, Boolean has_ass
 		{
 			Symbol* a_type = malloc( sizeof( Symbol ) );
 			a_type->name = type_node->value.s_val;
-			a_type->oid = (*oid);
-			(*oid)++;
+            if( clazz != CS_TYPE )
+            {
+              a_type->oid = (*oid);
+              (*oid)++;
+            }
 			a_type->clazz = clazz;
 			a_type->schema = domain_schema; 
 			a_type->nesting = ( (Symbol*) scope->function )->nesting;

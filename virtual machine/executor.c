@@ -17,7 +17,7 @@ int yyvm( void )
 
 	while( program[pc].op != SOL_HALT )
 	{
-		printf( "%d\n", program[pc].op );
+		printf( "Line %d, command %d.\n", pc, program[pc].op );
 
 		if( ( result = execute( program[pc] ) != 0 ) )
 		{
@@ -259,21 +259,21 @@ int sol_lds( Value* args )
 // Retrieves the value of the given embedded object (referred with its oid) and loads its value on the stack
 int sol_lod( Value* args )
 {
-	int env_offset = args[ 0 ].i_val;
-	int oid = args[ 1 ].i_val;
+	int env = ap - 1 - args[ 0 ].i_val;
+	int oid = args[ 1 ].i_val - 1;
 	Odescr* object;
 
-	if( ap - 1 - env_offset < 0 )
+	if( env < 0 )
 		return ERROR_ASTACK_OUT_OF_BOUND;
 
-	if( oid >= astack[ ap - 1 - env_offset ]->obj_number )
+	if( oid >= astack[ env ]->obj_number )
 		return ERROR_OSTACK_OUT_OF_BOUND;
 
-	object = &( astack[ ap - 1 - env_offset ]->objects[ oid ] );
+    printf("I'm gonna load the value at env %d with oid %d!\n", env, oid );
+	object = ostack[ astack[ env ]->first_object + oid ];
+    printf("I took %p.\n", object);
 
 	push_bytearray( object->inst.emb_val, object->size );
-
-	//exit(1);
 
 	return MEM_OK;
 }
@@ -304,17 +304,17 @@ int sol_cat( Value* args )
 // Retrieves the starting address of the value of the given stack object and loads it on the stack as an integer
 int sol_lda( Value* args )
 {
-	int env_offset = args[ 0 ].i_val;
-	int oid = args[ 1 ].i_val;
+	int env = ap - 1 - args[ 0 ].i_val;
+	int oid = args[ 1 ].i_val - 1;
 	Odescr* object;
 
-	if( ap - 1 - env_offset < 0 )
+	if( env < 0 )
 		return ERROR_ASTACK_OUT_OF_BOUND;
 
-	if( oid >= astack[ ap - 1 - env_offset ]->obj_number )
+	if( oid >= astack[ env ]->obj_number )
 		return ERROR_OSTACK_OUT_OF_BOUND;
 
-	object = &( astack[ ap - 1 - env_offset ]->objects[ oid ] );
+	object = ostack[ astack[ env ]->first_object + oid ];
 
 	push_int( object->inst.sta_val );
 
@@ -403,17 +403,19 @@ int sol_sil( Value* args )
 // Pops the last value from the istack and puts it as embedded instance of the referred object, whose size is known as part of Odescr
 int sol_sto( Value* args )
 {
-	int env_offset = args[ 0 ].i_val;
-	int oid = args[ 1 ].i_val;
+	int env = ap - 1 - args[ 0 ].i_val;
+	int oid = args[ 1 ].i_val - 1;
 	Odescr* object;
 
-	if( ap - 1 - env_offset < 0 )
+	if( env < 0 )
 		return ERROR_ASTACK_OUT_OF_BOUND;
 
-	if( oid >= astack[ ap - 1 - env_offset ]->obj_number )
+	if( oid >= astack[ env ]->obj_number )
 		return ERROR_OSTACK_OUT_OF_BOUND;
 
-	object = &( astack[ ap - 1 - env_offset ]->objects[ oid ] );
+    printf("I'm gonna load the value at env %d with oid %d!\n", env, oid );
+	object = ostack[ astack[ env ]->first_object + oid ];
+    printf("I took %p.\n", object);
 
 	object->inst.emb_val = pop_bytearray().value;
 
@@ -425,14 +427,13 @@ int sol_ist()
 {
 	ByteArray value_descriptor = pop_bytearray();
 
-	int size = value_descriptor.size;
-	byte* value = value_descriptor.value;
-
 	int start_address = pop_int();
-	int i;
 
-	for( i = 0; i < size; i++ )
-		istack[ start_address + i ] = value[ i ];
+    printf("Imma write from %d for %d bytes, the istack is this big: %d!\n", start_address, value_descriptor.size, isize );
+
+	int i;
+	for( i = 0; i < value_descriptor.size; i++ )
+		istack[ start_address + i ] = value_descriptor.value[ i ];
 
 	return MEM_OK;
 }
@@ -749,7 +750,7 @@ int sol_goto( Value* args )
 	// function call, not before)
 	function_ar = malloc( sizeof( Adescr ) );
 	function_ar->obj_number = element_number;
-	function_ar->objects = ostack[ op ];
+	function_ar->first_object = op;
 	function_ar->raddr = pc + 1;
 	push_astack( function_ar );
 
@@ -799,15 +800,15 @@ int sol_rd( Value* args )
 // Leaves the input result available on the istack
 int sol_frd( Value* args )
 {
-	int env_offset = args[ 0 ].i_val;
-	int oid = args[ 1 ].i_val;
+	int env = ap - 1 - args[ 0 ].i_val;
+	int oid = args[ 1 ].i_val - 1;
 	// char* format = args[ 2 ].s_val;
 
 	char* filename = pop_string();
 
 	ByteArray input = fileInput( filename );
 
-	Odescr* lhs = &( astack[ ap - 1 - env_offset ]->objects[ oid ] );
+	Odescr* lhs = ostack[ astack[ env ]->first_object + oid ];
 
 	if( lhs->mode == EMB )
 		lhs->inst.emb_val = input.value;
@@ -846,13 +847,13 @@ int sol_toreal()
 // RD, FRD, WR, FWR but without leaving the value on the stack
 int sol_read( Value* args )
 {
-	int env_offset = args[ 0 ].i_val;
-	int oid = args[ 1 ].i_val;
+	int env = ap - 1 - args[ 0 ].i_val;
+	int oid = args[ 1 ].i_val - 1;
 	char* format = args[ 2 ].s_val;
 
 	ByteArray input = userInput( format );
 
-	Odescr* lhs = &( astack[ ap - 1 - env_offset ]->objects[ oid ] );
+	Odescr* lhs = ostack[ astack[ env ]->first_object + oid ];
 
 	if( lhs->mode == EMB )
 		lhs->inst.emb_val = input.value;
@@ -868,15 +869,15 @@ int sol_read( Value* args )
 
 int sol_fread( Value* args )
 {
-	int env_offset = args[ 0 ].i_val;
-	int oid = args[ 1 ].i_val;
+	int env = ap - 1 - args[ 0 ].i_val;
+	int oid = args[ 1 ].i_val - 1;
 	// char* format = args[ 2 ].s_val;
 
 	char* filename = pop_string();
 
 	ByteArray input = fileInput( filename );
 
-	Odescr* lhs = &( astack[ ap - 1 - env_offset ]->objects[ oid ] );
+	Odescr* lhs = ostack[ astack[ env ]->first_object + oid ];
 
 	if( lhs->mode == EMB )
 		lhs->inst.emb_val = input.value;
@@ -906,8 +907,6 @@ int sol_write( Value* args )
 
 int sol_fwrite( Value* args )
 {
-	// char* format = args[ 0 ].s_val;
-
 	char* format = args[ 0 ].s_val;
 	char* filename = pop_string();
 	ByteArray popped = pop_bytearray();
