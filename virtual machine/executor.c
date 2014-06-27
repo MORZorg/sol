@@ -424,10 +424,18 @@ int sol_sto( Value* args )
 	object = ostack[ astack[ env ]->first_object + oid ];
     printf("I took %p.\n", object);
 
-    if( object->mode == EMB )
-      object->inst.emb_val = pop_bytearray().value;
+    if( object->mode == EMB )	
+		object->inst.emb_val = pop_bytearray().value;
     else
-      printf("Pasta ipsum dolor sit amet gigli tortiglioni pennoni\n");
+	{
+		// Copy the last value on the stack at the position of the sta_val of the given array or structure, w/e
+		ByteArray instance = pop_bytearray();
+
+		int i;
+
+		for( i = 0; i < instance.size; i++ )
+			istack[ object->inst.sta_val + i ] = instance.value[ i ];
+	}
 
 	return MEM_OK;
 }
