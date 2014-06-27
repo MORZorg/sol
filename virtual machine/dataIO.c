@@ -1,99 +1,95 @@
 #include "dataIO.h"
 
-PyObject* gui_module;
+PyObject* gui_instance;
 int gui_initialized = GUI_NO_INIT;
 
 void initialize_gui(void)
 {
+	PyObject* gui_name;
+	PyObject* gui_module;
+	PyObject* gui_class;
+
 	Py_Initialize();
 
     // Bad but works... Always better than using wchar_t
     PyRun_SimpleString("import sys; sys.path.append('.')\n");
 
-	gui_module = PyImport_Import(PyUnicode_FromString(PYTHON_MODULE_NAME));
+	gui_name = PyUnicode_FromString(PYTHON_MODULE_NAME);
+	gui_module = PyImport_Import(gui_name);
+	Py_DECREF(gui_name);
+
+	gui_class = PyObject_GetAttrString(gui_module, PYTHON_CLASS_NAME);
+	gui_instance = PyEval_CallObject(gui_class, NULL);
+	Py_DECREF(gui_module);
+	Py_DECREF(gui_class);
 
 	gui_initialized = GUI_EXT_INIT;
 }
 
 void finalize_gui(void)
 {
+	Py_DECREF(gui_instance);
+
 	Py_Finalize();
+
 	gui_initialized = GUI_NO_INIT;
 }
 
 ByteArray userInput(char* schema)
 {
-	fprintf( stderr, "----------------STILL WORKING\n" );
 	PyObject* gui_function;
-	fprintf( stderr, "----------------STILL WORKING\n" );
 	PyObject* gui_args;
-	fprintf( stderr, "----------------STILL WORKING\n" );
+	PyObject* gui_result;
 	ByteArray result;
-	fprintf( stderr, "----------------STILL WORKING %d\n", !gui_initialized );
 
 	if( !gui_initialized )
 	{
 		initialize_gui();
-		fprintf( stderr, "----------------STILL WORKING\n" );
 		gui_initialized = GUI_SELF_INIT;
-		fprintf( stderr, "----------------STILL WORKING\n" );
 	}
-	
-	fprintf( stderr, "----------------STILL WORKING\n" );
 
-	gui_function = PyObject_GetAttrString(gui_module,
+	gui_function = PyObject_GetAttrString(gui_instance,
 										  PYTHON_REQUEST_INPUT_NAME);
-	fprintf( stderr, "----------------STILL WORKING\n" );
 	gui_args = PyTuple_Pack(1, PyUnicode_FromString(schema));
-	fprintf( stderr, "----------------STILL WORKING %d %d %s\n", gui_function == NULL, gui_args == NULL, schema );
+	gui_result = PyObject_CallObject(gui_function, gui_args);
+	
+	PyBytes_AsStringAndSize(gui_result, &result.value, &result.size);
 
-	PyObject* a = PyObject_CallObject( gui_function, gui_args );
-	fprintf( stderr, "----------------STILL WORKING\n" );
-
-	PyBytes_AsStringAndSize(
-		a,
-		&result.value,
-		&result.size);
-	fprintf( stderr, "----------------STILL WORKING %d\n", gui_initialized == GUI_SELF_INIT );
+	Py_DECREF(gui_result);
+	Py_DECREF(gui_args);
+	Py_DECREF(gui_function);
 
 	if( gui_initialized == GUI_SELF_INIT )
 		finalize_gui();
-	fprintf( stderr, "----------------STILL WORKING\n" );
 
 	return result;
 }
 
 void userOutput(char* schema, ByteArray data)
 {
-	fprintf( stderr, "----------------STILL WORKING\n" );
 	PyObject* gui_function;
-	fprintf( stderr, "----------------STILL WORKING\n" );
 	PyObject* gui_args;
-	fprintf( stderr, "----------------STILL WORKING %d\n", !gui_initialized );
 
 	if( !gui_initialized )
 	{
 		initialize_gui();
-		fprintf( stderr, "----------------STILL WORKING\n" );
 		gui_initialized = GUI_SELF_INIT;
-		fprintf( stderr, "----------------STILL WORKING\n" );
 	}
 
-	gui_function = PyObject_GetAttrString(gui_module,
+	gui_function = PyObject_GetAttrString(gui_instance,
 										  PYTHON_REQUEST_OUTPUT_NAME);
-	fprintf( stderr, "----------------STILL WORKING\n" );
 	gui_args =
 		PyTuple_Pack(2,
 					 PyUnicode_FromString(schema),
 					 PyBytes_FromStringAndSize(data.value, data.size));
-	fprintf( stderr, "----------------STILL WORKING\n" );
 
 	PyObject_CallObject(gui_function, gui_args);
-	fprintf( stderr, "----------------STILL WORKING %d\n", gui_initialized == GUI_SELF_INIT );
+
+	Py_DECREF(gui_args);
+	Py_DECREF(gui_function);
 
 	if( gui_initialized == GUI_SELF_INIT )
 		finalize_gui();
-	fprintf( stderr, "----------------STILL WORKING\n" );
 }
 
 ByteArray fileInput(char* filename)

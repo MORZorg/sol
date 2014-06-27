@@ -359,28 +359,27 @@ class NestedWidget(DataWidget):
         return self.data
 
 
-def requestInput(textualSchema):
-    """
-    External function to ask for data.
-    """
-    app = QtWidgets.QApplication([])
+class SimpleInterface:
+    def __init__(self):
+        self.app = QtWidgets.QApplication([])
 
-    inputDialog = InputDialog(deque(textualSchema))
-    inputDialog.show()
-    if inputDialog.exec_():
-        print("Python data: {}".format(inputDialog.data))
-        return inputDialog.data
+    def requestInput(self, textualSchema):
+        """
+        External function to ask for data.
+        """
 
-    app.exec_()
+        inputDialog = InputDialog(deque(textualSchema))
+        inputDialog.show()
+        if inputDialog.exec_():
+            print("Python data: {}".format(inputDialog.data))
+            return inputDialog.data
 
+    def requestOutput(self, textualSchema, data):
+        """
+        External function to show data.
+        """
+        print("Python data: {}".format(data))
+        outputDialog = OutputDialog(deque(textualSchema))
+        outputDialog.show(ByteDeque(data))
 
-def requestOutput(textualSchema, data):
-    """
-    External function to show data.
-    """
-    app = QtWidgets.QApplication([])
-
-    print("Python data: {}".format(data))
-    OutputDialog(deque(textualSchema)).show(ByteDeque(data))
-
-    app.exec_()
+        outputDialog.exec_()

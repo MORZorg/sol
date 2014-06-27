@@ -6,6 +6,7 @@
 #include "support_structures.h"
 
 #define PYTHON_MODULE_NAME "interface"
+#define PYTHON_CLASS_NAME "SimpleInterface"
 #define PYTHON_REQUEST_INPUT_NAME "requestInput"
 #define PYTHON_REQUEST_OUTPUT_NAME "requestOutput"
 
