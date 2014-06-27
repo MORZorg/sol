@@ -45,7 +45,7 @@ class MainWindow(QtWidgets.QMainWindow):
         fileName, ok = QtWidgets.QFileDialog.getOpenFileName(
             self,
             "Open file",
-            filter="(SOL) *{};; (S-CODE) *{}".format(self.EXT_SOURCE, self.EXT_SCODE))
+            filter="Source (*{});; S-code (*{})".format(self.EXT_SOURCE, self.EXT_SCODE))
 
         if ok:
             self.ui.outputText.setText(fileName)

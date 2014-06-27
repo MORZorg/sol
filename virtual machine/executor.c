@@ -276,9 +276,9 @@ int sol_lod( Value* args )
 	if( oid >= astack[ env ]->obj_number )
 		return ERROR_OSTACK_OUT_OF_BOUND;
 
-	printf("I'm gonna load the value at env %d with oid %d!\n", env, oid );
+	fprintf( stderr, "I'm gonna load the value at env %d with oid %d!\n", env, oid );
 	object = ostack[ astack[ env ]->first_object + oid ];
-	printf("I took %p.\n", object);
+	fprintf( stderr, "I took %p.\n", object);
 
 	if( object->mode == EMB )
 		push_bytearray( object->inst.emb_val, object->size );
@@ -432,9 +432,9 @@ int sol_sto( Value* args )
 	if( oid >= astack[ env ]->obj_number )
 		return ERROR_OSTACK_OUT_OF_BOUND;
 
-	printf("I'm gonna store the value at env %d with oid %d!\n", env, oid );
+	fprintf( stderr, "I'm gonna store the value at env %d with oid %d!\n", env, oid );
 	object = ostack[ astack[ env ]->first_object + oid ];
-	printf("I took %p.\n", object);
+	fprintf( stderr, "I took %p.\n", object);
 
 	if( object->mode == EMB )	
 		object->inst.emb_val = pop_bytearray().value;
@@ -458,7 +458,7 @@ int sol_ist()
 	int start_address = pop_int();
 	int i;
 
-	printf("Imma write from %d for %ld bytes, the istack is this big: %d!\n", start_address, value_descriptor.size, isize );
+	fprintf( stderr, "Imma write from %d for %ld bytes, the istack is this big: %d!\n", start_address, value_descriptor.size, isize );
 
 	for( i = 0; i < value_descriptor.size; i++ )
 		istack[ start_address + i ] = value_descriptor.value[ i ];
@@ -557,8 +557,6 @@ int sol_int_compare( Operator op )
 {
 	int right_value = pop_int();
 	int left_value = pop_int();
-
-	printf("Comparing %d with %d.\n", left_value, right_value);
 
 	if( op == SOL_IGT && left_value > right_value )
 		push_char( TRUE );
