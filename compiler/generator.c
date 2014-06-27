@@ -970,7 +970,7 @@ Code generate_code( Node* node )
 					{
 						referenced_id = fetch_scope( node->child->brother->value.s_val );
 						result = append_code( generate_code( node->child ),
-											  make_code_two_param( SOL_READ, ( (Symbol*) scope->function )->nesting - referenced_id->nesting, referenced_id->oid ) );
+											  make_code_two_param( SOL_FREAD, ( (Symbol*) scope->function )->nesting - referenced_id->nesting, referenced_id->oid ) );
 					}
 						
 					result.tail->args[ 2 ].s_val = schema_to_string( referenced_id->schema );
@@ -1030,7 +1030,7 @@ Code generate_code( Node* node )
 					{
 						output_schema = infere_expression_schema( node->child );
 						op = SOL_WRITE;
-						result =generate_code( node->child );
+						result = generate_code( node->child );
 					}
 					else
 					{

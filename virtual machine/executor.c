@@ -263,12 +263,20 @@ int sol_lod( Value* args )
 	int oid = args[ 1 ].i_val - 1;
 	Odescr* object;
 
+	fprintf( stderr, "LOD env: %d oid: %d\n", env_offset, oid );
+
 	if( env < 0 )
 		return ERROR_ASTACK_OUT_OF_BOUND;
+
+	fprintf( stderr, "a-stack ok\n" );
+	fprintf( stderr, "Obj number: %d\n", astack[ ap - 1 - env_offset ]->obj_number );
 
 	if( oid >= astack[ env ]->obj_number )
 		return ERROR_OSTACK_OUT_OF_BOUND;
 
+	fprintf( stderr, "o-stack ok\n" );
+
+	object = &( astack[ ap - 1 - env_offset ]->objects[ oid ] );
     printf("I'm gonna load the value at env %d with oid %d!\n", env, oid );
 	object = ostack[ astack[ env ]->first_object + oid ];
     printf("I took %p.\n", object);
@@ -707,9 +715,9 @@ int sol_wr( Value* args )
 int sol_fwr( Value* args )
 {
 	char* format = args[ 0 ].s_val;
+	ByteArray popped = pop_bytearray();
 	char* filename = pop_string();
 	ByteArray expr;
-	ByteArray popped = pop_bytearray();
 
 	decrypt_bytearray( &popped, &expr, format );
 
@@ -908,8 +916,8 @@ int sol_write( Value* args )
 int sol_fwrite( Value* args )
 {
 	char* format = args[ 0 ].s_val;
-	char* filename = pop_string();
 	ByteArray popped = pop_bytearray();
+	char* filename = pop_string();
 	ByteArray expr;
 	expr.value = malloc( sizeof( byte ) );
 	expr.size = 0;
