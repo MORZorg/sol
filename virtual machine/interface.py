@@ -4,7 +4,7 @@ import math
 import struct
 from collections import deque
 
-from PyQt5 import QtCore, uic, QtWidgets
+from PyQt5 import QtCore, QtWidgets, uic
 
 
 class ByteDeque:
@@ -82,6 +82,30 @@ class DataDialog(QtWidgets.QDialog):
         """
         Reads a string from a deque of characters, until the terminator (single
         value or list of values) is found.
+        """
+        if not stringDeque:
+            return ""
+
+        if terminator is not tuple:
+            terminator = (terminator)
+
+        result = ""
+        character = stringDeque.popleft()
+        while character not in terminator:
+            result += character
+
+            if stringDeque:
+                character = stringDeque.popleft()
+            else:
+                return result
+
+        return result
+
+    @staticmethod
+    def decryptBytes(stringDeque, terminator):
+        """
+        Reads a string from a deque of byte characters, until the terminator
+        (single value or list of values) is found.
         """
         if not stringDeque:
             return b""
@@ -199,7 +223,7 @@ class StringWidget(DataWidget):
 
     def setData(self, data):
         self.ui.inputBox \
-            .setPlainText(DataDialog.decryptString(data, b'\0').decode("utf-8"))
+            .setPlainText(DataDialog.decryptBytes(data, b'\0').decode("utf-8"))
 
     def getData(self):
         return str(self.ui.inputBox.toPlainText()).encode("utf-8") + b'\0'
@@ -226,7 +250,7 @@ class VectorWidget(DataWidget):
     def __init__(self, schema, nesting, editable):
         DataWidget.__init__(self)
         self.ui = uic.loadUi("VectorWidget.ui", self)
-        self.size = int(DataDialog.decryptString(schema, b','))
+        self.size = int(DataDialog.decryptString(schema, ','))
 
         self.ui.widgets = []
         self.ui.horizontal = (math.floor(nesting) % 2 == 0)
@@ -245,7 +269,7 @@ class VectorWidget(DataWidget):
                                      0 if self.ui.horizontal else self.size-1)
         self.ui.gridLayout.update()
 
-        schema.unpack("c")  # Closed square bracket ending the vector's schema
+        schema.popleft()  # Closed square bracket ending the vector's schema
 
     def setData(self, data):
         for widget in self.ui.widgets:
@@ -271,7 +295,7 @@ class StructWidget(DataWidget):
         i = 0
         while character != ")":
             name = character if character != "," else ""
-            name += DataDialog.decryptString(schema, b':')
+            name += DataDialog.decryptString(schema, ':')
 
             widget = DataDialog.resolveSchema(schema, nesting+0.5, editable)
             label = QtWidgets.QLabel(name)
