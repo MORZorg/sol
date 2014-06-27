@@ -330,7 +330,11 @@ void adjust_bytearray( ByteArray* array, ByteArray* result, char* format, char t
 				format++;
 
 				fprintf( stderr, "Vectoring %d times \n", array_times );
-				for( i = 0; i < array_times; i++ )
+				// The loop is not done one time since the variable format is
+				// not updated, so, after this block, there will be one more
+				// execution.
+				// Hopefully we'll never find 0-sized vectors.
+				for( i = 1; i < array_times; i++ )
 					adjust_bytearray( array, result, format, type );
 
 				break;
@@ -344,6 +348,18 @@ void adjust_bytearray( ByteArray* array, ByteArray* result, char* format, char t
 					result->value[ result->size + i ] = array->value[ i ];
 				result->size += sizeof( int );
 				array->value = &( array->value[ sizeof( int ) ] );
+				format++;
+				break;
+			}
+
+			case 'r':
+			{
+				int i;
+				result->value = realloc( result->value, sizeof( float ) );
+				for( i = 0; i < sizeof( float ); i++ )
+					result->value[ result->size + i ] = array->value[ i ];
+				result->size += sizeof( float );
+				array->value = &( array->value[ sizeof( float ) ] );
 				format++;
 				break;
 			}

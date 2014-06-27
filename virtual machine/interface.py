@@ -380,6 +380,7 @@ def requestOutput(textualSchema, data):
     """
     app = QtWidgets.QApplication([])
 
+    print("Python data: {}".format(data))
     OutputDialog(deque(textualSchema)).show(ByteDeque(data))
 
     app.exec_()

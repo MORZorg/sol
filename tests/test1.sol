@@ -26,7 +26,6 @@ func prog( a, b: int; c: string; ): int
 	end asd
 
 begin prog
-	a = 1;
 	-- s[ 5 ][ 3 ] = 5.6;
 	s[ 5 ] = "Carlito";
 	q.b = "Carl";
@@ -66,8 +65,8 @@ begin prog
     t[ 8 ] = "i";
     t[ 9 ] = "j";
 
-	read [ "asd" ] z;
-	write [ "asdpino" ] t;
+	read [ "asd.sbra" ] z;
+	write [ "asdpino.sbra" ] t;
 	write if a > 3 then toreal( a * 1 ) elsif a > 2 then toreal( toint( 0.1 ) ) elsif a > 1 then toreal( 1 ) else toreal( a * 2 ) endif;
 
 	return i;

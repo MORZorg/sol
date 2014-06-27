@@ -536,8 +536,8 @@ int sol_neq()
 // BORING
 int sol_char_compare( Operator op )
 {
-	char left_value = pop_char();
 	char right_value = pop_char();
+	char left_value = pop_char();
 
 	if( op == SOL_CGT && left_value > right_value )
 		push_char( TRUE );
@@ -555,8 +555,10 @@ int sol_char_compare( Operator op )
 
 int sol_int_compare( Operator op )
 {
-	int left_value = pop_int();
 	int right_value = pop_int();
+	int left_value = pop_int();
+
+	printf("Comparing %d with %d.\n", left_value, right_value);
 
 	if( op == SOL_IGT && left_value > right_value )
 		push_char( TRUE );
@@ -566,16 +568,16 @@ int sol_int_compare( Operator op )
 		push_char( TRUE );
 	else if( op == SOL_ILE && left_value <= right_value )
 		push_char( TRUE );
-
-	push_char( FALSE );
+	else
+		push_char( FALSE );
 
 	return MEM_OK;
 }
 
 int sol_real_compare( Operator op )
 {
-	float left_value = pop_real();
 	float right_value = pop_real();
+	float left_value = pop_real();
 
 	if( op == SOL_RGT && left_value > right_value )
 		push_char( TRUE );
@@ -585,16 +587,16 @@ int sol_real_compare( Operator op )
 		push_char( TRUE );
 	else if( op == SOL_RLE && left_value <= right_value )
 		push_char( TRUE );
-
-	push_char( FALSE );
+	else
+		push_char( FALSE );
 
 	return MEM_OK;
 }
 
 int sol_string_compare( Operator op )
 {
-	char* left_value = pop_string();
 	char* right_value = pop_string();
+	char* left_value = pop_string();
 
 	if( op == SOL_SGT && strcmp( left_value, right_value ) > 0 )
 		push_char( TRUE );
@@ -604,8 +606,8 @@ int sol_string_compare( Operator op )
 		push_char( TRUE );
 	else if( op == SOL_SLE && strcmp( left_value, right_value ) <= 0 )
 		push_char( TRUE );
-
-	push_char( FALSE );
+	else
+		push_char( FALSE );
 
 	return MEM_OK;
 }
@@ -648,8 +650,8 @@ int sol_in()
 // BORING
 int sol_int_math( Operator op )
 {
-	int left_value = pop_int();
 	int right_value = pop_int();
+	int left_value = pop_int();
 
 	int result = 0;
 
@@ -669,8 +671,8 @@ int sol_int_math( Operator op )
 
 int sol_real_math( Operator op )
 {
-	float left_value = pop_real();
 	float right_value = pop_real();
+	float left_value = pop_real();
 
 	float result = 0;
 
