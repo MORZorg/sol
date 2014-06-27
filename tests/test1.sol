@@ -55,6 +55,17 @@ begin prog
 		j = -j;
 	endforeach;
 
+    t[ 0 ] = "a";
+    t[ 1 ] = "a";
+    t[ 2 ] = "a";
+    t[ 3 ] = "a";
+    t[ 4 ] = "a";
+    t[ 5 ] = "a";
+    t[ 6 ] = "a";
+    t[ 7 ] = "a";
+    t[ 8 ] = "a";
+    t[ 9 ] = "a";
+
 	read [ "asd" ] z;
 	write [ "asdpino" ] t;
 	write if a > 3 then toreal( a * 1 ) elsif a > 2 then toreal( toint( 0.1 ) ) elsif a > 1 then toreal( 1 ) else toreal( a * 2 ) endif;

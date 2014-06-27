@@ -218,6 +218,10 @@ int sol_news( Value* args )
 	Odescr* object = malloc( sizeof( Odescr ) );
 	object->mode = STA;
 	object->size = size;
+    object->inst.sta_val = ip;
+
+    byte* dummy_instantiation = calloc( sizeof( byte ), size );
+    push_bytearray( dummy_instantiation, size );
 
 	push_ostack( object );
 
@@ -263,25 +267,20 @@ int sol_lod( Value* args )
 	int oid = args[ 1 ].i_val - 1;
 	Odescr* object;
 
-	fprintf( stderr, "LOD env: %d oid: %d\n", env_offset, oid );
-
 	if( env < 0 )
 		return ERROR_ASTACK_OUT_OF_BOUND;
-
-	fprintf( stderr, "a-stack ok\n" );
-	fprintf( stderr, "Obj number: %d\n", astack[ ap - 1 - env_offset ]->obj_number );
 
 	if( oid >= astack[ env ]->obj_number )
 		return ERROR_OSTACK_OUT_OF_BOUND;
 
-	fprintf( stderr, "o-stack ok\n" );
-
-	object = &( astack[ ap - 1 - env_offset ]->objects[ oid ] );
     printf("I'm gonna load the value at env %d with oid %d!\n", env, oid );
 	object = ostack[ astack[ env ]->first_object + oid ];
     printf("I took %p.\n", object);
 
-	push_bytearray( object->inst.emb_val, object->size );
+    if( object->mode == EMB )
+      push_bytearray( object->inst.emb_val, object->size );
+    else
+      printf("Pasta ipsum dolor sit amet lasagnotte occhi di lupo mezzani\n");
 
 	return MEM_OK;
 }
@@ -297,14 +296,14 @@ int sol_cat( Value* args )
 	// Remove the descriptor of the single elements
 	// A descriptor of the whole structure is created as purpose of this instruction 
 	while( element_number-- > 0 )
-		pop_ostack();
+		pop_t_ostack();
 
 	object = malloc( sizeof( Odescr ) );
 	object->mode = STA;
 	object->size = total_size;
-	object->inst.sta_val = istack[ ip - total_size ];
+	object->inst.sta_val = ip - total_size;
 
-	push_ostack( object );
+	push_t_ostack( object );
 
 	return MEM_OK;
 }
@@ -421,11 +420,14 @@ int sol_sto( Value* args )
 	if( oid >= astack[ env ]->obj_number )
 		return ERROR_OSTACK_OUT_OF_BOUND;
 
-    printf("I'm gonna load the value at env %d with oid %d!\n", env, oid );
+    printf("I'm gonna store the value at env %d with oid %d!\n", env, oid );
 	object = ostack[ astack[ env ]->first_object + oid ];
     printf("I took %p.\n", object);
 
-	object->inst.emb_val = pop_bytearray().value;
+    if( object->mode == EMB )
+      object->inst.emb_val = pop_bytearray().value;
+    else
+      printf("Pasta ipsum dolor sit amet gigli tortiglioni pennoni\n");
 
 	return MEM_OK;
 }
@@ -437,7 +439,7 @@ int sol_ist()
 
 	int start_address = pop_int();
 
-    printf("Imma write from %d for %d bytes, the istack is this big: %d!\n", start_address, value_descriptor.size, isize );
+    printf("Imma write from %d for %ld bytes, the istack is this big: %d!\n", start_address, value_descriptor.size, isize );
 
 	int i;
 	for( i = 0; i < value_descriptor.size; i++ )

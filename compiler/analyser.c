@@ -69,9 +69,8 @@ int yysem()
  */
 Symbol* check_function_subtree( Node* node, int oid_absolute )
 {
-	int oid_relative = 1;
-
 	Symbol* element = create_symbol_table_element( node, &oid_absolute );
+    element->last_oid = 1;
 
 	if( element->nesting != 0 )
 		element->nesting = ( (Symbol*) scope->function )->nesting + 1;
@@ -87,7 +86,7 @@ Symbol* check_function_subtree( Node* node, int oid_absolute )
 		if( current_node->value.n_val != N_PAR_LIST )
 			yysemerror( node, PRINT_ERROR( STR_BUG, "expected param list" ) );
 
-		create_symbol_table_element( current_node, &oid_relative );
+		create_symbol_table_element( current_node, &element->last_oid );
 		associate_formals_parameters( current_node, element );
 		current_node = current_node->brother;
 	}
@@ -96,17 +95,17 @@ Symbol* check_function_subtree( Node* node, int oid_absolute )
 	// Creating schemas for every section
 	if( current_node->value.n_val == N_TYPE_SECT )
 	{
-		create_symbol_table_element( current_node, &oid_relative );
+		create_symbol_table_element( current_node, &element->last_oid );
 		current_node = current_node->brother;
 	}
 	if( current_node->value.n_val == N_VAR_SECT )
 	{
-		create_symbol_table_element( current_node, &oid_relative );
+		create_symbol_table_element( current_node, &element->last_oid );
 		current_node = current_node->brother;
 	}
 	if( current_node->value.n_val == N_CONST_SECT )
 	{
-		create_symbol_table_element( current_node, &oid_relative );
+		create_symbol_table_element( current_node, &element->last_oid );
 		current_node = current_node->brother;
 	}
 	if( current_node->value.n_val == N_FUNC_LIST )
