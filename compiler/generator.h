@@ -105,12 +105,18 @@ typedef struct code
 	Stat* tail;
 } Code;
 
-typedef struct func_location
+typedef struct 
 {
 	int size; // # of objects in the activation record of this function
 	int scope; // level containing the function declaration, used to calculate the chain in func_call
-	int entry; // Function's entry
+	Stat* entry; // Function's entry point (pointer, because the real address will change when the whole code is concatenated)
 } FuncDesc;
+
+typedef struct
+{
+	int oid;
+	Stat* goto_instruction;
+} CallDesc;
 
 int yygen( FILE*, FILE* );
 Code generate_intro_code( Symbol* );
@@ -137,6 +143,7 @@ char* schema_to_string( Schema* );
 void output_code( FILE*, Code );
 
 map_t func_map; // Parameters needed by function call
+stacklist call_list; // Lista di puntatori alle istruzioni goto generate, il cui indirizzo va modificato a posteriori (quando il vero entry point della funzione è noto)
 
 #include "tree_print.h"
 

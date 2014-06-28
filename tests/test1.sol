@@ -20,7 +20,7 @@ func prog( a, b: int; c: string; ): int
 			VECT: vector [ 5 ] of real = vector( 2.0, 3.12, 4.67, 1.1, 23.0 );
 			MAT: vector [ 2 ] of vector [ 5 ] of real = vector( VECT, vector( x, y, toreal( toint( toreal( z ) ) ), 10.0, x + y * toreal( -z ) ) );
 
-	func asd(): int
+	func asd( i : int; ): int
 	begin asd
 		return 1 + i;
 	end asd

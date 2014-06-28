@@ -50,12 +50,35 @@ int yygen( FILE* input, FILE* output )
 	// Instantiate an hashmap, used to track the function definitions inside
 	// the p-code
 	func_map = hashmap_new();
+	call_list = NULL;
 
 	// The intro code is generated afterwards because it needs the updated
 	// symbol table including the additional temporary variables.
 	Code result = generate_code( root );
 	result = append_code( generate_intro_code( symbol_table ),
 						  result );
+
+	if( call_list != NULL )
+	{
+		CallDesc* current_call;
+		FuncDesc* func_desc;
+
+		while( call_list != NULL && ( current_call = call_list->function ) != NULL )
+		{
+			char key[20];
+			sprintf( key, "%d", current_call->oid );
+
+			hashmap_get( func_map, key, (any_t*) &func_desc );
+
+			printf( "Correction %d %d %d %d\n", func_desc->size, func_desc->scope, func_desc->entry->address, current_call->goto_instruction->address );
+
+			current_call->goto_instruction->args[0].i_val = func_desc->entry->address;
+
+			stacklist_pop( &call_list );
+		}
+	}
+	else
+		printf( "No calls to correct\n" );
 
 	output_code( output, result );
 
@@ -494,8 +517,9 @@ Code generate_code( Node* node )
 					Symbol* func_scope = fetch_scope( current_node->value.s_val );
 					
 					result = make_code_one_param( SOL_FUNC, func_scope->oid );
-
+					
 					// Create new entry in func_map with the function's oid as key
+					// Done at start to avoid problems in function calls inside the subdefined functions
 					char key[ MAX_INT_LEN ];
 					sprintf( key, "%d", func_scope->oid );
 
@@ -505,7 +529,7 @@ Code generate_code( Node* node )
 					description->scope = func_scope->nesting;
 					
 					hashmap_put( func_map, key, description );
-
+					
 					// TODO Find a way to avoid to duplicate the base function.
 					stacklist_push( &scope, (stacklist_t) func_scope );
 					current_node = current_node->brother;
@@ -527,7 +551,7 @@ Code generate_code( Node* node )
 					// No generation needed
 					if( current_node->value.n_val == N_TYPE_SECT )
 						current_node = current_node->brother;
-
+					
 					if( current_node->value.n_val == N_VAR_SECT )
 					{
 						entry_code = append_code( entry_code, generate_code( current_node ) );
@@ -539,46 +563,33 @@ Code generate_code( Node* node )
 						entry_code = append_code( entry_code, generate_code( current_node ) );
 						current_node = current_node->brother;
 					}
-					
-					// Function's entry address (variables definition)
-					if( entry_code.size != 0  )
-						description->entry = entry_code.head->address;
 
-					/* Node* function_list = NULL; */
+					// The FUNC_LIST processing is attached after the body
+					// This way, any function call will find the appropriate descriptor as expected
+					// and the code will be in the right order
+					Code function_code = empty_code();
 
 					if( current_node->value.n_val == N_FUNC_LIST )
 					{
-						Node* current_function = current_node->child;
+						Node* current_child = current_node->child;
 
-						while( current_function != NULL )
+						while( current_child != NULL )
 						{
-							entry_code = append_code( entry_code, generate_code( current_function ) );
-							current_function = current_function->brother;
+							
+							function_code = append_code( function_code, generate_code( current_child ) );
+							current_child = current_child->brother;
 						}
 
 						current_node = current_node->brother;
 					}
-
-					entry_code = append_code( entry_code, generate_code( current_node ) );
-
-					description->entry = entry_code.head->address;
-						
-					printf( "Declaration %d %d %d\n", description->size, description->scope, description->entry );
-
-					result = append_code( result, entry_code );
 					
-					// Post-body generation
-					/* if( function_list != NULL ) */
-					/* { */
-					/* 	Node* current_child = function_list->child; */
+					entry_code = append_code( entry_code, generate_code( current_node ) );
+					
+					description->entry = entry_code.head;
+					
+					printf( "Declaration %d %d %d\n", description->size, description->scope, description->entry->address );
 
-					/* 	while( current_child != NULL ) */
-					/* 	{ */
-							
-					/* 		result = append_code( result, generate_code( current_child ) ); */
-					/* 		current_child = current_child->brother; */
-					/* 	} */
-					/* } */
+					result = concatenate_code( 3, result, entry_code, function_code );
 
 					break;
 				}
@@ -588,8 +599,8 @@ Code generate_code( Node* node )
 					Node* current_child = node->child;
 
 					char key[20];
-
-					sprintf( key, "%d", fetch_scope( current_child->value.s_val )->oid );
+					int oid = fetch_scope( current_child->value.s_val )->oid;
+					sprintf( key, "%d", oid );
 
 					// Retrieve and compute all the parameters
 					while( ( current_child = current_child->brother ) != NULL )
@@ -610,12 +621,21 @@ Code generate_code( Node* node )
 						// between the actual call nesting and the definition
 						// nesting
 						int chain = ( (Symbol*) scope->function )->nesting - description->scope + 1;
-						// The address of the function's body start
-						int entry = description->entry;
-						
-						printf( "Call %d %d %d\n", size, description->scope, entry );
+						// The address of the function's body start is ignored, it will be added by the post-processing in yygen
+						int entry = 0; //description->entry->address;
+					
+						printf( "Call %d %d %d\n", description->size, description->scope, 0 );
 
-						result = append_code( result, make_push_pop( size, chain, entry ) );
+						// The second instruction is the GOTO
+						Code actual_call = make_push_pop( size, chain, entry );
+
+						CallDesc* call = malloc( sizeof( CallDesc ) );
+						call->oid = oid;
+						call->goto_instruction = actual_call.head->next;
+
+						stacklist_push( &call_list, (stacklist_t) call );
+
+						result = append_code( result, actual_call );
 					}
 					else
 						printf("WARNING: NULL FuncDesc*!\n");
