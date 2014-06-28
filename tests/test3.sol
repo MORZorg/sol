@@ -8,5 +8,5 @@ begin counter
 			write i + j;
 		endfor;
 	endfor;
-	return 0;
+	return i + j;
 end counter

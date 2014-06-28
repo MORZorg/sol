@@ -29,6 +29,7 @@ Stat* new_stat( Operator op )
  * PUBLIC FUNCTIONS
  */
 
+extern unsigned int hashmap_hash_int();
 /**
  * @brief Function that starts the code generation
  *
@@ -68,12 +69,11 @@ int yygen( FILE* input, FILE* output )
 			char key[ MAX_INT_LEN ];
 			sprintf( key, "%d", current_call->oid );
 
-			fprintf( stderr, "Getting hashmap %s\n", key );
 			hashmap_get( func_map, key, (any_t*) &func_desc );
 
 			printf( "Correction %d %d %d %d\n", func_desc->size, func_desc->scope, func_desc->entry->address, current_call->goto_instruction->address );
 
-			current_call->goto_instruction->args[0].i_val = func_desc->entry->address;
+			current_call->goto_instruction->args[ 0 ].i_val = func_desc->entry->address;
 
 			stacklist_pop( &call_list );
 		}
@@ -521,7 +521,7 @@ Code generate_code( Node* node )
 					
 					// Create new entry in func_map with the function's oid as key
 					// Done at start to avoid problems in function calls inside the subdefined functions
-					char key[ MAX_INT_LEN ];
+					char* key = malloc( sizeof( char ) * MAX_INT_LEN );
 					sprintf( key, "%d", func_scope->oid );
 
 					FuncDesc* description = malloc( sizeof( FuncDesc ) );
@@ -529,7 +529,6 @@ Code generate_code( Node* node )
 					description->size = func_scope->last_oid - 1;
 					description->scope = func_scope->nesting;
 					
-					fprintf( stderr, "Putting hashmap %s\n", key );
 					hashmap_put( func_map, key, description );
 					
 					// TODO Find a way to avoid to duplicate the base function.
@@ -593,6 +592,8 @@ Code generate_code( Node* node )
 
 					result = concatenate_code( 3, result, entry_code, function_code );
 
+					stacklist_pop( &scope );
+
 					break;
 				}
 
@@ -610,7 +611,6 @@ Code generate_code( Node* node )
 
 					FuncDesc* description;
 
-					fprintf( stderr, "Getting hashmap %s\n", key );
 					hashmap_get( func_map, key, (any_t*) &description );
 
 					// FIXME Shouldn't be checked, only done to avoid debugging crashes
@@ -1189,10 +1189,6 @@ Code generate_lhs_code( Node* node, Schema** id_schema, Boolean is_assigned )
 					Schema* array_schema = NULL;
 					result = generate_lhs_code( current_node, &(array_schema), is_assigned );
 
-					/* fprintf( stderr, "Found schema: " ); */
-					/* schema_print( array_schema ); */
-					/* fprintf( stdout, "\n" ); */
-
 					current_node = current_node->brother;
 					result = append_code( result, generate_code( current_node ) );
 
@@ -1287,9 +1283,6 @@ Code append_code( Code first, Code second )
 		return second;
 	if( second.size == 0 )
 		return first;
-
-	if( second.head == NULL )
-		fprintf( stderr, "TESTA VUOTA\n" );
 
 	Code result;
 	relocate_address( second, first.size - second.head->address );
