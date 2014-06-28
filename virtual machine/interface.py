@@ -9,7 +9,7 @@ from PyQt5 import QtCore, QtWidgets, uic
 
 class ByteDeque:
     def __init__(self, byteData):
-        if byteData is ByteDeque:
+        if type(byteData) is ByteDeque:
             self.data = byteData.data
             self.start = byteData.start
         else:
@@ -215,7 +215,7 @@ class CharacterWidget(DataWidget):
         return self.ui.inputBox.text().encode("utf-8") or b'\0'
 
     def setData(self, data):
-        self.ui.inputBox.setText(data.unpack("c")[0])
+        self.ui.inputBox.setText(data.unpack("c")[0].decode("utf-8"))
 
 
 class StringWidget(DataWidget):
@@ -351,7 +351,7 @@ class NestedWidget(DataWidget):
         self.dataDialog.show(self.data)
 
         if self.dataDialog.exec_():
-            self.data = self.dataDialog.data
+            self.setData(ByteDeque(self.dataDialog.data))
 
     def setData(self, data):
         # A bit of an hack... Copies the data and then consumes the part
@@ -369,7 +369,7 @@ class NestedWidget(DataWidget):
 
             self.showWindow()
 
-        return self.data
+        return self.data.data
 
 
 class SimpleInterface:
