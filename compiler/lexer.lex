@@ -94,7 +94,7 @@ break               { SPAM( "BREAK" ); return( BREAK ); }
 "/"					{ SPAM( "DIVIDE" ); return( DIVIDE ); }
 {intconst}			{ SPAM( "INT_CONST" ); lexval.i_val = atoi( yytext ); return( INT_CONST ); }
 {strconst}			{ SPAM( "STR_CONST" ); yytext[ strlen( yytext ) - 1 ] = '\0'; lexval.s_val = new_string( yytext + 1 ); return ( STR_CONST ); }
-{charconst}			{ SPAM( "CHAR_CONST" ); lexval.s_val = new_string( yytext ); return( CHAR_CONST ); }
+{charconst}			{ SPAM( "CHAR_CONST" ); yytext[ strlen( yytext ) - 1 ] = '\0'; lexval.s_val = new_string( yytext + 1 ); return( CHAR_CONST ); }
 {realconst}			{ SPAM( "REAL_CONST" ); lexval.r_val = atof( yytext ); return( REAL_CONST ); }
 {boolconst}			{ SPAM( "BOOL_CONST" ); lexval.b_val = ( yytext[ 0 ] == 'f' ? FALSE : TRUE ); return( BOOL_CONST ); }
 {id}				{ SPAM( "ID" ); lexval.s_val = new_string( yytext ); return( ID ); }
