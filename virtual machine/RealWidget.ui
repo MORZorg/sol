@@ -15,11 +15,7 @@
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
-    <widget class="QLineEdit" name="inputBox">
-     <property name="inputMask">
-      <string>0000000000.0000000000</string>
-     </property>
-    </widget>
+    <widget class="QDoubleSpinBox" name="inputBox"/>
    </item>
   </layout>
  </widget>

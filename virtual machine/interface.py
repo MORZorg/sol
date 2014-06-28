@@ -168,10 +168,10 @@ class DataWidget(QtWidgets.QWidget):
 
         return self
 
-    def setData(self, data):
-        self.ui.inputBox.setText(str(data))
-
     def getData(self):
+        raise NotImplementedError
+
+    def setData(self, data):
         raise NotImplementedError
 
 
@@ -184,10 +184,10 @@ class IntegerWidget(DataWidget):
 
     def getData(self):
         return struct.pack(self.DATA_FORMAT,
-                           int(self.ui.inputBox.text()))
+                           self.ui.inputBox.value())
 
     def setData(self, data):
-        DataWidget.setData(self, data.unpack(self.DATA_FORMAT)[0])
+        self.ui.inputBox.setValue(data.unpack(self.DATA_FORMAT)[0])
 
 
 class RealWidget(DataWidget):
@@ -199,10 +199,10 @@ class RealWidget(DataWidget):
 
     def getData(self):
         return struct.pack(self.DATA_FORMAT,
-                           float(self.ui.inputBox.text()))
+                           self.ui.inputBox.value())
 
     def setData(self, data):
-        DataWidget.setData(self, data.unpack(self.DATA_FORMAT)[0])
+        self.ui.inputBox.setValue(data.unpack(self.DATA_FORMAT)[0])
 
 
 class CharacterWidget(DataWidget):
@@ -211,11 +211,11 @@ class CharacterWidget(DataWidget):
         DataWidget.__init__(self)
         self.ui = uic.loadUi("CharacterWidget.ui", self)
 
-    def setData(self, data):
-        DataWidget.setData(self, data.unpack("c")[0])
-
     def getData(self):
-        return self.ui.inputBox.text().encode("utf-8")
+        return self.ui.inputBox.text().encode("utf-8") or b"\x00"
+
+    def setData(self, data):
+        self.ui.inputBox.setText(data.unpack("c")[0])
 
 
 class StringWidget(DataWidget):
@@ -224,12 +224,12 @@ class StringWidget(DataWidget):
         DataWidget.__init__(self)
         self.ui = uic.loadUi("StringWidget.ui", self)
 
+    def getData(self):
+        return self.ui.inputBox.toPlainText().encode("utf-8") + b'\0'
+
     def setData(self, data):
         self.ui.inputBox \
             .setPlainText(DataDialog.decryptBytes(data, b'\0').decode("utf-8"))
-
-    def getData(self):
-        return str(self.ui.inputBox.toPlainText()).encode("utf-8") + b'\0'
 
 
 class BooleanWidget(DataWidget):
@@ -360,7 +360,7 @@ class NestedWidget(DataWidget):
         self.dataDialog.widgetSchema.setData(data)
 
     def getData(self):
-        if self.data is None:
+        while self.data is None:
             # Not the top of the usability, but it works...
             self.showWindow()
             if self.dataDialog.exec_():

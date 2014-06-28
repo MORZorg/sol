@@ -15,14 +15,7 @@
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
-    <widget class="QLineEdit" name="inputBox">
-     <property name="inputMask">
-      <string>0000000000</string>
-     </property>
-     <property name="maxLength">
-      <number>10</number>
-     </property>
-    </widget>
+    <widget class="QSpinBox" name="inputBox"/>
    </item>
   </layout>
  </widget>
