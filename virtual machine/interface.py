@@ -172,7 +172,7 @@ class DataWidget(QtWidgets.QWidget):
         self.ui.inputBox.setText(str(data))
 
     def getData(self):
-        return bytes(self.ui.inputBox.text())
+        raise NotImplementedError
 
 
 class IntegerWidget(DataWidget):
@@ -213,6 +213,9 @@ class CharacterWidget(DataWidget):
 
     def setData(self, data):
         DataWidget.setData(self, data.unpack("c")[0])
+
+    def getData(self):
+        return self.ui.inputBox.text().encode("utf-8")
 
 
 class StringWidget(DataWidget):
@@ -341,7 +344,14 @@ class NestedWidget(DataWidget):
 
     @QtCore.pyqtSlot()
     def showWindow(self):
-        self.dataDialog.show(deque(self.data))
+        # if self.data is None:
+        #     self.dataDialog.show()
+        # else:
+        #     self.dataDialog.show(ByteDeque(self.data))
+        self.dataDialog.show(self.data)
+
+        if self.dataDialog.exec_():
+            self.data = self.dataDialog.data
 
     def setData(self, data):
         # A bit of an hack... Copies the data and then consumes the part

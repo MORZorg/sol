@@ -39,6 +39,7 @@ hashmap.o: $(LIBS_DIR)/hashmap.c $(LIBS_DIR)/hashmap.h
 .PHONY : clean
 clean:
 	rm -f \
-	  machine solm lexer parser *.o
+	  machine solm lexer parser *.o \
+	  $(LIBS_DIR)/*.o
 	rm -rf *.dSYM
 
