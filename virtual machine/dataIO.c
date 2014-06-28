@@ -11,19 +11,20 @@ void initialize_gui(void)
 
 	Py_Initialize();
 
-    // Bad but works... Always better than using wchar_t
-    PyRun_SimpleString("import sys; sys.path.append('.')\n");
+	// Bad but works... Always better than using wchar_t
+	PyRun_SimpleString("import sys; sys.path.append('.')\n");
 
 	gui_name = PyUnicode_FromString(PYTHON_MODULE_NAME);
 	gui_module = PyImport_Import(gui_name);
 	Py_DECREF(gui_name);
 
-    if (gui_module == NULL)
-      printf("GUI module not found! Check your Python3/PyQt5 config.\n");
+	if (gui_module == NULL)
+		printf("GUI module not found! Check your Python3/PyQt5 config.\n");
 
 	gui_class = PyObject_GetAttrString(gui_module, PYTHON_CLASS_NAME);
-	gui_instance = PyEval_CallObject(gui_class, NULL);
 	Py_DECREF(gui_module);
+
+	gui_instance = PyEval_CallObject(gui_class, NULL);
 	Py_DECREF(gui_class);
 
 	gui_initialized = GUI_EXT_INIT;
@@ -43,6 +44,7 @@ ByteArray userInput(char* schema)
 	PyObject* gui_function;
 	PyObject* gui_args;
 	PyObject* gui_result;
+	long success;
 	ByteArray result;
 
 	if( !gui_initialized )
@@ -55,23 +57,33 @@ ByteArray userInput(char* schema)
 										  PYTHON_REQUEST_INPUT_NAME);
 	gui_args = PyTuple_Pack(1, PyUnicode_FromString(schema));
 	gui_result = PyObject_CallObject(gui_function, gui_args);
-	
-	PyBytes_AsStringAndSize(gui_result, &result.value, &result.size);
-
-	Py_DECREF(gui_result);
 	Py_DECREF(gui_args);
 	Py_DECREF(gui_function);
+
+	success = PyLong_AsLong(PyTuple_GetItem(gui_result, 0));
+	PyBytes_AsStringAndSize(PyTuple_GetItem(gui_result, 1),
+							&result.value, &result.size);
+	Py_DECREF(gui_result);
 
 	if( gui_initialized == GUI_SELF_INIT )
 		finalize_gui();
 
-	return result;
+	// TODO It could be possible to find a way to propagate the error and
+	// manage it (eg: stop the VM nicely).
+	// The cause almost surely is the user closing the dialog instead of
+	// pressing OK, so his intent should simply be to stop the execution.
+	if (success == 0)
+		exit(1);
+	else
+		return result;
 }
 
 void userOutput(char* schema, ByteArray data)
 {
 	PyObject* gui_function;
 	PyObject* gui_args;
+	PyObject* gui_result;
+	long result;
 
 	if( !gui_initialized )
 	{
@@ -85,14 +97,18 @@ void userOutput(char* schema, ByteArray data)
 		PyTuple_Pack(2,
 					 PyUnicode_FromString(schema),
 					 PyBytes_FromStringAndSize(data.value, data.size));
-
-	PyObject_CallObject(gui_function, gui_args);
-
+	gui_result = PyObject_CallObject(gui_function, gui_args);
 	Py_DECREF(gui_args);
 	Py_DECREF(gui_function);
 
+	result = PyLong_AsLong(gui_result);
+	Py_DECREF(gui_result);
+
 	if( gui_initialized == GUI_SELF_INIT )
 		finalize_gui();
+
+	if (result == 0)
+		exit(1);
 }
 
 ByteArray fileInput(char* filename)

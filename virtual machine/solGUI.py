@@ -33,7 +33,7 @@ class MainWindow(QtWidgets.QMainWindow):
             .connect(lambda: self.debugInterface.requestInput(str(self.ui.debugText.text())))
         self.ui.outputButton.clicked \
             .connect(lambda: self.debugInterface.requestOutput(str(self.ui.debugText.text()),
-                                                               str(self.ui.debugData.text())))
+                                                               self.ui.debugData.text().encode("utf-8")))
 
     @QtCore.pyqtSlot()
     def open(self):

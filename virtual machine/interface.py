@@ -386,7 +386,9 @@ class SimpleInterface:
         inputDialog.show()
         if inputDialog.exec_():
             print("Python data: {}".format(inputDialog.data))
-            return inputDialog.data
+            return (1, inputDialog.data)
+        else:
+            return (0, None)
 
     def requestOutput(self, textualSchema, data):
         """
@@ -396,4 +398,4 @@ class SimpleInterface:
         outputDialog = OutputDialog(deque(textualSchema))
         outputDialog.show(ByteDeque(data))
 
-        outputDialog.exec_()
+        return outputDialog.exec_()
