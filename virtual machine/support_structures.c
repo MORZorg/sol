@@ -311,8 +311,11 @@ void adjust_bytearray( ByteArray* array, ByteArray* result, char* format, char t
 			case '(':
 				while( *(format) != ')' )
 				{
+                    fprintf( stderr, "starting from %c\n", *format );
 					while( *(format) != ':' )
 						format++;
+                    format++;
+
 					adjust_bytearray( array, result, format, type );
 				}
 				break;
@@ -393,6 +396,10 @@ void adjust_bytearray( ByteArray* array, ByteArray* result, char* format, char t
 				format++;
 				break;
 			}
+
+            case ',':
+              fprintf( stderr, "Separator, returning.\n" );
+              return;
 
 			default:
 				fprintf( stderr, "Nothing to do with '%c'\n", *(format) );

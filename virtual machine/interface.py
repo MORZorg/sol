@@ -279,7 +279,7 @@ class VectorWidget(DataWidget):
             widget.setData(data)
 
     def getData(self):
-        result = []
+        result = b""
 
         for widget in self.ui.widgets:
             result += widget.getData()
@@ -294,7 +294,7 @@ class StructWidget(DataWidget):
         self.ui = uic.loadUi("StructWidget.ui", self)
         self.ui.widgets = []
 
-        character = schema.unpack("c")
+        character = schema.popleft()
         i = 0
         while character != ")":
             name = character if character != "," else ""
@@ -309,7 +309,7 @@ class StructWidget(DataWidget):
             self.ui.gridLayout.addWidget(self.ui.widgets[i][1], i, 1)
 
             # Comma separating elements of the struct or closed bracket
-            character = schema.unpack("c")
+            character = schema.popleft()
             i += 1
 
         self.ui.gridLayout.update()
@@ -319,7 +319,7 @@ class StructWidget(DataWidget):
             widget[1].setData(data)
 
     def getData(self):
-        result = []
+        result = b""
 
         for widget in self.ui.widgets:
             result += widget[1].getData()
