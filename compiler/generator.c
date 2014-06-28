@@ -495,6 +495,17 @@ Code generate_code( Node* node )
 					
 					result = make_code_one_param( SOL_FUNC, func_scope->oid );
 
+					// Create new entry in func_map with the function's oid as key
+					char key[ MAX_INT_LEN ];
+					sprintf( key, "%d", func_scope->oid );
+
+					FuncDesc* description = malloc( sizeof( FuncDesc ) );
+
+					description->size = func_scope->last_oid - 1;
+					description->scope = func_scope->nesting;
+					
+					hashmap_put( func_map, key, description );
+
 					// TODO Find a way to avoid to duplicate the base function.
 					stacklist_push( &scope, (stacklist_t) func_scope );
 					current_node = current_node->brother;
@@ -516,7 +527,7 @@ Code generate_code( Node* node )
 					// No generation needed
 					if( current_node->value.n_val == N_TYPE_SECT )
 						current_node = current_node->brother;
-					
+
 					if( current_node->value.n_val == N_VAR_SECT )
 					{
 						entry_code = append_code( entry_code, generate_code( current_node ) );
@@ -528,44 +539,46 @@ Code generate_code( Node* node )
 						entry_code = append_code( entry_code, generate_code( current_node ) );
 						current_node = current_node->brother;
 					}
+					
+					// Function's entry address (variables definition)
+					if( entry_code.size != 0  )
+						description->entry = entry_code.head->address;
 
-					Node* function_list = NULL;
+					/* Node* function_list = NULL; */
 
-					// The FUNC_LIST processing is done after the body
 					if( current_node->value.n_val == N_FUNC_LIST )
 					{
-						function_list = current_node;
+						Node* current_function = current_node->child;
+
+						while( current_function != NULL )
+						{
+							entry_code = append_code( entry_code, generate_code( current_function ) );
+							current_function = current_function->brother;
+						}
 
 						current_node = current_node->brother;
 					}
-					
+
 					entry_code = append_code( entry_code, generate_code( current_node ) );
 
-					// Create new entry in func_map with the function's oid as key
-					char key[ MAX_INT_LEN ];
-					sprintf( key, "%d", func_scope->oid );
-
-					FuncDesc* description = malloc( sizeof( FuncDesc ) );
-
-					description->size = func_scope->last_oid - 1;
-					description->scope = func_scope->nesting;
 					description->entry = entry_code.head->address;
-					
-					hashmap_put( func_map, key, description );
+						
+					printf( "Declaration %d %d %d\n", description->size, description->scope, description->entry );
 
 					result = append_code( result, entry_code );
 					
-					if( function_list != NULL )
-					{
-						Node* current_child = function_list->child;
+					// Post-body generation
+					/* if( function_list != NULL ) */
+					/* { */
+					/* 	Node* current_child = function_list->child; */
 
-						while( current_child != NULL )
-						{
+					/* 	while( current_child != NULL ) */
+					/* 	{ */
 							
-							result = append_code( result, generate_code( current_child ) );
-							current_child = current_child->brother;
-						}
-					}
+					/* 		result = append_code( result, generate_code( current_child ) ); */
+					/* 		current_child = current_child->brother; */
+					/* 	} */
+					/* } */
 
 					break;
 				}
@@ -599,6 +612,8 @@ Code generate_code( Node* node )
 						int chain = ( (Symbol*) scope->function )->nesting - description->scope + 1;
 						// The address of the function's body start
 						int entry = description->entry;
+						
+						printf( "Call %d %d %d\n", size, description->scope, entry );
 
 						result = append_code( result, make_push_pop( size, chain, entry ) );
 					}
