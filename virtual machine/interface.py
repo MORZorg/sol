@@ -43,12 +43,15 @@ class DataDialog(QtWidgets.QDialog):
         self.ui.gridLayout.update()
 
     @staticmethod
-    def resolveSchema(schema, nesting={'v': 0, 's': 0}, editable=True):
+    def resolveSchema(schema, nesting=None, editable=True):
         """
         Transforms a string schema into a widget (or series of nested widgets)
         """
         if len(schema) == 0:
             raise IndexError()
+
+        if nesting is None:
+            nesting = {'s': 0, 'v': 0}
 
         element = schema.popleft()
         if element == "i":
@@ -339,7 +342,7 @@ class NestedWidget(DataWidget):
         DataWidget.__init__(self)
         self.ui = uic.loadUi("NestedWidget.ui", self)
         self.ui.pushButton.clicked.connect(self.showWindow)
-        self.dataDialog = DataDialog(schema, editable)
+        self.dataDialog = DataDialog(schema, editable=editable)
 
         self.data = None
 
