@@ -23,7 +23,7 @@ func prog( primo: vector[1] of vector[3] of char; a: struct(a: int; b: string;);
 			ri[ i + sbrai ].b = sbras;
 		endfor;
 		return rd ri;
-		end ao
+	end ao
 
 begin prog
 	write a;

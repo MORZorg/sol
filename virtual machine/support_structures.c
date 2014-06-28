@@ -295,11 +295,11 @@ void decrypt_bytearray( ByteArray* array, ByteArray* result, char* format )
 	adjust_bytearray( array, result, format, 'd' );
 }
 
-void adjust_bytearray( ByteArray* array, ByteArray* result, char* format, char type )
+char* adjust_bytearray( ByteArray* array, ByteArray* result, char* format, char type )
 {
 	fprintf( stderr, "Starting '%c' crypting '%s'  %lu long with '%s' format\n", type, array->value, array->size, format );
 
-	while( *(format) != '\0' )
+	//while( *(format) != '\0' )
 	{
 		fprintf( stderr, "Processing '%c'\n", *format );
 		switch( *(format) )
@@ -316,12 +316,13 @@ void adjust_bytearray( ByteArray* array, ByteArray* result, char* format, char t
 						format++;
                     format++;
 
-					adjust_bytearray( array, result, format, type );
+					format = adjust_bytearray( array, result, format, type );
 				}
 				break;
 
 			case '[':
 			{
+				fprintf( stderr, "+++ Array start +++\n" );
 				format++;
 				int array_times, i;
 				array_times = 0;
@@ -337,9 +338,27 @@ void adjust_bytearray( ByteArray* array, ByteArray* result, char* format, char t
 				// not updated, so, after this block, there will be one more
 				// execution.
 				// Hopefully we'll never find 0-sized vectors.
-				for( i = 1; i < array_times; i++ )
-					adjust_bytearray( array, result, format, type );
+				char* array_format = malloc( sizeof( char ) * ( strlen( format ) + 1 ) );
+				memcpy( array_format, format, sizeof( char ) * ( strlen( format ) + 1 ) );
+				char* iterator = array_format;
+				int sub_arrays = 0;
+				while( sub_arrays >= 0 )
+				{
+					if( *iterator == '[' )
+						sub_arrays++;
+					
+					if( *iterator == ']' )
+						sub_arrays--;
+					
+					iterator++;
+				} 
+				*(--iterator) = '\0';
 
+				for( i = 0; i < array_times; i++ )
+					adjust_bytearray( array, result, array_format, type );
+
+				// Skipping the size of the format read
+				format += ( sizeof( char ) * strlen( array_format ) );
 				break;
 			}
 
@@ -397,10 +416,6 @@ void adjust_bytearray( ByteArray* array, ByteArray* result, char* format, char t
 				break;
 			}
 
-            case ',':
-              fprintf( stderr, "Separator, returning.\n" );
-              return;
-
 			default:
 				fprintf( stderr, "Nothing to do with '%c'\n", *(format) );
 				format++;
@@ -409,6 +424,7 @@ void adjust_bytearray( ByteArray* array, ByteArray* result, char* format, char t
 	}
 
 	fprintf( stderr, "Finished '%c' crypting '%s' %lu long\n", type, result->value, result->size );
+	return format;
 }
 
 void encrypt_string( ByteArray* array, ByteArray* result )
