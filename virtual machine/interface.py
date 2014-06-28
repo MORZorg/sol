@@ -212,7 +212,7 @@ class CharacterWidget(DataWidget):
         self.ui = uic.loadUi("CharacterWidget.ui", self)
 
     def getData(self):
-        return self.ui.inputBox.text().encode("utf-8") or b"\x00"
+        return self.ui.inputBox.text().encode("utf-8") or b'\0'
 
     def setData(self, data):
         self.ui.inputBox.setText(data.unpack("c")[0])
@@ -362,9 +362,12 @@ class NestedWidget(DataWidget):
     def getData(self):
         while self.data is None:
             # Not the top of the usability, but it works...
+            QtWidgets.QMessageBox \
+                .warning(self,
+                         "Missing data",
+                         "You haven't entered enough data! (Verbosize me PLZ)")
+
             self.showWindow()
-            if self.dataDialog.exec_():
-                self.setData(self.dataDialog.data)
 
         return self.data
 
