@@ -18,6 +18,9 @@ void initialize_gui(void)
 	gui_module = PyImport_Import(gui_name);
 	Py_DECREF(gui_name);
 
+    if (gui_module == NULL)
+      printf("GUI module not found! Check your Python3/PyQt5 config.\n");
+
 	gui_class = PyObject_GetAttrString(gui_module, PYTHON_CLASS_NAME);
 	gui_instance = PyEval_CallObject(gui_class, NULL);
 	Py_DECREF(gui_module);

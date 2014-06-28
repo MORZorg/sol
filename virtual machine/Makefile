@@ -4,7 +4,7 @@ solvm: main.c
 	$(CC) -o $@ $^
 
 machine: main.c executor.o support_structures.o parser.o lexer.o dataIO.o $(LIBS_DIR)/hashmap.o
-	$(CC) `python3-config --cflags --ldflags` -Wall -DPy_DEBUG -g -o $@ $^ -DMACHINE
+	$(CC) -g -o $@ $^ -DMACHINE `python3-config --cflags --ldflags` 
 
 executor.o: executor.c executor.h support_structures.h dataIO.h
 	$(CC) `python3-config --cflags` -g -c $<

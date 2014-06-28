@@ -48,5 +48,6 @@ clean:
 	rm -f \
 	  lexer lexer.c \
 	  parser parser.c parser.h parser.output *.o \
+	  $(LIBS_DIR)/*.o \
 	  analyser generator solc
 	rm -rf *.dSYM
