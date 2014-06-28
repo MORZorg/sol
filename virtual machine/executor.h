@@ -15,6 +15,8 @@
 #include "support_structures.h"
 #include "dataIO.h"
 
+#define STA_NOT_ALLOCATED -1
+
 int yyvm( void );
 int execute( Stat );
 

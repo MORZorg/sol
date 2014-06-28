@@ -31,7 +31,7 @@ begin prog
 	write '\t';
 	write '\'';
 	write "a\"\ts\\d";
-	write prog(primo, a, b);
+	write ao(454, "ciao");
 	while true do
 		fioa = wr [ "pino" ] PEO;
 		break;

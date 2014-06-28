@@ -219,10 +219,7 @@ int sol_news( Value* args )
 	Odescr* object = malloc( sizeof( Odescr ) );
 	object->mode = STA;
 	object->size = size;
-	object->inst.sta_val = ip;
-
-	dummy_instantiation = calloc( sizeof( byte ), size );
-	push_bytearray( dummy_instantiation, size );
+	object->inst.sta_val = STA_NOT_ALLOCATED;
 
 	push_ostack( object );
 
@@ -440,12 +437,20 @@ int sol_sto( Value* args )
 		object->inst.emb_val = pop_bytearray().value;
 	else
 	{
-		// Copy the last value on the stack at the position of the sta_val of
-		// the given array or structure, w/e
-		instance = pop_bytearray();
+		if( object->inst.sta_val == STA_NOT_ALLOCATED )
+		{
+			object->inst.sta_val = top_t_ostack()->inst.sta_val;
+			pop_t_ostack();
+		}
+		else
+		{
+			// Copy the last value on the stack at the position of the sta_val of
+			// the given array or structure, w/e
+			instance = pop_bytearray();
 
-		for( i = 0; i < instance.size; i++ )
-			istack[ object->inst.sta_val + i ] = instance.value[ i ];
+			for( i = 0; i < instance.size; i++ )
+				istack[ object->inst.sta_val + i ] = instance.value[ i ];
+		}
 	}
 
 	return MEM_OK;
@@ -460,6 +465,7 @@ int sol_ist()
 
 	fprintf( stderr, "Imma write from %d for %ld bytes, the istack is this big: %d!\n", start_address, value_descriptor.size, isize );
 
+	// FIXME ?
 	for( i = 0; i < value_descriptor.size; i++ )
 		istack[ start_address + i ] = value_descriptor.value[ i ];
 

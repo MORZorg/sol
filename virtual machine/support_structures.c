@@ -429,7 +429,8 @@ char* adjust_bytearray( ByteArray* array, ByteArray* result, char* format, char 
 
 void encrypt_string( ByteArray* array, ByteArray* result )
 {
-	// I have the string, I'll insert it in the hashmap and then substituting it in the result with its pointer
+	// I have the string, I'll insert it in the hashmap and then substituting
+	// it in the result with its pointer
 	char* str_copy = malloc( sizeof( char ) * ( strlen( array->value ) + 1 ) );
 	memcpy(
 		str_copy,
@@ -458,13 +459,10 @@ void decrypt_string( ByteArray* array, ByteArray* result )
 	memcpy( &str_pointer, array->value, sizeof( char* ) );
 	array->value += sizeof( char* );
 
-	result->value = realloc( 
-						result->value,
-						sizeof( byte ) * ( strlen( str_pointer ) + 1 ) + result->size );
+	result->size += sizeof( char ) * ( strlen( str_pointer ) + 1 );
+	result->value = realloc( result->value, result->size );
 	memcpy( 
 		&( result->value[ result->size ] ),
 		str_pointer,
 		sizeof( char ) * ( strlen( str_pointer ) + 1 ) );
-
-	result->size += sizeof( char ) * ( strlen( str_pointer ) + 1 );
 }
