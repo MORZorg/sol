@@ -65,9 +65,10 @@ int yygen( FILE* input, FILE* output )
 
 		while( call_list != NULL && ( current_call = call_list->function ) != NULL )
 		{
-			char key[20];
+			char key[ MAX_INT_LEN ];
 			sprintf( key, "%d", current_call->oid );
 
+			fprintf( stderr, "Getting hashmap %s\n", key );
 			hashmap_get( func_map, key, (any_t*) &func_desc );
 
 			printf( "Correction %d %d %d %d\n", func_desc->size, func_desc->scope, func_desc->entry->address, current_call->goto_instruction->address );
@@ -528,6 +529,7 @@ Code generate_code( Node* node )
 					description->size = func_scope->last_oid - 1;
 					description->scope = func_scope->nesting;
 					
+					fprintf( stderr, "Putting hashmap %s\n", key );
 					hashmap_put( func_map, key, description );
 					
 					// TODO Find a way to avoid to duplicate the base function.
@@ -598,7 +600,7 @@ Code generate_code( Node* node )
 				{
 					Node* current_child = node->child;
 
-					char key[20];
+					char key[ MAX_INT_LEN ];
 					int oid = fetch_scope( current_child->value.s_val )->oid;
 					sprintf( key, "%d", oid );
 
@@ -608,6 +610,7 @@ Code generate_code( Node* node )
 
 					FuncDesc* description;
 
+					fprintf( stderr, "Getting hashmap %s\n", key );
 					hashmap_get( func_map, key, (any_t*) &description );
 
 					// FIXME Shouldn't be checked, only done to avoid debugging crashes
