@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import math
 import struct
 from collections import deque
 
@@ -39,12 +38,12 @@ class DataDialog(QtWidgets.QDialog):
         #  Remove, Create, Replace
         self.ui.gridLayout.removeWidget(self.ui.widgetSchema)
         self.ui.widgetSchema.close()
-        self.ui.widgetSchema = DataDialog.resolveSchema(schema, 0, editable)
+        self.ui.widgetSchema = DataDialog.resolveSchema(schema, editable=editable)
         self.ui.gridLayout.addWidget(self.ui.widgetSchema, 0, 0, 1, 1)
         self.ui.gridLayout.update()
 
     @staticmethod
-    def resolveSchema(schema, nesting=0, editable=True):
+    def resolveSchema(schema, nesting={'v': 0, 's': 0}, editable=True):
         """
         Transforms a string schema into a widget (or series of nested widgets)
         """
@@ -63,13 +62,13 @@ class DataDialog(QtWidgets.QDialog):
         elif element == "b":
             return BooleanWidget().setEditable(editable)
         elif element == "[":
-            if nesting > .5:
+            if nesting['s'] > 1 or nesting['v'] > 1:
                 schema.appendleft(element)
                 return NestedWidget(schema, editable)
             else:
                 return VectorWidget(schema, nesting, editable)
         elif element == "(":
-            if nesting > 0:
+            if nesting['s'] > 1 or nesting['v'] > 1:
                 schema.appendleft(element)
                 return NestedWidget(schema, editable)
             else:
@@ -255,18 +254,19 @@ class VectorWidget(DataWidget):
         self.ui = uic.loadUi("VectorWidget.ui", self)
         self.size = int(DataDialog.decryptString(schema, ','))
 
+        nesting['v'] += 1
         self.ui.widgets = []
-        self.ui.horizontal = (math.floor(nesting) % 2 == 0)
+        self.ui.horizontal = (nesting['v'] % 2 == 1)
         for i in range(self.size-1):
             self.ui.widgets.append(
-                DataDialog.resolveSchema(deque(schema), nesting+1, editable))
+                DataDialog.resolveSchema(deque(schema), nesting, editable))
             self.ui.gridLayout.addWidget(self.ui.widgets[i],
                                          i if self.ui.horizontal else 0,
                                          0 if self.ui.horizontal else i)
 
         # Awful: last time, no copy
         self.ui.widgets.append(
-            DataDialog.resolveSchema(schema, nesting+1, editable))
+            DataDialog.resolveSchema(schema, nesting, editable))
         self.ui.gridLayout.addWidget(self.ui.widgets[self.size-1],
                                      self.size-1 if self.ui.horizontal else 0,
                                      0 if self.ui.horizontal else self.size-1)
@@ -294,13 +294,14 @@ class StructWidget(DataWidget):
         self.ui = uic.loadUi("StructWidget.ui", self)
         self.ui.widgets = []
 
+        nesting['s'] += 1
         character = schema.popleft()
         i = 0
         while character != ")":
             name = character if character != "," else ""
             name += DataDialog.decryptString(schema, ':')
 
-            widget = DataDialog.resolveSchema(schema, nesting+0.5, editable)
+            widget = DataDialog.resolveSchema(schema, nesting, editable)
             label = QtWidgets.QLabel(name)
             label.setAlignment(QtCore.Qt.AlignTop)
             label.setBuddy(widget)
