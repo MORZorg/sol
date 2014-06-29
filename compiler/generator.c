@@ -1619,21 +1619,14 @@ void output_code( FILE* output, Code code )
 	for( current_stat = code.head; current_stat != NULL; current_stat = current_stat->next )
 		switch( current_stat->op )
 		{
-			case SOL_FREAD:
-			case SOL_READ:
-				fprintf( output, "%s %d %d \"%s\"\n",
-						CODE_OPERATORS[ current_stat->op ],
-						current_stat->args[ 0 ].i_val,
-						current_stat->args[ 1 ].i_val,
-						current_stat->args[ 2 ].s_val );
-				break;
-
+			// Character operators
 			case SOL_LDC:
 				fprintf( output, "%s '%s'\n",
 						CODE_OPERATORS[ current_stat->op ],
 						current_stat->args[ 0 ].s_val );
 				break;
 
+			// String operators
 			case SOL_FRD:
 			case SOL_FWR:
 			case SOL_FWRITE:
@@ -1646,12 +1639,24 @@ void output_code( FILE* output, Code code )
 						current_stat->args[ 0 ].s_val );
 				break;
 
+			// Real operators
 			case SOL_LDR:
 				fprintf( output, "%s %f\n",
 						CODE_OPERATORS[ current_stat->op ],
 						current_stat->args[ 0 ].r_val );
 				break;
 
+			// Three parameters operators
+			case SOL_FREAD:
+			case SOL_READ:
+				fprintf( output, "%s %d %d \"%s\"\n",
+						CODE_OPERATORS[ current_stat->op ],
+						current_stat->args[ 0 ].i_val,
+						current_stat->args[ 1 ].i_val,
+						current_stat->args[ 2 ].s_val );
+				break;
+
+			// Two parameters operators
 			case SOL_CAT:
 			case SOL_LDA:
 			case SOL_LOD:
@@ -1663,7 +1668,38 @@ void output_code( FILE* output, Code code )
 						current_stat->args[ 1 ].i_val );
 				break;
 
+			// One parameter operators
+			case SOL_EIL:
+			case SOL_FDA:
+			case SOL_FUNC:
+			case SOL_GOTO:
+			case SOL_IXA:
+			case SOL_JMF:
+			case SOL_JMP:
+			case SOL_LDI:
+			case SOL_NEW:
+			case SOL_NEWS:
+			case SOL_SCODE:
+			case SOL_SIL:
+				fprintf( output, "%s %d\n",
+						CODE_OPERATORS[ current_stat->op ],
+						current_stat->args[ 0 ].i_val );
+				break;
+
+			// No parameters operators
+			case SOL_CGE:
+			case SOL_CGT:
+			case SOL_CLE:
+			case SOL_CLT:
 			case SOL_EQU:
+			case SOL_HALT:
+			case SOL_IDIV:
+			case SOL_IGE:
+			case SOL_IGT:
+			case SOL_ILE:
+			case SOL_ILT:
+			case SOL_IMINUS:
+			case SOL_IN:
 			case SOL_IPLUS:
 			case SOL_IST:
 			case SOL_ITIMES:
@@ -1671,36 +1707,24 @@ void output_code( FILE* output, Code code )
 			case SOL_NEG:
 			case SOL_NEQ:
 			case SOL_POP:
+			case SOL_RDIV:
 			case SOL_RETURN:
-			case SOL_RPLUS:
-			case SOL_RTIMES:
-			case SOL_TOINT:
-			case SOL_TOREAL:
-			case SOL_HALT:
-			case SOL_CGE:
-			case SOL_CGT:
-			case SOL_CLE:
-			case SOL_CLT:
-			case SOL_IGE:
-			case SOL_IGT:
-			case SOL_ILE:
-			case SOL_ILT:
 			case SOL_RGE:
 			case SOL_RGT:
 			case SOL_RLE:
 			case SOL_RLT:
+			case SOL_RMINUS:
+			case SOL_RPLUS:
+			case SOL_RTIMES:
+			case SOL_RUMI:
 			case SOL_SGE:
 			case SOL_SGT:
 			case SOL_SLE:
 			case SOL_SLT:
+			case SOL_TOINT:
+			case SOL_TOREAL:
 				fprintf( output, "%s\n",
 						CODE_OPERATORS[ current_stat->op ] );
-				break;
-
-			default:
-				fprintf( output, "%s %d\n",
-						CODE_OPERATORS[ current_stat->op ],
-						current_stat->args[ 0 ].i_val );
 				break;
 		}
 }
