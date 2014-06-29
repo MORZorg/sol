@@ -261,7 +261,7 @@ int sol_lds( Value* args )
 // Retrieves the value of the given embedded object (referred with its oid) and loads its value on the stack
 int sol_lod( Value* args )
 {
-	int env = ap - 1 - args[ 0 ].i_val;
+	int env = top_astack()->alink - args[ 0 ].i_val;
 	int oid = args[ 1 ].i_val - 1;
 	Odescr* object;
 	int i;
@@ -318,7 +318,7 @@ int sol_cat( Value* args )
 // Retrieves the starting address of the value of the given stack object and loads it on the stack as an integer
 int sol_lda( Value* args )
 {
-	int env = ap - 1 - args[ 0 ].i_val;
+	int env = top_astack()->alink - args[ 0 ].i_val;
 	int oid = args[ 1 ].i_val - 1;
 	Odescr* object;
 
@@ -417,7 +417,7 @@ int sol_sil( Value* args )
 // Pops the last value from the istack and puts it as embedded instance of the referred object, whose size is known as part of Odescr
 int sol_sto( Value* args )
 {
-	int env = ap - 1 - args[ 0 ].i_val;
+	int env = top_astack()->alink - args[ 0 ].i_val;
 	int oid = args[ 1 ].i_val - 1;
 	Odescr* object;
 	int i;
@@ -786,6 +786,8 @@ int sol_goto( Value* args )
 	function_ar->obj_number = element_number;
 	function_ar->first_object = op;
 	function_ar->raddr = pc + 1;
+	function_ar->alink = ap - 1 - chain;
+	
 	push_astack( function_ar );
 
 	// Jump to the entry point (first instruction will be the definition of the formals)
@@ -841,7 +843,7 @@ int sol_rd( Value* args )
 // Leaves the input result available on the istack
 int sol_frd( Value* args )
 {
-	int env = ap - 1 - args[ 0 ].i_val;
+	int env = top_astack()->alink - args[ 0 ].i_val;
 	int oid = args[ 1 ].i_val - 1;
 	char* format = args[ 2 ].s_val;
 	char* filename = pop_string();
@@ -890,7 +892,7 @@ int sol_toreal()
 // RD, FRD, WR, FWR but without leaving the value on the stack
 int sol_read( Value* args )
 {
-	int env = ap - 1 - args[ 0 ].i_val;
+	int env = top_astack()->alink - args[ 0 ].i_val;
 	int oid = args[ 1 ].i_val - 1;
 	char* format = args[ 2 ].s_val;
 	Odescr* lhs;
@@ -917,7 +919,7 @@ int sol_read( Value* args )
 
 int sol_fread( Value* args )
 {
-	int env = ap - 1 - args[ 0 ].i_val;
+	int env = top_astack()->alink - args[ 0 ].i_val;
 	int oid = args[ 1 ].i_val - 1;
 	char* format = args[ 2 ].s_val;
 	char* filename = pop_string();

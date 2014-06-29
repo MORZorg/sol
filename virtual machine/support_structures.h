@@ -60,6 +60,8 @@ typedef struct
 	int first_object;
 	// Address were to return
 	int raddr;
+	// Address of the father in the astack
+	int alink;
 } Adescr;
 
 typedef struct
