@@ -262,15 +262,14 @@ int sol_lds( Value* args )
 int sol_lod( Value* args )
 {
 	int env_offset = args[ 0 ].i_val;
+	int oid = args[ 1 ].i_val - 1;
 	int env = ap - 1;
+	int i;
+	Odescr* object;
+	ByteArray instance;
 
 	while( env_offset-- > 0 )
 		env = astack[ env ]->alink;
-
-	int oid = args[ 1 ].i_val - 1;
-	Odescr* object;
-	int i;
-	ByteArray instance;
 
 	if( env < 0 )
 		return ERROR_ASTACK_OUT_OF_BOUND;
@@ -324,13 +323,12 @@ int sol_cat( Value* args )
 int sol_lda( Value* args )
 {
 	int env_offset = args[ 0 ].i_val;
+	int oid = args[ 1 ].i_val - 1;
 	int env = ap - 1;
+	Odescr* object;
 
 	while( env_offset-- > 0 )
 		env = astack[ env ]->alink;
-
-	int oid = args[ 1 ].i_val - 1;
-	Odescr* object;
 
 	if( env < 0 )
 		return ERROR_ASTACK_OUT_OF_BOUND;
@@ -428,15 +426,14 @@ int sol_sil( Value* args )
 int sol_sto( Value* args )
 {
 	int env_offset = args[ 0 ].i_val;
+	int oid = args[ 1 ].i_val - 1;
 	int env = ap - 1;
+	int i;
+	Odescr* object;
+	ByteArray instance;
 
 	while( env_offset-- > 0 )
 		env = astack[ env ]->alink;
-
-	int oid = args[ 1 ].i_val - 1;
-	Odescr* object;
-	int i;
-	ByteArray instance;
 
 	if( env < 0 )
 		return ERROR_ASTACK_OUT_OF_BOUND;
@@ -801,7 +798,9 @@ int sol_goto( Value* args )
 	function_ar->obj_number = element_number;
 	function_ar->first_object = op;
 	function_ar->raddr = pc + 1;
-	function_ar->alink = ap - 1 - chain;
+	function_ar->alink = ap - 1;
+	while( chain-- > 0 )
+		function_ar->alink = astack[ function_ar->alink ]->alink;
 	
 	push_astack( function_ar );
 
@@ -859,17 +858,17 @@ int sol_rd( Value* args )
 int sol_frd( Value* args )
 {
 	int env_offset = args[ 0 ].i_val;
-	int env = ap - 1;
-
-	while( env_offset-- > 0 )
-		env = astack[ env ]->alink;
-
 	int oid = args[ 1 ].i_val - 1;
 	char* format = args[ 2 ].s_val;
+	int env = ap - 1;
 	char* filename = pop_string();
 	Odescr* lhs;
 	ByteArray input = fileInput( filename );
 	ByteArray result;
+
+	while( env_offset-- > 0 )
+		env = astack[ env ]->alink;
+
 	result.value = malloc( sizeof( byte ) );
 	result.size = 0;
 
@@ -913,18 +912,18 @@ int sol_toreal()
 int sol_read( Value* args )
 {
 	int env_offset = args[ 0 ].i_val;
-	int env = ap - 1;
-
-	while( env_offset-- > 0 )
-		env = astack[ env ]->alink;
-
 	int oid = args[ 1 ].i_val - 1;
 	char* format = args[ 2 ].s_val;
+	int env = ap - 1;
 	Odescr* lhs;
 	ByteArray input = userInput( format );
 	ByteArray result;
+
 	result.value = malloc( sizeof( byte ) );
 	result.size = 0;
+
+	while( env_offset-- > 0 )
+		env = astack[ env ]->alink;
 
 	encrypt_bytearray( &input, &result, format );
 
@@ -945,19 +944,19 @@ int sol_read( Value* args )
 int sol_fread( Value* args )
 {
 	int env_offset = args[ 0 ].i_val;
-	int env = ap - 1;
-
-	while( env_offset-- > 0 )
-		env = astack[ env ]->alink;
-
 	int oid = args[ 1 ].i_val - 1;
 	char* format = args[ 2 ].s_val;
+	int env = ap - 1;
 	char* filename = pop_string();
 	Odescr* lhs;
 	ByteArray input = fileInput( filename );
 	ByteArray result;
+
 	result.value = malloc( sizeof( byte ) );
 	result.size = 0;
+
+	while( env_offset-- > 0 )
+		env = astack[ env ]->alink;
 	
 	encrypt_bytearray( &input, &result, format );
 

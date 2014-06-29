@@ -7,7 +7,7 @@ func a(): int
   begin b
     out.a_val = a_val;
     write out;
-    if c_val < 2 then
+    if c_val < 4 then
       return b( c_val + 1 );
     else
       return c_val;
