@@ -907,6 +907,8 @@ Schema* infere_expression_schema( Node* node )
 				case N_FUNC_CALL:
 				{
 					Symbol* function = fetch_scope( node->child->value.s_val );
+					if( function == NULL )
+						yysemerror( node->child, PRINT_ERROR( STR_UNDECLARED, "function call" ) );
 					result = function->schema;
 
 					int i;
@@ -975,7 +977,7 @@ Schema* infere_lhs_schema( Node* node, Boolean is_assigned )
 	{
 		Symbol* variable = fetch_scope( node->value.s_val );
 		if( !variable )
-			yysemerror( node, STR_UNDECLARED );
+			yysemerror( node, PRINT_ERROR( STR_UNDECLARED, "LHS" ) );
 
 		switch( variable->clazz )
 		{
@@ -1150,7 +1152,7 @@ Boolean type_check( Node* node )
 			result = infere_lhs_schema( node->child, TRUE );
 			
 			if( result == NULL )
-				yysemerror( node, STR_UNDECLARED );
+				yysemerror( node, PRINT_ERROR( STR_UNDECLARED, "assignment" ) );
 			
 			simplify_expression( node->child->brother );
 			if( result->type != infere_expression_schema( node->child->brother )->type )
@@ -1224,7 +1226,7 @@ Boolean type_check( Node* node )
 			Node* current_node = node->child;
 			Symbol* iterable_variable = fetch_scope( current_node->value.s_val );
 			if( iterable_variable == NULL )
-				yysemerror( current_node, STR_UNDECLARED );
+				yysemerror( current_node, PRINT_ERROR( STR_UNDECLARED, "for" ) );
 			ClassSymbol iterable_variable_class = iterable_variable->clazz;
 			switch( iterable_variable_class )
 			{
@@ -1258,7 +1260,7 @@ Boolean type_check( Node* node )
 			Node* current_node = node->child;
 			Symbol* iterable_variable = fetch_scope( current_node->value.s_val );
 			if( iterable_variable == NULL )
-				yysemerror( current_node, STR_UNDECLARED );
+				yysemerror( current_node, PRINT_ERROR( STR_UNDECLARED, "foreach" ) );
 			// TODO Can this variable be assigned?
 			switch( iterable_variable->clazz )
 			{
@@ -1283,8 +1285,8 @@ Boolean type_check( Node* node )
 
 		case N_RETURN_STAT:
 		{
-			// Looking the return type of the actual function and check if it's equal to the type of
-			//  of the return expression.
+			// Looking the return type of the actual function and check if it's
+			// equal to the type of of the return expression.
 			// ☆*:.｡. o(≧▽≦)o .｡.:*☆ 
 			simplify_expression( node->child );
 			if( infere_expression_schema( node->child )->type != ( (Symbol*) scope->function )->schema->type )
@@ -1310,7 +1312,7 @@ Boolean type_check( Node* node )
 
 			Symbol* destination_variable = fetch_scope( id_node->value.s_val );
 			if( destination_variable == NULL )
-				yysemerror( id_node, STR_UNDECLARED );
+				yysemerror( id_node, PRINT_ERROR( STR_UNDECLARED, "read" ) );
 			switch( destination_variable->clazz )
 			{
 				case CS_VAR:
@@ -1373,7 +1375,9 @@ Symbol* fetch_scope( char* id )
 	while( current_scope->next != NULL )
 	{
 		if( hashmap_get( ( (Symbol*) current_scope->function )->locenv, id, (any_t*) &result ) == MAP_OK )
-			break;
+			return result;
+		if( ( (Symbol*) current_scope->function )->name == id )
+			return (Symbol*) current_scope->function;
 
 		current_scope = current_scope->next;
 	}
