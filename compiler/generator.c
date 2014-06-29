@@ -312,7 +312,7 @@ Code generate_code( Node* node )
 							break;
 
 						case TS_STRING:
-							use_me = SOL_ILT;
+							use_me = SOL_SLT;
 							break;
 
 						default:
@@ -1664,8 +1664,6 @@ void output_code( FILE* output, Code code )
 				break;
 
 			case SOL_EQU:
-			case SOL_IGE:
-			case SOL_IGT:
 			case SOL_IPLUS:
 			case SOL_IST:
 			case SOL_ITIMES:
@@ -1679,6 +1677,22 @@ void output_code( FILE* output, Code code )
 			case SOL_TOINT:
 			case SOL_TOREAL:
 			case SOL_HALT:
+			case SOL_CGE:
+			case SOL_CGT:
+			case SOL_CLE:
+			case SOL_CLT:
+			case SOL_IGE:
+			case SOL_IGT:
+			case SOL_ILE:
+			case SOL_ILT:
+			case SOL_RGE:
+			case SOL_RGT:
+			case SOL_RLE:
+			case SOL_RLT:
+			case SOL_SGE:
+			case SOL_SGT:
+			case SOL_SLE:
+			case SOL_SLT:
 				fprintf( output, "%s\n",
 						CODE_OPERATORS[ current_stat->op ] );
 				break;
