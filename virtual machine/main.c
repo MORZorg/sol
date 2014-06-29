@@ -14,10 +14,16 @@
 #include "executor.h"
 
 #define ERROR_UNDEFINED_FLAG "No such flag."
+#define SOL_EXTENSION "sol"
+#define OHANA_EXTENSION "ohana"
+#define GENERATOR_PATH "../compiler/generator"
 
 extern FILE* yyin;
 extern int yyparse( void );
 extern int program_size;
+
+char* get_file_extension( char* );
+char* change_file_extension( char*, char*, char* );
 
 int main( int argc, char** argv )
 {
@@ -77,6 +83,18 @@ int main( int argc, char** argv )
 	}
 	else
 	{
+		char* extension = get_file_extension( fileInput );
+		if( !strcmp( extension, SOL_EXTENSION ) )
+		{
+			// If I have the sol file, i must compile it before execute it.
+			char* terminal_command = malloc( sizeof( char ) * ( strlen( GENERATOR_PATH ) + strlen( fileInput ) + 2 ) );
+			sprintf( terminal_command, "%s %s", GENERATOR_PATH, fileInput );
+			fprintf( stderr, "Generating code: '%s'\n", terminal_command );
+			system( terminal_command );
+
+			// Changing the fileInput to the compiled one.
+			fileInput = change_file_extension( fileInput, SOL_EXTENSION, OHANA_EXTENSION );
+		}
 		fprintf( console_output, "Reading from '%s'!\n", fileInput );
 		input = fopen( fileInput, "r" );
 	}
@@ -93,6 +111,26 @@ int main( int argc, char** argv )
 	}
 
 	return 0;
+}
+
+char* get_file_extension( char* filename )
+{
+	char* extension = &( filename[ strlen( filename ) ] );
+	while( *(extension--) != '.' );
+	extension += 2;
+
+	return extension;
+}
+
+char* change_file_extension( char* filename, char* old_ext, char* new_ext )
+{
+	char* new_filename = malloc( sizeof( char ) * ( strlen( filename ) - strlen( old_ext ) + strlen( new_ext ) + 1 ) );
+	new_filename = filename;
+
+	char* extension = get_file_extension( new_filename );
+	strcpy( extension, new_ext );
+
+	return new_filename;
 }
 
 #else
