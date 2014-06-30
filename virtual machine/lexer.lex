@@ -105,8 +105,8 @@ HALT				{ SPAM( "HALT\n" ); lexval.op_val = SOL_HALT; return( OP ); }
 {intconst}			{ SPAM( "INT_CONST" ); lexval.i_val = atoi( yytext ); return( CONST ); }
 {realconst}			{ SPAM( "REAL_CONST" ); lexval.r_val = atof( yytext ); return( CONST ); }
 "\""	           	{ BEGIN strconst; strbuf = malloc( sizeof( char ) ); }
-<strconst>[^\\"\n]*	{ concatenate_string( strbuf, yytext ); }
-<strconst>\\.		{ char temp[] = { parse_escape_seq( yytext ), '\0' }; concatenate_string( strbuf, temp ); }
+<strconst>[^\\"\n]*	{ concatenate_string( &strbuf, yytext ); }
+<strconst>\\.		{ char temp[] = { parse_escape_seq( yytext ), '\0' }; concatenate_string( &strbuf, temp ); }
 <strconst>\"		{ lexval.s_val = new_string( strbuf ); BEGIN 0; SPAM( "STR_CONST" ); return CONST; }
 {charconst}			{ SPAM( "CHAR_CONST" ); lexval.c_val = parse_escape_seq( yytext + 1 ); return( CONST ); }
 {sugar}				{ SPAM( yytext ); return( yytext[ 0 ] ); }
@@ -123,10 +123,10 @@ char* new_string( char* s )
 	return result;
 }
 
-void concatenate_string( char* base, char* addition )
+void concatenate_string( char** base, char* addition )
 {
-	base = realloc( base, sizeof( char ) * ( strlen( base ) + strlen( addition ) + 1 ) ); 
-	strcat( base, addition );
+	*base = realloc( *base, sizeof( char ) * ( strlen( *base ) + strlen( addition ) + 1 ) ); 
+	strcat( *base, addition );
 }
 
 char parse_escape_seq( char* s )

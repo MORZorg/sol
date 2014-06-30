@@ -254,6 +254,7 @@ int sol_ldr( Value* args )
 // Loads the given string on t_istack
 int sol_lds( Value* args )
 {
+	printf("pushing %s\n", args[ 0 ].s_val);
 	push_string( args[ 0 ].s_val );
 
 	return MEM_OK;
