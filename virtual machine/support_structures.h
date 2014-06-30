@@ -104,6 +104,10 @@ Odescr* top_ostack( void );
 void pop_ostack( void );
 void push_ostack( Odescr* );
 
+// Allocate the number of objects defined in a function definition header
+// to avoid multiple realloc
+void enlarge_ostack( int );
+
 Adescr* top_astack( void );
 
 void pop_astack( void );

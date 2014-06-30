@@ -732,6 +732,8 @@ int sol_push( Value* args )
 	int element_number = args[ 0 ].i_val;
 	int chain = args[ 1 ].i_val;
 
+	enlarge_ostack( element_number );
+
 	push_int( element_number );
 	fprintf( stderr, "SOL pushed el#: %d\n", element_number );
 	push_int( chain );

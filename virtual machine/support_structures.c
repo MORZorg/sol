@@ -127,6 +127,18 @@ void push_ostack( Odescr* value )
 	ostack[ op++ ] = value;
 }
 
+void enlarge_ostack( int size )
+{
+	if( op + size <= osize )
+	{
+		printf( "No need to realloc ostack to host new function objects\n" );
+		return;
+	}
+
+	printf( "Have to reallocate ostack to host new function objects\n");
+	ostack = realloc( ostack, OSTACK_UNIT * ( op + size ) );
+}
+
 Adescr* top_astack()
 {
 	return astack[ ap - 1 ];
