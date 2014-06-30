@@ -11,46 +11,49 @@
 % Language adjustments
 \renewcommand{\chaptername}{Chapter}
 
-% List of tables and figures formatting
-\makeatletter
-     \renewcommand*\l@figure{\@dottedtocline{1}{1em}{3.2em}}
-     \renewcommand*\l@table{\@dottedtocline{1}{1em}{3.2em}}
-\makeatother
-
-\addto\captionsitalian{
-  \renewcommand{\listfigurename}
-    {Lista delle figure}
-}
-
 % Just for multi-line comments
 \usepackage{verbatim}
-
-% Table stuff
-\usepackage{tabularx}
-\usepackage{array}
-
-% Images stuff
-\usepackage{bmpsize}
-\usepackage{subcaption}
 
 % Enum lists stuff
 \usepackage{enumerate}
 
-% PDF inclusion
-\usepackage{pdfpages}
+% Code listing
+\usepackage{listings}
+% \usepackage{pxfonts}
+\usepackage[usenames,dvipsnames]{color}
 
-% Appendix
-\usepackage[toc, page]{appendix}
+\floatstyle{ruled}
+\newfloat{code}{H}{loc}[chapter]
+\floatname{code}{Code}
 
-\tocloftpagestyle{empty}
-
-% Links style
-\hypersetup{%
-  colorlinks=true,% hyperlinks will be coloured
-  linkcolor=blue,% hyperlink text will be green
-  linkbordercolor=blue,% hyperlink border will be red
+% SOL language definition
+\lstdefinelanguage{SOL}
+{
+  morekeywords={func,char,int,real,string,bool,vector,of,types,var,const,begin,end,if,then,endif,elsif,else,while,do,endwhile,for,to,endfor,foreach,in,endforeach,return,read,write,and,or,not,struct,toint,toreal,rd,wr},
+  sensitive=true,
+  morecomment=[l]{--},
+  morestring=[b]",
 }
 
+\lstset
+{
+  language={SOL},
+  aboveskip=0.5cm,
+  basicstyle=\small\ttfamily,
+  numbers=left,
+  numberstyle=\tiny,
+  frame=tb,
+  tabsize=2,
+  columns=fixed,
+  showstringspaces=false,
+  showtabs=false,
+  keepspaces,
+  stringstyle=\color{cyan},
+  commentstyle=\color{grey},
+  keywordstyle=\color{ForestGreen}
+}
+
+% Other
 \makeatletter
 \Hy@AtBeginDocument{%
   \def\@pdfborder{0 0 1}% Overrides border definition set with colorlinks=true

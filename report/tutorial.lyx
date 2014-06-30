@@ -64,6 +64,177 @@
 SOL language introduction and examples
 \end_layout
 
+\begin_layout Standard
+SOL (Structured Odd Language) is a classic procedural programming language,
+ not different from C.
+\end_layout
+
+\begin_layout Standard
+In every SOL program there is a main 
+\emph on
+function 
+\emph default
+that contains the main code (just like the 
+\emph on
+main 
+\emph default
+procedure in C, with the difference that, here, we don't need to call this
+ function in a particular way).
+ The function is defined in a precise manner, as in Code 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{lst:Sbracode}
+\end_layout
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{lstlisting}[caption={Sbracode},label={lst:Sbracode}]
+\end_layout
+
+\begin_layout Plain Layout
+
+func function_name( param: int; ): int
+\end_layout
+
+\begin_layout Plain Layout
+
+	types
+\end_layout
+
+\begin_layout Plain Layout
+
+		T: vector[10] of string;
+\end_layout
+
+\begin_layout Plain Layout
+
+	var
+\end_layout
+
+\begin_layout Plain Layout
+
+		c: char;
+\end_layout
+
+\begin_layout Plain Layout
+
+		i, j: int;
+\end_layout
+
+\begin_layout Plain Layout
+
+		x: bool;
+\end_layout
+
+\begin_layout Plain Layout
+
+	const
+\end_layout
+
+\begin_layout Plain Layout
+
+		name: string = "hello, world!";
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	func sub_function(): int
+\end_layout
+
+\begin_layout Plain Layout
+
+		var
+\end_layout
+
+\begin_layout Plain Layout
+
+			s: string;
+\end_layout
+
+\begin_layout Plain Layout
+
+	begin sub_function
+\end_layout
+
+\begin_layout Plain Layout
+
+		return 0;
+\end_layout
+
+\begin_layout Plain Layout
+
+	end sub_function
+\end_layout
+
+\begin_layout Plain Layout
+
+begin function_name
+\end_layout
+
+\begin_layout Plain Layout
+
+	return 0;
+\end_layout
+
+\begin_layout Plain Layout
+
+end function_name
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{lstlisting}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+As we can notice immediately, the function definition is divided in two
+ main parts: a 
+\emph on
+header
+\emph default
+ in which the local elements (types, variables, constants and functions)
+ are defined, and a 
+\emph on
+body
+\emph default
+ in which the function performs whatever it should.
+\end_layout
+
+\begin_layout Standard
+Any function defined in the header of the main function must follow the
+ very same structure.
+ As we can notice from the above example, however, all the sections in the
+ header and the function parameters are facultative.
+ The only mandatory part is, in fact, the body.
+\end_layout
+
 \begin_layout Section
 A full sol program
 \end_layout
