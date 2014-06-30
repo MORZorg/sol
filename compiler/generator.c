@@ -71,9 +71,13 @@ int yygen( FILE* input, FILE* output )
 
 			hashmap_get( func_map, key, (any_t*) &func_desc );
 
-			printf( "Correction %d %d %d %d\n", func_desc->size, func_desc->scope, func_desc->entry->address, current_call->goto_instruction->address );
+			int size = func_desc->size;
+			int entry_point = func_desc->entry->address;
 
-			current_call->goto_instruction->args[ 0 ].i_val = func_desc->entry->address;
+			printf( "Correction %d -> %d %d %d -> %d\n", current_call->push_pop.head->args[0].i_val, size, func_desc->scope, current_call->push_pop.head->next->args[0].i_val, entry_point );
+
+			current_call->push_pop.head->args[0].i_val = size;
+			current_call->push_pop.head->next->args[0].i_val = entry_point;
 
 			stacklist_pop( &call_list );
 		}
@@ -526,7 +530,6 @@ Code generate_code( Node* node )
 
 					FuncDesc* description = malloc( sizeof( FuncDesc ) );
 
-					description->size = func_scope->last_oid - 1;
 					description->scope = func_scope->nesting;
 					
 					hashmap_put( func_map, key, description );
@@ -586,6 +589,7 @@ Code generate_code( Node* node )
 					
 					entry_code = append_code( entry_code, generate_code( current_node ) );
 					
+					description->size = func_scope->last_oid - 1;
 					description->entry = entry_code.head;
 					
 					printf( "Declaration %d %d %d\n", description->size, description->scope, description->entry->address );
@@ -616,25 +620,24 @@ Code generate_code( Node* node )
 					// FIXME Shouldn't be checked, only done to avoid debugging crashes
 					if( description != NULL )
 					{
-						// The number of objects defined in the function's activation record
-						int size = description->size;
 						// Since description->scope contains the nesting in
 						// which the function is defined, theoretically the
 						// following value should represent the distance
 						// between the actual call nesting and the definition
 						// nesting
 						int chain = ( (Symbol*) scope->function )->nesting - description->scope + 1;
-						// The address of the function's body start is ignored, it will be added by the post-processing in yygen
+						// Both adjusted in post_processing
+						int size = 0; //description->size;
 						int entry = 0; //description->entry->address;
 					
-						printf( "Call %d %d %d\n", description->size, description->scope, 0 );
+						printf( "Call %d %d %d\n", 0, description->scope, 0 );
 
 						// The second instruction is the GOTO
 						Code actual_call = make_push_pop( size, chain, entry );
 
 						CallDesc* call = malloc( sizeof( CallDesc ) );
 						call->oid = oid;
-						call->goto_instruction = actual_call.head->next;
+						call->push_pop = actual_call;
 
 						stacklist_push( &call_list, (stacklist_t) call );
 

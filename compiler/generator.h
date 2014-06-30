@@ -115,7 +115,7 @@ typedef struct
 typedef struct
 {
 	int oid;
-	Stat* goto_instruction;
+	Code push_pop;
 } CallDesc;
 
 int yygen( FILE*, FILE* );
