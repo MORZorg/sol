@@ -385,10 +385,6 @@ char* adjust_bytearray( ByteArray* array, ByteArray* result, char* format, char 
 			format++;
 
 			fprintf( stderr, "Vectoring %d times \n", array_times );
-			// The loop is not done one time since the variable format is
-			// not updated, so, after this block, there will be one more
-			// execution.
-			// Hopefully we'll never find 0-sized vectors.
 			char* array_format = malloc( sizeof( char ) * ( strlen( format ) + 1 ) );
 			memcpy( array_format, format, sizeof( char ) * ( strlen( format ) + 1 ) );
 			char* iterator = array_format;
@@ -408,15 +404,15 @@ char* adjust_bytearray( ByteArray* array, ByteArray* result, char* format, char 
 			for( i = 0; i < array_times; i++ )
 				adjust_bytearray( array, result, array_format, type );
 
-			// Skipping the size of the format read
-			format += ( sizeof( char ) * strlen( array_format ) );
+			// Skipping the size of the format read and the closed ']'
+			format += ( sizeof( char ) * strlen( array_format ) ) + 1;
 			break;
 		}
 
 		case 'i':
 		{
 			int i;
-			result->value = realloc( result->value, sizeof( int ) );
+			result->value = realloc( result->value, result->size + sizeof( int ) );
 			for( i = 0; i < sizeof( int ); i++ )
 				result->value[ result->size + i ] = array->value[ i ];
 			result->size += sizeof( int );
@@ -428,7 +424,7 @@ char* adjust_bytearray( ByteArray* array, ByteArray* result, char* format, char 
 		case 'r':
 		{
 			int i;
-			result->value = realloc( result->value, sizeof( float ) );
+			result->value = realloc( result->value, result->size + sizeof( float ) );
 			for( i = 0; i < sizeof( float ); i++ )
 				result->value[ result->size + i ] = array->value[ i ];
 			result->size += sizeof( float );
@@ -441,7 +437,7 @@ char* adjust_bytearray( ByteArray* array, ByteArray* result, char* format, char 
 		case 'b':
 		{
 			int i;
-			result->value = realloc( result->value, sizeof( char ) );
+			result->value = realloc( result->value, result->size + sizeof( char ) );
 			for( i = 0; i < sizeof( char ); i++ )
 				result->value[ result->size + i ] = array->value[ i ];
 			result->size += sizeof( char );
