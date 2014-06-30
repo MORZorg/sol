@@ -299,129 +299,124 @@ char* adjust_bytearray( ByteArray* array, ByteArray* result, char* format, char 
 {
 	fprintf( stderr, "Starting '%c' crypting '%s'  %lu long with '%s' format\n", type, array->value, array->size, format );
 
-	//while( *(format) != '\0' )
+	fprintf( stderr, "Processing '%c'\n", *format );
+
+	switch( *(format) )
 	{
-		fprintf( stderr, "Processing '%c'\n", *format );
-		switch( *(format) )
-		{
-			case '"':
-				format++;
-				break;
-
-			case '(':
-				while( *(format) != ')' )
-				{
-                    fprintf( stderr, "starting from %c\n", *format );
-					while( *(format) != ':' )
-						format++;
-                    format++;
-
-					format = adjust_bytearray( array, result, format, type );
-				}
-				break;
-
-			case '[':
+		case '(':
+			while( *(format) != ')' )
 			{
-				fprintf( stderr, "+++ Array start +++\n" );
-				format++;
-				int array_times, i;
-				array_times = 0;
-				while( *(format) != ',' )
-				{
-					array_times = ( array_times * 10 ) + ( *(format) - '0' );
+                fprintf( stderr, "starting from %c\n", *format );
+				while( *(format) != ':' )
 					format++;
-				}
-				format++;
+                format++;
 
-				fprintf( stderr, "Vectoring %d times \n", array_times );
-				// The loop is not done one time since the variable format is
-				// not updated, so, after this block, there will be one more
-				// execution.
-				// Hopefully we'll never find 0-sized vectors.
-				char* array_format = malloc( sizeof( char ) * ( strlen( format ) + 1 ) );
-				memcpy( array_format, format, sizeof( char ) * ( strlen( format ) + 1 ) );
-				char* iterator = array_format;
-				int sub_arrays = 0;
-				while( sub_arrays >= 0 )
-				{
-					if( *iterator == '[' )
-						sub_arrays++;
-					
-					if( *iterator == ']' )
-						sub_arrays--;
-					
-					iterator++;
-				} 
-				*(--iterator) = '\0';
-
-				for( i = 0; i < array_times; i++ )
-					adjust_bytearray( array, result, array_format, type );
-
-				// Skipping the size of the format read
-				format += ( sizeof( char ) * strlen( array_format ) );
-				break;
+				format = adjust_bytearray( array, result, format, type );
 			}
+			break;
 
-			case 'i':
+		case '[':
+		{
+			fprintf( stderr, "+++ Array start +++\n" );
+			format++;
+			int array_times, i;
+			array_times = 0;
+			while( *(format) != ',' )
 			{
-				int i;
-				result->value = realloc( result->value, sizeof( int ) );
-				for( i = 0; i < sizeof( int ); i++ )
-					result->value[ result->size + i ] = array->value[ i ];
-				result->size += sizeof( int );
-				array->value = &( array->value[ sizeof( int ) ] );
+				array_times = ( array_times * 10 ) + ( *(format) - '0' );
 				format++;
-				break;
 			}
+			format++;
 
-			case 'r':
+			fprintf( stderr, "Vectoring %d times \n", array_times );
+			// The loop is not done one time since the variable format is
+			// not updated, so, after this block, there will be one more
+			// execution.
+			// Hopefully we'll never find 0-sized vectors.
+			char* array_format = malloc( sizeof( char ) * ( strlen( format ) + 1 ) );
+			memcpy( array_format, format, sizeof( char ) * ( strlen( format ) + 1 ) );
+			char* iterator = array_format;
+			int sub_arrays = 0;
+			while( sub_arrays >= 0 )
 			{
-				int i;
-				result->value = realloc( result->value, sizeof( float ) );
-				for( i = 0; i < sizeof( float ); i++ )
-					result->value[ result->size + i ] = array->value[ i ];
-				result->size += sizeof( float );
-				array->value = &( array->value[ sizeof( float ) ] );
-				format++;
-				break;
-			}
+				if( *iterator == '[' )
+					sub_arrays++;
+				
+				if( *iterator == ']' )
+					sub_arrays--;
+				
+				iterator++;
+			} 
+			*(--iterator) = '\0';
 
-			case 'c':
-			case 'b':
-			{
-				int i;
-				result->value = realloc( result->value, sizeof( char ) );
-				for( i = 0; i < sizeof( char ); i++ )
-					result->value[ result->size + i ] = array->value[ i ];
-				result->size += sizeof( char );
-				array->value = &( array->value[ sizeof( char ) ] );
-				format++;
-				break;
-			}
+			for( i = 0; i < array_times; i++ )
+				adjust_bytearray( array, result, array_format, type );
 
-			case 's':
-			{
-				switch( type )
-				{
-					case 'e':
-						encrypt_string( array, result );
-						break;
-
-					case 'd':
-						decrypt_string( array, result );
-						break;
-				}
-
-				format++;
-				break;
-			}
-
-			default:
-				fprintf( stderr, "Nothing to do with '%c'\n", *(format) );
-				format++;
-				break;
+			// Skipping the size of the format read
+			format += ( sizeof( char ) * strlen( array_format ) );
+			break;
 		}
+
+		case 'i':
+		{
+			int i;
+			result->value = realloc( result->value, sizeof( int ) );
+			for( i = 0; i < sizeof( int ); i++ )
+				result->value[ result->size + i ] = array->value[ i ];
+			result->size += sizeof( int );
+			array->value = &( array->value[ sizeof( int ) ] );
+			format++;
+			break;
+		}
+
+		case 'r':
+		{
+			int i;
+			result->value = realloc( result->value, sizeof( float ) );
+			for( i = 0; i < sizeof( float ); i++ )
+				result->value[ result->size + i ] = array->value[ i ];
+			result->size += sizeof( float );
+			array->value = &( array->value[ sizeof( float ) ] );
+			format++;
+			break;
+		}
+
+		case 'c':
+		case 'b':
+		{
+			int i;
+			result->value = realloc( result->value, sizeof( char ) );
+			for( i = 0; i < sizeof( char ); i++ )
+				result->value[ result->size + i ] = array->value[ i ];
+			result->size += sizeof( char );
+			array->value = &( array->value[ sizeof( char ) ] );
+			format++;
+			break;
+		}
+
+		case 's':
+		{
+			switch( type )
+			{
+				case 'e':
+					encrypt_string( array, result );
+					break;
+
+				case 'd':
+					decrypt_string( array, result );
+					break;
+			}
+
+			format++;
+			break;
+		}
+
+		default:
+			fprintf( stderr, "Nothing to do with '%c'\n", *(format) );
+			format++;
+			break;
 	}
+	
 
 	fprintf( stderr, "Finished '%c' crypting '%s' %lu long\n", type, result->value, result->size );
 	return format;
@@ -455,14 +450,19 @@ void encrypt_string( ByteArray* array, ByteArray* result )
 void decrypt_string( ByteArray* array, ByteArray* result )
 {
 	// Getting the pointer to the string from its bytes
-	char* str_pointer;
+	char* str_pointer = malloc( sizeof( char* ) );
 	memcpy( &str_pointer, array->value, sizeof( char* ) );
 	array->value += sizeof( char* );
 
-	result->size += sizeof( char ) * ( strlen( str_pointer ) + 1 );
-	result->value = realloc( result->value, result->size );
+	fprintf( stderr, "String '%s'\n", str_pointer );
+	fprintf( stderr, "Result: %lu - %s\n", result->size, result->value );
+
+	// Saving the size of the string that has to be added, reused in realloc and in result->size
+	unsigned long str_size = sizeof( char ) * ( strlen( str_pointer ) + 1 );
+	result->value = realloc( result->value, result->size + str_size );
 	memcpy( 
 		&( result->value[ result->size ] ),
 		str_pointer,
-		sizeof( char ) * ( strlen( str_pointer ) + 1 ) );
+		str_size );
+	result->size += str_size;
 }
