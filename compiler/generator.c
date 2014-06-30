@@ -9,6 +9,17 @@ extern Symbol* symbol_table;
 extern stacklist scope;
 extern char* CODE_OPERATORS[];
 
+// Parameters needed by function call
+map_t func_map;
+// {Google Translate because "someone" wrote in Italian} 
+// List of pointers to goto statements generated, the address must be changed
+// in retrospect (when the real entry point of the function is known)
+stacklist call_list;
+// List of lists of break instructions, needed to update the "break" statements
+// inside a loop to make them point to the end of the loop itself.
+// Every loop statement has a dedicated list, to handle the nesting correctly.
+stacklist loop_list;
+
 FILE* yyin;
 
 /*
@@ -51,7 +62,6 @@ int yygen( FILE* input, FILE* output )
 	// Instantiate an hashmap, used to track the function definitions inside
 	// the p-code
 	func_map = hashmap_new();
-	call_list = NULL;
 
 	// The intro code is generated afterwards because it needs the updated
 	// symbol table including the additional temporary variables.
@@ -501,6 +511,11 @@ Code generate_code( Node* node )
 			break;
 		}
 
+		case T_BREAK_STAT:
+			result = make_code_no_param( SOL_JMP );
+			stacklist_push( loop_list->function, result.head );
+			break;
+
 		case T_UNQUALIFIED_NONTERMINAL:
 			switch( node->value.n_val )
 			{
@@ -873,6 +888,9 @@ Code generate_code( Node* node )
 
 				case N_WHILE_STAT:
 				{
+					stacklist breaks;
+					stacklist_push( &loop_list, &breaks );
+
 					Code exit = make_code_no_param( SOL_JMF );
 					Code up = make_code_no_param( SOL_JMP );
 
@@ -882,6 +900,14 @@ Code generate_code( Node* node )
 
 					exit.head->args[ 0 ].i_val = result.size - exit.head->address;
 					up.head->args[ 0 ].i_val = -up.head->address;
+
+					while( breaks != NULL )
+					{
+						Stat* break_stat = (Stat*) breaks->function;
+						break_stat->args[ 0 ].i_val = result.size - break_stat->address;
+						stacklist_pop( &breaks );
+					}
+					stacklist_pop( &loop_list );
 					break;
 				}
 

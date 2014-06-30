@@ -142,9 +142,6 @@ size_t schema_size( Schema* );
 char* schema_to_string( Schema* );
 void output_code( FILE*, Code );
 
-map_t func_map; // Parameters needed by function call
-stacklist call_list; // Lista di puntatori alle istruzioni goto generate, il cui indirizzo va modificato a posteriori (quando il vero entry point della funzione è noto)
-
 #include "tree_print.h"
 
 #endif // __GENERATOR_H__
