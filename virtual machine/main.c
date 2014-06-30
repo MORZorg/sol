@@ -16,7 +16,7 @@
 #define ERROR_UNDEFINED_FLAG "No such flag."
 #define SOL_EXTENSION "sol"
 #define OHANA_EXTENSION "ohana"
-#define GENERATOR_PATH "./solc"
+#define GENERATOR_PATH "../compiler/generator"
 
 extern FILE* yyin;
 extern int yyparse( void );
@@ -24,6 +24,7 @@ extern int program_size;
 
 char* get_file_extension( char* );
 char* change_file_extension( char*, char*, char* );
+char* formatted_command( char* );
 
 int main( int argc, char** argv )
 {
@@ -88,7 +89,8 @@ int main( int argc, char** argv )
 		{
 			// If I have the sol file, i must compile it before execute it.
 			char* terminal_command = malloc( sizeof( char ) * ( strlen( GENERATOR_PATH ) + strlen( fileInput ) + 2 ) );
-			sprintf( terminal_command, "%s %s", GENERATOR_PATH, fileInput );
+			// In the command i have to substitute the single spaces with the formatted spaces
+			sprintf( terminal_command, "%s %s", GENERATOR_PATH, formatted_command( fileInput ) );
 			fprintf( stderr, "Generating code: '%s'\n", terminal_command );
 			system( terminal_command );
 
@@ -131,6 +133,37 @@ char* change_file_extension( char* filename, char* old_ext, char* new_ext )
     strcpy( new_filename + base_len, new_ext ); 
 
 	return new_filename;
+}
+
+char* formatted_command( char* command )
+{
+	// Looking for spaces and substituting with '\ '
+	char* iterator = command;
+	int spaces = 0;
+	while( *(iterator) != '\0' )
+	{
+		if( *(iterator) == ' ' )
+			spaces++;
+		iterator++;
+	}
+
+	// Creating the new file name
+	char* formatted = malloc( sizeof( char ) * ( strlen( command ) + spaces + 1 ) );
+	iterator = formatted;
+
+	while( *(command) != '\0' )
+	{
+		if( *(command) == ' ' )
+		{
+			*(iterator) = '\\';
+			iterator++;
+		}
+		*(iterator) = *(command);
+		command++;
+		iterator++;
+	}
+
+	return formatted;
 }
 
 #else

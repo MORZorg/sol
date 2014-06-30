@@ -214,7 +214,7 @@ int sol_new( Value* args )
 // A size number of cells is reserved on the istack
 int sol_news( Value* args )
 {
-	byte* dummy_instantiation;
+	//byte* dummy_instantiation;
 	int size = args[ 0 ].i_val;
 
 	Odescr* object = malloc( sizeof( Odescr ) );
