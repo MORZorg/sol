@@ -450,12 +450,9 @@ void encrypt_string( ByteArray* array, ByteArray* result )
 void decrypt_string( ByteArray* array, ByteArray* result )
 {
 	// Getting the pointer to the string from its bytes
-	char* str_pointer = malloc( sizeof( char* ) );
+	char* str_pointer;
 	memcpy( &str_pointer, array->value, sizeof( char* ) );
 	array->value += sizeof( char* );
-
-	fprintf( stderr, "String '%s'\n", str_pointer );
-	fprintf( stderr, "Result: %lu - %s\n", result->size, result->value );
 
 	// Saving the size of the string that has to be added, reused in realloc and in result->size
 	unsigned long str_size = sizeof( char ) * ( strlen( str_pointer ) + 1 );

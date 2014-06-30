@@ -17,7 +17,7 @@ int yyvm( void )
 
 	while( program[pc].op != SOL_HALT )
 	{
-		printf( "Line %d, command %d.\n", pc, program[pc].op );
+		printf( "Line %d, command %s (%d).\n", pc, get_operator_name( program[pc].op ), program[pc].op );
 
 		if( ( result = execute( program[pc] ) != 0 ) )
 		{
@@ -213,7 +213,7 @@ int sol_new( Value* args )
 // Creates a new empty stack object and puts it on ostack
 int sol_news( Value* args )
 {
-	byte* dummy_instantiation;
+	//byte* dummy_instantiation;
 	int size = args[ 0 ].i_val;
 
 	Odescr* object = malloc( sizeof( Odescr ) );

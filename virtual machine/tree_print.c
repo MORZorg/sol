@@ -148,3 +148,7 @@ void code_array_print( Stat* code, int program_size )
 	}
 }
 
+const char* get_operator_name( Operator op )
+{
+	return CODE_OPERATORS[ op ];
+}

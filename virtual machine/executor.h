@@ -14,6 +14,7 @@
 
 #include "support_structures.h"
 #include "dataIO.h"
+#include "tree_print.h"
 
 #define STA_NOT_ALLOCATED -1
 
