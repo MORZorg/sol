@@ -1610,6 +1610,10 @@ char* schema_to_string( Schema* a_schema )
 				char* schema = schema_to_string( current_attr->child );
 
 				int current_length = strlen( result );
+
+				if( current_attr->id == NULL )
+					current_attr->id = "";
+				
 				result = realloc( result, ( strlen( result ) + strlen( current_attr->id ) + strlen( schema ) ) * sizeof( char ) );
 				result[ current_length ] = '\0';
 
