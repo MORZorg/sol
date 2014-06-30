@@ -935,7 +935,7 @@ Code generate_code( Node* node )
 					init_node->brother = temp_def_node;
 
 					Node* while_node = new_nonterminal_node( N_WHILE_STAT );
-					while_node->child = new_qualified_node( T_REL_EXPR, Q_LT );
+					while_node->child = new_qualified_node( T_REL_EXPR, Q_LT ); // FIXME LT or LEQ?
 					while_node->child->child = new_terminal_node( T_ID, node->child->value );
 					while_node->child->child->brother = new_terminal_node( T_ID, temp_val );
 					while_node->child->brother = node->child->brother->brother->brother;

@@ -17,7 +17,7 @@ int yyvm( void )
 
 	while( program[pc].op != SOL_HALT )
 	{
-		printf( "Line %d, command %s (%d).\n", pc, get_operator_name( program[pc].op ), program[pc].op );
+		printf( "Line %d, command %s.\n", pc+2, get_operator_name( program[pc].op ) );
 
 		if( ( result = execute( program[pc] ) != 0 ) )
 		{
@@ -339,6 +339,7 @@ int sol_lda( Value* args )
 
 	object = ostack[ astack[ env ]->first_object + oid ];
 
+	printf("%d %d %d\n", env, oid, object->inst.sta_val);
 	push_int( object->inst.sta_val );
 
 	return MEM_OK;
@@ -349,9 +350,11 @@ int sol_fda( Value* args )
 {
 	int field_offset = args[ 0 ].i_val;
 
-	int ref_offset_on_stack = pop_int(); // Field offset previously calculated (either LDA or other FDAs)
+	int start_offset = pop_int(); // Field offset previously calculated (either LDA or other FDAs)
 
-	push_int( field_offset + ref_offset_on_stack );
+	push_int( start_offset + field_offset );
+
+	printf("%d %d\n", start_offset, field_offset);
 
 	return MEM_OK;
 }
@@ -368,6 +371,8 @@ int sol_ixa( Value* args )
 
 	push_int( start_offset + vector_dimension * index_value );
 
+	printf( "%d %d %d\n", start_offset, index_value, vector_dimension );
+
 	return MEM_OK;
 }
 
@@ -377,18 +382,18 @@ int sol_eil( Value* args )
 	int field_size = args[ 0 ].i_val;
 	int start_offset = pop_int(); // Offset calculated via multiple IXA/FDA + LDA
 	byte* value;
-	int i = 0;
+	int i;
 
-	if( start_offset + field_size > ip - 1 )
+	printf("%d %d -> %d\n", start_offset, field_size, ip);
+	if( start_offset + field_size - 1 > ip - 1 )
 		return ERROR_ISTACK_OUT_OF_BOUND;
 
 	value = malloc( sizeof( byte ) * field_size );
 
-	do
+	for( i = 0; i < field_size; i++ )
 	{
 		value[ i ] = istack[ start_offset + i ];
 	}
-	while( ++i < field_size );
 
 	push_bytearray( value, field_size );
 
@@ -893,9 +898,9 @@ int sol_read( Value* args )
 		lhs->inst.emb_val = result.value;
 	else
 	{
-		lhs->inst.sta_val = ip;
-		push_bytearray( result.value, result.size );
-		pop_ostack();
+		int i;
+		for( i = 0; i < result.size; i++ )
+			istack[ lhs->inst.sta_val + i ] = result.value[ i ];
 	}
 
 	return MEM_OK;

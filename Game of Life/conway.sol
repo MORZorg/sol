@@ -1,7 +1,7 @@
 func game_of_life() : int
 
-	type	lines: vector [ 30 ] of bool;
-			grid: vector [ 30 ] of lines;
+	type	lines: vector [ 10 ] of bool;
+			grid: vector [ 10 ] of lines;
 			-- Just a bad idea.
 			-- grid: struct( rows: lines; columns: lines; );
 
@@ -9,7 +9,7 @@ func game_of_life() : int
 			control: struct( continue, edit: bool; );
 
 	const	summary: string = "Welcome to ORZ's Conway's Game of Life!";
-			world_size: int = 15;
+			world_size: int = 10;
 
 	-- Rules:
 	--   Any live cell with fewer than two live neighbours dies, as if caused by under-population.
