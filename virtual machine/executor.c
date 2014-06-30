@@ -220,11 +220,9 @@ int sol_news( Value* args )
 	object->mode = STA;
 	object->size = size;
 	object->inst.sta_val = ip;
+    allocate_istack( size );
 
 	push_ostack( object );
-
-	while( size-- > 0 )
-		push_istack( '\0' );
 
 	return MEM_OK;
 }
@@ -438,13 +436,14 @@ int sol_sto( Value* args )
 	while( env_offset-- > 0 )
 		env = astack[ env ]->alink;
 
+	fprintf( stderr, "I'm gonna store the value at env %d with oid %d!\n", env, oid );
+
 	if( env < 0 )
 		return ERROR_ASTACK_OUT_OF_BOUND;
 
 	if( oid >= astack[ env ]->obj_number )
 		return ERROR_OSTACK_OUT_OF_BOUND;
 
-	fprintf( stderr, "I'm gonna store the value at env %d with oid %d!\n", env, oid );
 	object = ostack[ astack[ env ]->first_object + oid ];
 	fprintf( stderr, "I took %p.\n", object);
 
@@ -784,12 +783,7 @@ int sol_pop()
 		// istack, all I care about is to pop the correct total number of
 		// cells, not the exact cells for every object
 		if( top_ostack()->mode == STA )
-		{
-			int j;
-
-			for( j = 0; j < top_ostack()->size; j++ )
-				pop_istack();
-		}
+          deallocate_istack( top_ostack()->size );
 
 		pop_ostack();
 	}

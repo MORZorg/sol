@@ -96,8 +96,8 @@ int initialize_stacks( void );
 // Interaction with the persistent stacks
 byte top_istack( void );
 
-void pop_istack( void );
-void push_istack( byte );
+void deallocate_istack( int );
+void allocate_istack( int );
 
 Odescr* top_ostack( void );
 

@@ -78,20 +78,24 @@ byte top_istack()
 	return istack[ ip - 1 ]; 
 }
 
-void pop_istack()
+void deallocate_istack( int size )
 {
-	--ip;
-	fprintf( stderr, "Popped istack, new ip %d\n", ip );
+	ip -= size;
+	fprintf( stderr, "Deallocated istack, new ip %d\n", ip );
 }
 
-void push_istack( byte value )
+void allocate_istack( int size )
 {
-	if( ip == isize )
-		istack = realloc( istack, ISTACK_UNIT * ++isize );
+	if( ip + size - 1 >= isize )
+    {
+        isize += size;
+		istack = realloc( istack, ISTACK_UNIT * isize );
+    }
 
-	istack[ ip++ ] = value;
+    while( size-- > 0 )
+      istack[ ip++ ] = 0;
 
-	fprintf( stderr, "Pushed istack: %d (ip %d isize %d)\n", value, ip, isize );
+	fprintf( stderr, "Allocated istack (ip %d isize %d)\n", ip, isize );
 }
 
 Odescr* top_ostack()
@@ -113,7 +117,7 @@ void push_ostack( Odescr* value )
 {
 	if( op == osize )
 	{
-		printf("Have to reallocate ostack.\n");
+		fprintf( stderr, "Have to reallocate ostack.\n" );
 		ostack = realloc( ostack, OSTACK_UNIT * ++osize );
 	}
 
