@@ -16,7 +16,7 @@
 #define ERROR_UNDEFINED_FLAG "No such flag."
 #define SOL_EXTENSION "sol"
 #define OHANA_EXTENSION "ohana"
-#define GENERATOR_PATH "../compiler/generator"
+#define GENERATOR_PATH "./solc"
 
 extern FILE* yyin;
 extern int yyparse( void );
@@ -124,11 +124,11 @@ char* get_file_extension( char* filename )
 
 char* change_file_extension( char* filename, char* old_ext, char* new_ext )
 {
-	char* new_filename = malloc( sizeof( char ) * ( strlen( filename ) - strlen( old_ext ) + strlen( new_ext ) + 1 ) );
-	new_filename = filename;
+    int base_len = strlen( filename ) - strlen( old_ext );
+	char* new_filename = malloc( sizeof( char ) * ( base_len + strlen( new_ext ) + 1 ) );
 
-	char* extension = get_file_extension( new_filename );
-	strcpy( extension, new_ext );
+    memcpy( new_filename, filename, sizeof( char ) * base_len );
+    strcpy( new_filename + base_len, new_ext ); 
 
 	return new_filename;
 }

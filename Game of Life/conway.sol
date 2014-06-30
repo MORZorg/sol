@@ -1,52 +1,43 @@
-func game_of_life( name: string; ) : int
+func game_of_life() : int
 
 	type	lines: vector [ 30 ] of bool;
 			grid: vector [ 30 ] of lines;
 			-- Just a bad idea.
 			-- grid: struct( rows: lines; columns: lines; );
 
-	var		world: grid;
+	var		world: struct( name: string; generation: int; world: grid; );
+			control: struct( continue, edit: bool; );
 
 	const	summary: string = "Welcome to ORZ's Conway's Game of Life!";
+			world_size: int = 15;
 
 	-- Rules:
 	--   Any live cell with fewer than two live neighbours dies, as if caused by under-population.
 	--   Any live cell with two or three live neighbours lives on to the next generation.
 	--   Any live cell with more than three live neighbours dies, as if by overcrowding.
 	--   Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
-	func next_state() : grid
+	func next_state( current_state: grid; ) : grid
 		var		i, j, k, h: int;
 				neighbours: int;
 				state: grid;
 
 	begin next_state
 
-		-- FIXME 100 or 99?
-		for i = 0 to 100 do
-			for j = 0 to 100 do
+		for i = 0 to world_size do
+			for j = 0 to world_size do
 
 				neighbours = 0;
-				for k = ( if i-1>0 then i-1 else 0 endif ) to ( if i+1<100 then i+1 else 100 endif ) do
-					for h = ( if j-1>0 then j-1 else 0 endif ) to ( if j+1<100 then j+1 else 100 endif ) do
-						if world[ k ][ h ] then
+				for k = ( if i-1>0 then i-1 else 0 endif ) to ( if i+1<world_size then i+1 else world_size endif ) do
+					for h = ( if j-1>0 then j-1 else 0 endif ) to ( if j+1<world_size then j+1 else world_size endif ) do
+						if current_state[ k ][ h ] then
 							neighbours = neighbours + 1;
 						endif;
 					endfor;
 				endfor;
 
-				if world[ i ][ j ] then
-					if neighbours < 2  or neighbours > 3 then
-						state[ i ][ j ] = false;
-					else
-						state[ i ][ j ] = true;
-					endif;
-				else
-					if neighbours == 3 then
-						state[ i ][ j ] = true;
-					else
-						state[ i ][ j ] = false;
-					endif;
-				endif;
+				state[ i ][ j ] = if state[ i ][ j ]
+					then neighbours >= 2 and neighbours <= 3
+					else neighbours == 3 endif;
 			endfor;
 		endfor;
 
@@ -57,13 +48,20 @@ begin game_of_life
 	write summary;
 
 	read world;
+	control = struct( true, false );
 
-	while true do
-		world = next_state();
+	while control.continue do
+		world.world = next_state( world.world );
+        world.generation = world.generation + 1;
 		write world;
+
+		read control;
+		if control.edit then
+			read world;
+		endif;
 	endwhile;
 
-	write [ name ] world;
+	write [ world.name ] world;
 
 	return 0;
 end game_of_life
