@@ -76,26 +76,51 @@ typedef struct
 extern int pc;
 
 // Pointers to first free positions in the stacks
-extern int ap, op, ip, t_op;
+extern int ap, op, ip;
+extern int t_op, t_ip;
 // Actual allocated sizes of the stacks
-extern int asize, osize, isize, t_osize;
+extern int asize, osize, isize;
+extern int t_osize, t_isize;
 
 // The stacks (actually vectors)
 extern Adescr** astack;
 extern Odescr** ostack;
 extern byte* istack;
 
-// Stack for temporary objects
+// Stacks for temporary objects and instances
 extern Odescr** t_ostack;
+extern byte* t_istack;
 
 int initialize_stacks( void );
 
-// Interaction with the istack
+// Interaction with the persistent stacks
 byte top_istack( void );
 
 void pop_istack( void );
 void push_istack( byte );
 
+Odescr* top_ostack( void );
+
+void pop_ostack( void );
+void push_ostack( Odescr* );
+
+Adescr* top_astack( void );
+
+void pop_astack( void );
+void push_astack( Adescr* );
+
+// Interactions with the temporary stacks
+Odescr* top_t_ostack( void );
+
+void pop_t_ostack( void );
+void push_t_ostack( Odescr* );
+
+byte top_t_istack( void );
+
+void pop_t_istack( void );
+void push_t_istack( byte );
+
+// Embedded instructions to interact with the temporary istack
 ByteArray pop_bytearray( void );
 void push_bytearray( byte*, int );
 
@@ -111,22 +136,7 @@ void push_char( char );
 char* pop_string( void );
 void push_string( char* );
 
-// Interactions with the other stacks
-Odescr* top_ostack( void );
-
-void pop_ostack( void );
-void push_ostack( Odescr* );
-
-Adescr* top_astack( void );
-
-void pop_astack( void );
-void push_astack( Adescr* );
-
-Odescr* top_t_ostack( void );
-
-void pop_t_ostack( void );
-void push_t_ostack( Odescr* );
-
+// Conversions
 char* adjust_bytearray( ByteArray*, ByteArray*, char*, char );
 void encrypt_bytearray( ByteArray*, ByteArray*, char* );
 void decrypt_bytearray( ByteArray*, ByteArray*, char* );

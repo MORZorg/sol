@@ -9,8 +9,10 @@
 
 int pc;
 
-int ap, op, ip, t_op;
-int asize, osize, isize, t_osize;
+int ap, op, ip;
+int t_op, t_ip;
+int asize, osize, isize;
+int t_osize, t_isize; 
 
 Adescr** astack;
 Odescr** ostack;
@@ -18,6 +20,7 @@ byte* istack;
 map_t string_map;
 
 Odescr** t_ostack;
+byte* t_istack;
 
 /*
  * PRIVATE FUNCTION
@@ -53,19 +56,21 @@ int initialize_stacks()
 	istack = malloc( ISTACK_UNIT );
 
 	t_ostack = malloc( OSTACK_UNIT );
+	t_istack = malloc( ISTACK_UNIT );
 	
 	asize = 1;
 	osize = 1;
 	isize = 1;
 
 	t_osize = 1;
+	t_isize = 1;
 
 	string_map = hashmap_new();
 
 	return MEM_OK;
 }
 
-// Interaction with the istack
+// Interaction with the persistent stacks 
 byte top_istack()
 {
 	fprintf( stderr, "Top istack, position %d\n", ip - 1 );
@@ -89,7 +94,112 @@ void push_istack( byte value )
 	fprintf( stderr, "Pushed istack: %d (ip %d isize %d)\n", value, ip, isize );
 }
 
-// Write and read temporary stuff on the istack and the t_ostack;
+Odescr* top_ostack()
+{
+	Odescr* value = ostack[ op - 1 ];
+
+	/* fprintf( stderr, "Top ostack position %d: %d %d %d\n", op - 1, value->mode, value->size, value->inst.sta_val ); */
+
+	return value;
+}
+
+void pop_ostack()
+{
+	fprintf( stderr, "Pop ostack: %d\n", op );
+	free( ostack[ --op ] );
+}
+
+void push_ostack( Odescr* value )
+{
+	if( op == osize )
+	{
+		printf("Have to reallocate ostack.\n");
+		ostack = realloc( ostack, OSTACK_UNIT * ++osize );
+	}
+
+	fprintf( stderr, "Push ostack @ %d: %d %d ", op, value->mode, value->size );
+	if( value->mode == EMB )
+		fprintf( stderr, "%p", value->inst.emb_val );
+	else
+		fprintf( stderr, "%d", value->inst.sta_val );
+	fprintf( stderr, " in %p.\n", value );
+
+	ostack[ op++ ] = value;
+}
+
+Adescr* top_astack()
+{
+	return astack[ ap - 1 ];
+}
+
+void pop_astack()
+{
+	free( astack[ --ap ] );
+}
+
+void push_astack( Adescr* value )
+{
+	if( ap == asize )
+		astack = realloc( astack, ASTACK_UNIT * ++asize );
+
+	astack[ ap++ ] = value;
+}
+
+// Interactions with the temporary stacks
+Odescr* top_t_ostack()
+{
+	Odescr* value = t_ostack[ t_op - 1 ];
+
+	fprintf( stderr, "Top t_ostack position %d: %d %d %d\n", t_op - 1, value->mode, value->size, value->inst.sta_val );
+
+	return value;
+}
+
+void pop_t_ostack()
+{
+	fprintf( stderr, "Pop t_ostack: %d\n", t_op );
+	free( t_ostack[ --t_op ] );
+}
+
+void push_t_ostack( Odescr* value )
+{
+	if( t_op == t_osize )
+		t_ostack = realloc( t_ostack, OSTACK_UNIT * ++t_osize );
+
+	fprintf( stderr, "Push t_ostack @ %d: %d %d ", t_op, value->mode, value->size );
+	if( value->mode == EMB )
+		fprintf( stderr, "%p", value->inst.emb_val );
+	else
+		fprintf( stderr, "%d", value->inst.sta_val );
+	fprintf( stderr, " in %p.\n", value );
+
+	t_ostack[ t_op++ ] = value;
+}
+
+byte top_t_istack()
+{
+	fprintf( stderr, "Top t_istack, position %d\n", t_ip - 1 );
+
+	return t_istack[ t_ip - 1 ]; 
+}
+
+void pop_t_istack()
+{
+	--t_ip;
+	fprintf( stderr, "Popped t_istack, new t_ip %d\n", t_ip );
+}
+
+void push_t_istack( byte value )
+{
+	if( t_ip == t_isize )
+		t_istack = realloc( t_istack, ISTACK_UNIT * ++t_isize );
+
+	t_istack[ t_ip++ ] = value;
+
+	fprintf( stderr, "Pushed t_istack: %d (t_ip %d t_isize %d)\n", value, t_ip, t_isize );
+}
+
+// Write and read temporary stuff on the t_istack and the t_ostack;
 // All methods pass from the bytearray ones
 ByteArray pop_bytearray()
 {
@@ -104,9 +214,9 @@ ByteArray pop_bytearray()
 	int i = object->size - 1;
 	do
 	{
-		result.value[ i ] = top_istack();
+		result.value[ i ] = top_t_istack();
 
-		pop_istack();
+		pop_t_istack();
 	}
 	while( --i >= 0 );
 	
@@ -120,12 +230,12 @@ void push_bytearray( byte* value, int size )
 {
 	int i;
 	for( i = 0; i < size; i++ )
-		push_istack( value[ i ] );
+		push_t_istack( value[ i ] );
 
 	Odescr* object = malloc( sizeof( Odescr ) );
 	object->mode = STA;
 	object->size = size;
-	object->inst.sta_val = ip - size;
+	object->inst.sta_val = t_ip - size;
 
 	push_t_ostack( object );
 }
@@ -185,7 +295,6 @@ void push_char( char value )
 	push_bytearray( (byte*) &value, 1 );
 }
 
-
 char* pop_string()
 {
 	byte* byte_pointer = pop_bytearray().value;
@@ -203,88 +312,7 @@ void push_string( char* string )
 	push_bytearray( object, sizeof( pointer ) );
 }
 
-// Interactions with the other stacks
-Odescr* top_ostack()
-{
-	Odescr* value = ostack[ op - 1 ];
-
-	/* fprintf( stderr, "Top ostack position %d: %d %d %d\n", op - 1, value->mode, value->size, value->inst.sta_val ); */
-
-	return value;
-}
-
-void pop_ostack()
-{
-	fprintf( stderr, "Pop ostack: %d\n", op );
-	free( ostack[ --op ] );
-}
-
-void push_ostack( Odescr* value )
-{
-	if( op == osize )
-	{
-		printf("Have to reallocate ostack.\n");
-		ostack = realloc( ostack, OSTACK_UNIT * ++osize );
-	}
-
-	fprintf( stderr, "Push ostack @ %d: %d %d ", op, value->mode, value->size );
-	if( value->mode == EMB )
-		fprintf( stderr, "%p", value->inst.emb_val );
-	else
-		fprintf( stderr, "%d", value->inst.sta_val );
-	fprintf( stderr, " in %p.\n", value );
-
-	ostack[ op++ ] = value;
-}
-
-Adescr* top_astack()
-{
-	return astack[ ap - 1 ];
-}
-
-void pop_astack()
-{
-	free( astack[ --ap ] );
-}
-
-void push_astack( Adescr* value )
-{
-	if( ap == asize )
-		astack = realloc( astack, ASTACK_UNIT * ++asize );
-
-	astack[ ap++ ] = value;
-}
-
-Odescr* top_t_ostack()
-{
-	Odescr* value = t_ostack[ t_op - 1 ];
-
-	fprintf( stderr, "Top t_ostack position %d: %d %d %d\n", t_op - 1, value->mode, value->size, value->inst.sta_val );
-
-	return value;
-}
-
-void pop_t_ostack()
-{
-	fprintf( stderr, "Pop t_ostack: %d\n", t_op );
-	free( t_ostack[ --t_op ] );
-}
-
-void push_t_ostack( Odescr* value )
-{
-	if( t_op == t_osize )
-		t_ostack = realloc( t_ostack, OSTACK_UNIT * ++t_osize );
-
-	fprintf( stderr, "Push t_ostack @ %d: %d %d ", t_op, value->mode, value->size );
-	if( value->mode == EMB )
-		fprintf( stderr, "%p", value->inst.emb_val );
-	else
-		fprintf( stderr, "%d", value->inst.sta_val );
-	fprintf( stderr, " in %p.\n", value );
-
-	t_ostack[ t_op++ ] = value;
-}
-
+// Conversions
 void encrypt_bytearray( ByteArray* array, ByteArray* result, char* format )
 {
 	adjust_bytearray( array, result, format, 'e' );
