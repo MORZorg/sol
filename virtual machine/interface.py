@@ -69,13 +69,13 @@ class DataDialog(QtWidgets.QDialog):
                 schema.appendleft(element)
                 return NestedWidget(schema, editable)
             else:
-                return VectorWidget(schema, nesting, editable)
+                return VectorWidget(schema, dict(nesting), editable)
         elif element == "(":
             if nesting['s'] > 1 or nesting['v'] > 1:
                 schema.appendleft(element)
                 return NestedWidget(schema, editable)
             else:
-                return StructWidget(schema, nesting, editable)
+                return StructWidget(schema, dict(nesting), editable)
         else:
             return DataDialog.resolveSchema(schema, nesting, editable)
 
@@ -385,7 +385,7 @@ class SimpleInterface:
         """
         External function to ask for data.
         """
-
+        print("Python schema: {}".format(textualSchema))
         inputDialog = InputDialog(deque(textualSchema))
         inputDialog.show()
         if inputDialog.exec_():
@@ -398,6 +398,7 @@ class SimpleInterface:
         """
         External function to show data.
         """
+        print("Python schema: {}".format(textualSchema))
         print("Python data: {}".format(data))
         outputDialog = OutputDialog(deque(textualSchema))
         outputDialog.show(ByteDeque(data))

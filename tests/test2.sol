@@ -10,16 +10,16 @@ func prog( primo: vector[1] of vector[3] of char; a: struct(a: int; b: string;);
 
 		-- I'm a comment, I'm a comment, I'm a comment.
 		-- I'm a comment, I'm a comment, I'm a comment.
-	func ao( sbrai: int; sbras: string; ): vector[ 456 ] of struct( a: string; )
+	func ao( sbrai: int; sbras: string; ): vector[ 4 ] of struct( a: string; )
 		type
 			sbrat: vector[ 2 ] of bool;
-		var ri: vector[ 456 ] of struct( b: string; );
+		var ri: vector[ 4 ] of struct( b: string; );
 			i: int;
 		const fioa: string = "pfa0o";
 	begin ao
 		write struttura.c.c.a;
 		write primo[1][2];
-		for i = 0 to 455 - sbrai do
+		for i = 0 to 3 - sbrai do
 			ri[ i + sbrai ].b = sbras;
 		endfor;
 		return rd ri;
@@ -31,7 +31,7 @@ begin prog
 	write '\t';
 	write '\'';
 	write "a\"\ts\\d";
-	write ao(454, "ciao");
+	write ao(1, "ciao");
 	while true do
 		fioa = wr [ "pino" ] PEO;
 		break;

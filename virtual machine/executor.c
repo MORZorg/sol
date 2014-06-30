@@ -799,9 +799,7 @@ int sol_wr( Value* args )
 {
 	char* format = args[ 0 ].s_val;
 	ByteArray popped = pop_bytearray();
-	ByteArray expr;
-
-	decrypt_bytearray( &popped, &expr, format );
+	ByteArray expr = decrypt_bytearray( &popped, format );
 
 	userOutput( format, expr );
 
@@ -816,9 +814,7 @@ int sol_fwr( Value* args )
 	char* format = args[ 0 ].s_val;
 	char* filename = pop_string();
 	ByteArray popped = pop_bytearray();
-	ByteArray expr;
-
-	decrypt_bytearray( &popped, &expr, format );
+	ByteArray expr = decrypt_bytearray( &popped, format );
 
 	fileOutput( filename, expr );
 
@@ -833,11 +829,7 @@ int sol_rd( Value* args )
 {
 	char* format = args[ 0 ].s_val;
 	ByteArray input = userInput( format );
-	ByteArray result;
-	
-	result.value = malloc( sizeof( byte ) );
-	result.size = 0;
-	encrypt_bytearray( &input, &result, format );
+	ByteArray result = encrypt_bytearray( &input, format );
 
 	push_bytearray( result.value, result.size );
 
@@ -851,11 +843,7 @@ int sol_frd( Value* args )
 	char* format = args[ 0 ].s_val;
 	char* filename = pop_string();
 	ByteArray input = fileInput( filename );
-	ByteArray result;
-
-	result.value = malloc( sizeof( byte ) );
-	result.size = 0;
-	encrypt_bytearray( &input, &result, format );
+	ByteArray result = encrypt_bytearray( &input, format );
 
 	push_bytearray( result.value, result.size );
 
@@ -894,13 +882,10 @@ int sol_read( Value* args )
 	ByteArray input = userInput( format );
 	ByteArray result;
 
-	result.value = malloc( sizeof( byte ) );
-	result.size = 0;
-
 	while( env_offset-- > 0 )
 		env = astack[ env ]->alink;
 
-	encrypt_bytearray( &input, &result, format );
+	result = encrypt_bytearray( &input, format );
 
 	lhs = ostack[ astack[ env ]->first_object + oid ];
 
@@ -927,13 +912,10 @@ int sol_fread( Value* args )
 	ByteArray input = fileInput( filename );
 	ByteArray result;
 
-	result.value = malloc( sizeof( byte ) );
-	result.size = 0;
-
 	while( env_offset-- > 0 )
 		env = astack[ env ]->alink;
 	
-	encrypt_bytearray( &input, &result, format );
+	result = encrypt_bytearray( &input, format );
 
 	lhs = ostack[ astack[ env ]->first_object + oid ];
 
@@ -953,11 +935,7 @@ int sol_write( Value* args )
 {
 	char* format = args[ 0 ].s_val;
 	ByteArray popped = pop_bytearray();
-	ByteArray expr;
-	expr.value = malloc( sizeof( byte ) );
-	expr.size = 0;
-
-	decrypt_bytearray( &popped, &expr, format );
+	ByteArray expr = decrypt_bytearray( &popped, format );
 	userOutput( format, expr );
 
 	return MEM_OK;
@@ -968,11 +946,7 @@ int sol_fwrite( Value* args )
 	char* format = args[ 0 ].s_val;
 	char* filename = pop_string();
 	ByteArray popped = pop_bytearray();
-	ByteArray expr;
-	expr.value = malloc( sizeof( byte ) );
-	expr.size = 0;
-
-	decrypt_bytearray( &popped, &expr, format );
+	ByteArray expr = decrypt_bytearray( &popped, format );
 	fileOutput( filename, expr );
 
 	return MEM_OK;

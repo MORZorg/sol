@@ -329,14 +329,26 @@ void push_string( char* string )
 }
 
 // Conversions
-void encrypt_bytearray( ByteArray* array, ByteArray* result, char* format )
+ByteArray encrypt_bytearray( ByteArray* array, char* format )
 {
-	adjust_bytearray( array, result, format, 'e' );
+	ByteArray result;
+	result.value = malloc( sizeof( byte ) );
+	result.size = 0;
+
+	adjust_bytearray( array, &result, format, 'e' );
+
+	return result;
 }
 
-void decrypt_bytearray( ByteArray* array, ByteArray* result, char* format )
+ByteArray decrypt_bytearray( ByteArray* array, char* format )
 {
-	adjust_bytearray( array, result, format, 'd' );
+	ByteArray result;
+	result.value = malloc( sizeof( byte ) );
+	result.size = 0;
+
+	adjust_bytearray( array, &result, format, 'd' );
+
+	return result;
 }
 
 char* adjust_bytearray( ByteArray* array, ByteArray* result, char* format, char type )

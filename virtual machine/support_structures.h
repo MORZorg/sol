@@ -142,8 +142,8 @@ void push_string( char* );
 
 // Conversions
 char* adjust_bytearray( ByteArray*, ByteArray*, char*, char );
-void encrypt_bytearray( ByteArray*, ByteArray*, char* );
-void decrypt_bytearray( ByteArray*, ByteArray*, char* );
+ByteArray encrypt_bytearray( ByteArray*, char* );
+ByteArray decrypt_bytearray( ByteArray*, char* );
 void encrypt_string( ByteArray*, ByteArray* );
 void decrypt_string( ByteArray*, ByteArray* );
 

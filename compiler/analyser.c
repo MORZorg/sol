@@ -1055,7 +1055,7 @@ Boolean schema_check( Schema* first, Schema* second )
 	switch( first->type )
 	{
 		case TS_VECTOR:
-			if( first->size != first->size )
+			if( first->size != second->size )
 				return FALSE;
 			if( !schema_check( first->child, second->child ) )
 				return FALSE;
@@ -1289,7 +1289,7 @@ Boolean type_check( Node* node )
 			// equal to the type of of the return expression.
 			// ☆*:.｡. o(≧▽≦)o .｡.:*☆ 
 			simplify_expression( node->child );
-			if( infere_expression_schema( node->child )->type != ( (Symbol*) scope->function )->schema->type )
+			if( !schema_check( infere_expression_schema( node->child ), ( (Symbol*) scope->function )->schema ) )
 				yysemerror( node, STR_RETURN_TYPE );
 
 			has_return = TRUE;
