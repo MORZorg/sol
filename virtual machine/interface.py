@@ -17,7 +17,7 @@ class ByteDeque:
 
     def unpack(self, format):
         result = struct.unpack_from(format, self.data, self.start)
-        self.start += 1
+        self.start += struct.calcsize(format)
         return result
 
     def __len__(self):
@@ -301,7 +301,7 @@ class StructWidget(DataWidget):
         character = schema.popleft()
         i = 0
         while character != ")":
-            name = character if character != "," else ""
+            name = character if character != ',' else ''
             name += DataDialog.decryptString(schema, ':')
 
             widget = DataDialog.resolveSchema(schema, nesting, editable)
