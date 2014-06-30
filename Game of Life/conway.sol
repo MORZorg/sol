@@ -5,11 +5,16 @@ func game_of_life() : int
 			-- Just a bad idea.
 			-- grid: struct( rows: lines; columns: lines; );
 
-	var		world: struct( name: string; generation: int; world: grid; );
-			control: struct( continue, edit: bool; );
+	var		world: struct( generation: int; world: grid; );
+			filename: string;
+			generations: int;
+			initial_state: grid;
 
-	const	summary: string = "Welcome to ORZ's Conway's Game of Life!";
-			world_size: int = 10;
+	const	world_size: int = 10;
+			summary: string = "Welcome to ORZ's Conway's Game of Life!";
+			enter_filename: string = "Enter the filename of your world.";
+			enter_generations: string = "Enter for how many generations would you like to watch your world go by.";
+			enter_world: string = "Your world doesn't exist yet.\nEnter it now.";
 
 	-- Rules:
 	--   Any live cell with fewer than two live neighbours dies, as if caused by under-population.
@@ -47,21 +52,28 @@ func game_of_life() : int
 begin game_of_life
 	write summary;
 
-	read world;
-	control = struct( true, false );
+	write enter_filename;
+	read filename;
+	read [ filename ] world;
 
-	while control.continue do
+	write enter_generations;
+	read generations;
+
+	if world.generation == 0 then
+		write enter_world;
+		read initial_state;
+		world.world = initial_state;
+	endif;
+
+	while generations > 0 do
 		world.world = next_state( world.world );
         world.generation = world.generation + 1;
 		write world;
 
-		read control;
-		if control.edit then
-			read world;
-		endif;
+		generations = generations - 1;
 	endwhile;
 
-	write [ world.name ] world;
+	write [ filename ] world;
 
 	return 0;
 end game_of_life
