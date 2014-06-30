@@ -888,7 +888,7 @@ Code generate_code( Node* node )
 
 				case N_WHILE_STAT:
 				{
-					stacklist breaks;
+					stacklist breaks = NULL;
 					stacklist_push( &loop_list, &breaks );
 
 					Code exit = make_code_no_param( SOL_JMF );
