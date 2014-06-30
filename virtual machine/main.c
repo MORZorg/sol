@@ -16,7 +16,7 @@
 #define ERROR_UNDEFINED_FLAG "No such flag."
 #define SOL_EXTENSION "sol"
 #define OHANA_EXTENSION "ohana"
-#define GENERATOR_PATH "../compiler/generator"
+#define GENERATOR_PATH "./solc"
 
 extern FILE* yyin;
 extern int yyparse( void );
@@ -88,9 +88,10 @@ int main( int argc, char** argv )
 		if( !strcmp( extension, SOL_EXTENSION ) )
 		{
 			// If I have the sol file, i must compile it before execute it.
-			char* terminal_command = malloc( sizeof( char ) * ( strlen( GENERATOR_PATH ) + strlen( fileInput ) + 2 ) );
+            char* formatted_file = formatted_command( fileInput );
+			char* terminal_command = malloc( sizeof( char ) * ( strlen( GENERATOR_PATH ) + strlen( formatted_file ) + 2 ) );
 			// In the command i have to substitute the single spaces with the formatted spaces
-			sprintf( terminal_command, "%s %s", GENERATOR_PATH, formatted_command( fileInput ) );
+			sprintf( terminal_command, "%s %s", GENERATOR_PATH, formatted_file );
 			fprintf( stderr, "Generating code: '%s'\n", terminal_command );
 			system( terminal_command );
 
@@ -162,6 +163,7 @@ char* formatted_command( char* command )
 		command++;
 		iterator++;
 	}
+    *(iterator) = '\0';
 
 	return formatted;
 }
