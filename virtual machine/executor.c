@@ -820,8 +820,8 @@ int sol_wr( Value* args )
 int sol_fwr( Value* args )
 {
 	char* format = args[ 0 ].s_val;
-	ByteArray popped = pop_bytearray();
 	char* filename = pop_string();
+	ByteArray popped = pop_bytearray();
 	ByteArray expr;
 
 	decrypt_bytearray( &popped, &expr, format );
@@ -972,8 +972,8 @@ int sol_write( Value* args )
 int sol_fwrite( Value* args )
 {
 	char* format = args[ 0 ].s_val;
-	ByteArray popped = pop_bytearray();
 	char* filename = pop_string();
+	ByteArray popped = pop_bytearray();
 	ByteArray expr;
 	expr.value = malloc( sizeof( byte ) );
 	expr.size = 0;

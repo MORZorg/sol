@@ -1041,16 +1041,17 @@ Code generate_code( Node* node )
 					// Determine if the WR has a specifier-opt or not
 					if( expr_child->brother != NULL )
 					{
-						result = append_code( result, generate_code( expr_child ) );
+						result = generate_code( expr_child );
 
 						expr_child = expr_child->brother;
 
 						use_me = SOL_FWR;
 					}
 					
-					Code expr = generate_code( expr_child );
-
-					result = concatenate_code( 3, result, expr, make_code_string_param( use_me, schema_to_string( infere_expression_schema( node ) ) ) );
+					result = concatenate_code( 3,
+                                               generate_code( expr_child ),
+                                               result,
+                                               make_code_string_param( use_me, schema_to_string( infere_expression_schema( node ) ) ) );
 
 					break;
 				}
@@ -1069,8 +1070,8 @@ Code generate_code( Node* node )
 					{
 						output_schema = infere_expression_schema( node->child->brother );
 						op = SOL_FWRITE;
-						result = append_code( generate_code( node->child ),
-											  generate_code( node->child->brother ) );
+						result = append_code( generate_code( node->child->brother ),
+											  generate_code( node->child ) );
 					}
 
 					result = append_code( result,
