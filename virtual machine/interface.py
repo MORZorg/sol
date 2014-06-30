@@ -301,8 +301,11 @@ class StructWidget(DataWidget):
         character = schema.popleft()
         i = 0
         while character != ")":
-            name = character if character != ',' else ''
-            name += DataDialog.decryptString(schema, ':')
+            name = character if character != ',' else ""
+            if character != ':':
+                name += DataDialog.decryptString(schema, ':')
+            else:
+                name = ""
 
             widget = DataDialog.resolveSchema(schema, nesting, editable)
             label = QtWidgets.QLabel(name)
