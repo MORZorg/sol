@@ -406,9 +406,7 @@ int sol_eil( Value* args )
 	value = malloc( sizeof( byte ) * field_size );
 
 	for( i = 0; i < field_size; i++ )
-	{
 		value[ i ] = istack[ start_offset + i ];
-	}
 
 	push_bytearray( value, field_size );
 
@@ -419,28 +417,7 @@ int sol_eil( Value* args )
 // Not clear: what should be put on the istack? the address of the field (start_offset, already present)?
 int sol_sil( Value* args )
 {
-	int field_size = args[ 0 ].i_val;
-	int start_offset = pop_int(); // Offset calculated via multiple IXA/FDA + LDA
-	byte* value;
-	int i;
-
-	if( start_offset + field_size > ip - 1 )
-		return ERROR_ISTACK_OUT_OF_BOUND;
-
-	value = malloc( sizeof( byte ) * field_size );
-	i = 0;
-
-	// Mh wat?
-	do
-	{
-		value[ i ] = istack[ start_offset + i ];
-	}
-	while( ++i < field_size );
-
-	push_bytearray( value, field_size );
-
-
-	return MEM_OK;
+	return sol_eil( args );
 }
 
 // Pops the last value from the t_istack and puts it as instance of the referred object, whose size is known as part of Odescr
