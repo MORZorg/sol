@@ -463,9 +463,11 @@ Boolean simplify_expression( Node* node )
 		case T_BOOL_CONST:
 			return TRUE;
 
+        case T_ATOMIC_DOMAIN:
 		case T_ID_DOMAIN:
 		case T_ID:
 			return FALSE;
+
 
 		case T_INSTANCE_EXPR:
 		{

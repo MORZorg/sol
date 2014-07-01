@@ -8,7 +8,6 @@ func game_of_life() : int
 	var		world: struct( generation: int; world: grid; );
 			input: struct( filename: string; load: bool; );
 			generations: int;
-			initial_state: grid;
 
 	const	world_size: int = 15;
 			summary: string = "Welcome to ORZ's Conway's Game of Life!";
@@ -67,8 +66,7 @@ begin game_of_life
 		read [ input.filename ] world;
 	else
 		write enter_world;
-		read initial_state;
-		world.world = initial_state;
+		world.world = rd grid;
 	endif;
 
 	write enter_generations;
