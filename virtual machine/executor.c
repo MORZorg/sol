@@ -954,9 +954,9 @@ int sol_fread( Value* args )
 		lhs->inst.emb_val = result.value;
 	else
 	{
-		lhs->inst.sta_val = ip;
-		push_bytearray( result.value, result.size );
-		pop_ostack();
+		int i;
+		for( i = 0; i < result.size; i++ )
+			istack[ lhs->inst.sta_val + i ] = result.value[ i ];
 	}
 
 	return MEM_OK;
