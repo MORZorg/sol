@@ -134,7 +134,7 @@ ByteArray fileInput(char* filename)
 		result.value = NULL;
 	}
 
-    return result;
+	return result;
 }
 
 void fileOutput(char* filename, ByteArray data)
