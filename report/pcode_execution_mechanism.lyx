@@ -61,7 +61,26 @@
 \begin_body
 
 \begin_layout Chapter
-P-code execution
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+label{chp:scode}
+\end_layout
+
+\end_inset
+
+Introduction and S-code execution
+\end_layout
+
+\begin_layout Standard
+The Virtual Machine reads the S-code produced as result of the compilation
+ and executes it.
+ The interaction happens throught a graphical interface completely realized
+ in Qt5 and Python 3.4.
 \end_layout
 
 \end_body

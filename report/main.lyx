@@ -48,9 +48,9 @@
   showstringspaces=false,
   showtabs=false,
   keepspaces,
-  stringstyle=\color{cyan},
-  commentstyle=\color{grey},
-  keywordstyle=\color{ForestGreen}
+  stringstyle=\color{Cerulean},
+  commentstyle=\color{Gray},
+  keywordstyle=\color{OliveGreen}
 }
 
 % Other
@@ -208,6 +208,22 @@ begin{mainmatter}
 \end_layout
 
 \begin_layout Part
+
+\lang english
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+label{prt:intro}
+\end_layout
+
+\end_inset
+
+
+\lang british
 Introduction to SOL
 \end_layout
 
@@ -242,6 +258,22 @@ filename "semantics.lyx"
 \end_layout
 
 \begin_layout Part
+
+\lang english
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+label{prt:com}
+\end_layout
+
+\end_inset
+
+
+\lang british
 The Compiler
 \end_layout
 
@@ -276,6 +308,18 @@ filename "code_generation.lyx"
 \end_layout
 
 \begin_layout Part
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+label{prt:vm}
+\end_layout
+
+\end_inset
+
 The Virtual Machine
 \end_layout
 

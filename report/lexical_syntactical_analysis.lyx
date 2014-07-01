@@ -61,7 +61,626 @@
 \begin_body
 
 \begin_layout Chapter
-Lexical and Syntactical analysis
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+label{chp:lex}
+\end_layout
+
+\end_inset
+
+Introduction, Lexical and Syntactical analysis
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+lstset{language=C}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Our compiler is written in the C language.
+ It is divided in 3 main parts that correspond to the 3 stages of compiling,
+ executed in sequential order:
+\end_layout
+
+\begin_layout Itemize
+The lexical and syntactical analysis of the language, presented in this
+ chapter, that together aim at determining wether the given SOL source file
+ is well-written or not and to construct a data structure that describes
+ the code in a functional manner;
+\end_layout
+
+\begin_layout Itemize
+The semantical analysis, presented in 
+Chapter 
+\lang english
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{chp:sem}
+\end_layout
+
+\end_inset
+
+, which aims at determinining if the written statements (which are correct
+ due to the previous analysis) make sense (eg, performing the sum of an
+ integer and a string makes no sense, therefore it is not semantically correct),
+ relying on the data structure produced by the previous analysis;
+\end_layout
+
+\begin_layout Itemize
+The code generation, presented in Chapter 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{chp:gen}
+\end_layout
+
+\end_inset
+
+, which, given that the code is both well-written and semantically correct,
+ translates it in a lower-level and standard code, easier to execute directly
+ (and executed by the virtual machine, of which we talk in Part 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{prt:vm}
+\end_layout
+
+\end_inset
+
+).
+ The code is, again, generated starting from the data structure produced
+ by the syntactical analysis, not from the 
+\begin_inset Quotes eld
+\end_inset
+
+raw
+\begin_inset Quotes erd
+\end_inset
+
+ code.
+\end_layout
+
+\begin_layout Standard
+Our compiler uses Lex and Yacc to perform lexical and syntactical analysis,
+ respectively.
+ These are two languages specifically designed for this purpose and they
+ produce complete analyzer programs written in C.
+\end_layout
+
+\begin_layout Section
+Lexical analyzer
+\end_layout
+
+\begin_layout Standard
+Lex is used to produce a lexical analyzer in C language.
+ After the lex file compilation, we get a C file defining a function called
+ 
+\emph on
+yylex
+\emph default
+.
+ This function, given the input file, produces a data structure (called
+ 
+\emph on
+symbol table
+\emph default
+) containing all the symbols found in the code (constants, ids etc) and
+ a file 
+\begin_inset Quotes eld
+\end_inset
+
+cleaned up
+\begin_inset Quotes erd
+\end_inset
+
+, that is, without comments, indentation, parenthesis and other non-functional
+ stuff referred to as 
+\emph on
+sugar
+\emph default
+.
+ If, during, the file analysis, an error is encountered (in the file is
+ present something that shouldn't be), the 
+\emph on
+yylex 
+\emph default
+function stops and produces an error (calling the 
+\emph on
+yyerror
+\emph default
+ function).
+\end_layout
+
+\begin_layout Standard
+This cleand up file and the symbol table will be used by the syntactical
+ analyzer to check the syntax and produce the 
+\emph on
+syntax tree
+\emph default
+, of which we talk in the next section.
+\end_layout
+
+\begin_layout Standard
+Lex is very simple: in the first part of the lex file, lexical elements
+ (a 
+\emph on
+lexeme
+\emph default
+) that need to be defined with a regular expression (such as the id) are
+ defined, and in the second part these lexeme are associated to a rule.
+ The lexeme that don't need to be defined are those whose definition is
+ fixed, such as the keywords and the operators.
+\end_layout
+
+\begin_layout Standard
+The definition of lexeme for the SOL language is, for our compiler, the
+ one presented in 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{lst:lex_regexp}
+\end_layout
+
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{lstlisting}[language={C},caption={Lex definition of lexical elements},labe
+l={lst:lex_regexp}]
+\end_layout
+
+\begin_layout Plain Layout
+
+alpha	[a-zA-Z]
+\end_layout
+
+\begin_layout Plain Layout
+
+digit	[0-9]
+\end_layout
+
+\begin_layout Plain Layout
+
+id	{alpha}({alpha}|{digit}|_)*
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+charconst	'([^
+\backslash
+']|
+\backslash
+
+\backslash
+.)'
+\end_layout
+
+\begin_layout Plain Layout
+
+intconst	{digit}+
+\end_layout
+
+\begin_layout Plain Layout
+
+realconst	{digit}+
+\backslash
+.{digit}+
+\end_layout
+
+\begin_layout Plain Layout
+
+boolconst	true|false
+\end_layout
+
+\begin_layout Plain Layout
+
+strconst	
+\backslash
+"([^"
+\backslash
+
+\backslash
+]|
+\backslash
+
+\backslash
+.)*
+\backslash
+"
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+comment	--.*
+\end_layout
+
+\begin_layout Plain Layout
+
+spacing	([ 
+\backslash
+t])+
+\end_layout
+
+\begin_layout Plain Layout
+
+sugar	[()
+\backslash
+[
+\backslash
+]{}.,;]
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+%x charconst 
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{lstlisting}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The rules associated to each lexeme must be in the form presented in Listing
+ 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{lst:lex_rule}
+\end_layout
+
+\end_inset
+
+.
+ The value returned by each rule must be a unique identifier of the found
+ lexeme.
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{lstlisting}[language={C},caption={Lex rule},label={lst:lex_rule}]
+\end_layout
+
+\begin_layout Plain Layout
+
+lexeme	{ /*C code to execute when such lexeme is found*/; return lexeme_descript
+or; }
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{lstlisting}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+For the fixed lexeme (keywords and other simple stuff), the rules are as
+ simple the ones in in Listing 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{lst:lex_keyword}
+\end_layout
+
+\end_inset
+
+.
+ The complexe lexeme, however, comprise a 
+\begin_inset Quotes eld
+\end_inset
+
+value
+\begin_inset Quotes erd
+\end_inset
+
+, since they're not fixed.
+ This value must be 
+\begin_inset Quotes eld
+\end_inset
+
+elaborated
+\begin_inset Quotes erd
+\end_inset
+
+ from the 
+\begin_inset Quotes eld
+\end_inset
+
+raw
+\begin_inset Quotes erd
+\end_inset
+
+ (simple string) value presented in the variable 
+\emph on
+yytext
+\emph default
+ and put in a new variable that will be used to build the symbol table.
+ The elaboration consists, normally, in the conversion of the value to the
+ correct type.
+ In our program, the destination variable is 
+\emph on
+lexval
+\emph default
+, instance of 
+\emph on
+Value, 
+\emph default
+a
+\emph on
+ 
+\emph default
+C union that can contain any type of value (integer, real, string..).
+ The rules for the complexe lexeme are all presented in Listing 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{lst:lex_more}
+\end_layout
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{lstlisting}[language={C},caption={Lex rule for a keyword},label={lst:lex_k
+eyword}]
+\end_layout
+
+\begin_layout Plain Layout
+
+func	{ SPAM( "FUNC" ); return( FUNC ); }
+\end_layout
+
+\begin_layout Plain Layout
+
+char	{ SPAM( "CHAR" ); return( CHAR ); }
+\end_layout
+
+\begin_layout Plain Layout
+
+int	{ SPAM( "INT" ); return( INT ); }
+\end_layout
+
+\begin_layout Plain Layout
+
+real	{ SPAM( "REAL" ); return( REAL ); }
+\end_layout
+
+\begin_layout Plain Layout
+
+string	{ SPAM( "STRING" ); return( STRING ); }
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{lstlisting}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{lstlisting}[language={C},caption={Lex rules for constants and ids},label={
+lst:lex_more}]
+\end_layout
+
+\begin_layout Plain Layout
+
+{intconst}	{ SPAM( "INT_CONST" ); lexval.i_val = atoi( yytext ); return(
+ INT_CONST ); }
+\end_layout
+
+\begin_layout Plain Layout
+
+{strconst}	{ SPAM( "STR_CONST" ); yytext[ strlen( yytext ) - 1 ] = '
+\backslash
+0'; lexval.s_val = new_string( yytext + 1 ); return ( STR_CONST ); }
+\end_layout
+
+\begin_layout Plain Layout
+
+{charconst}	{ SPAM( "CHAR_CONST" ); yytext[ strlen( yytext ) - 1 ] = '
+\backslash
+0'; lexval.s_val = new_string( yytext + 1 ); return( CHAR_CONST ); }
+\end_layout
+
+\begin_layout Plain Layout
+
+{realconst}	{ SPAM( "REAL_CONST" ); lexval.r_val = atof( yytext ); return(
+ REAL_CONST ); }
+\end_layout
+
+\begin_layout Plain Layout
+
+{boolconst}	{ SPAM( "BOOL_CONST" ); lexval.b_val = ( yytext[ 0 ] == 'f' ?
+ FALSE : TRUE ); return( BOOL_CONST ); }
+\end_layout
+
+\begin_layout Plain Layout
+
+{id}	{ SPAM( "ID" ); lexval.s_val = new_string( yytext ); return( ID ); }
+\end_layout
+
+\begin_layout Plain Layout
+
+{sugar}	{ SPAM( yytext ); return( yytext[ 0 ] ); }
+\end_layout
+
+\begin_layout Plain Layout
+
+.	{ yyerror( STR_ERROR ); } 
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{lstlisting}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The last line of 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{lst:lex_more}
+\end_layout
+
+\end_inset
+
+ means that whatever doesn't match the previous rules must result in an
+ error (as in the regular expressions, 
+\begin_inset Quotes eld
+\end_inset
+
+.
+\begin_inset Quotes erd
+\end_inset
+
+ means any value).
+ The 
+\emph on
+SPAM
+\emph default
+ function is simply a redefinition of fprintf pointing to the standard error.
+\end_layout
+
+\begin_layout Section
+Syntactical analyzer
+\end_layout
+
+\begin_layout Standard
+Similarly to Lex, Yacc is used to produce a syntactical analyzer in C.
+ The compilation of the Yacc file produces a C file containing a function
+ called 
+\emph on
+yyparse
+\emph default
+ that, given the output of the 
+\emph on
+yylex
+\emph default
+, checks its syntax correctness and produces another data structure (the
+ 
+\emph on
+Syntax Tree
+\emph default
+) if everything is correct.
 \end_layout
 
 \end_body

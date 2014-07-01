@@ -61,7 +61,25 @@
 \begin_body
 
 \begin_layout Chapter
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+label{chp:opsem}
+\end_layout
+
+\end_inset
+
 SOL language semantics specification
+\end_layout
+
+\begin_layout Standard
+This chapter presents the semantics of every statement of the SOL language
+ in an operational way.
+ The language used to describe the semantics is C.
 \end_layout
 
 \end_body

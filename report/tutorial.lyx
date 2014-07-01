@@ -61,7 +61,30 @@
 \begin_body
 
 \begin_layout Chapter
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+label{chp:tut}
+\end_layout
+
+\end_inset
+
 SOL language introduction and examples
+\end_layout
+
+\begin_layout Standard
+The project here presented aims at the realization of a full Compiler and
+ execution environment for the SOL programming language.
+ The execution environment comprises a Virtual Machine which executes the
+ intermediate code (namely S-code) produced as result of the compilation.
+ Such Virtual Machine embodies an interface that allows the user to load
+ a source or compiled SOL file and execute it (eventually after compilation)
+ and presents a pleasant and usable graphical environment for the input
+ and output of data.
 \end_layout
 
 \begin_layout Standard
@@ -88,7 +111,7 @@ status open
 
 
 \backslash
-ref{lst:Sbracode}
+ref{lst:first_example}
 \end_layout
 
 \end_inset
@@ -104,7 +127,7 @@ status open
 
 
 \backslash
-begin{lstlisting}[caption={Sbracode},label={lst:Sbracode}]
+begin{lstlisting}[caption={First code example},label={lst:first_example}]
 \end_layout
 
 \begin_layout Plain Layout
@@ -237,6 +260,17 @@ Any function defined in the header of the main function must follow the
 
 \begin_layout Section
 A full sol program
+\end_layout
+
+\begin_layout Standard
+We decided to implement 
+\emph on
+Conway's Game of Life 
+\emph default
+as an example of full program that can run with our SOL compiler and virtual
+ machine.
+ The program, in particular, allows us to test the I/O interface in an extensive
+ manner.
 \end_layout
 
 \end_body
