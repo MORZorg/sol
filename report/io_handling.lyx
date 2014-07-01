@@ -73,15 +73,36 @@ label{chp:qt}
 
 \end_inset
 
-Advanced I/O handling
+Graphical interface
 \end_layout
 
 \begin_layout Standard
-Fucking PyQt5
+The virtual machine has a beautiful graphical interface realized with the
+ Qt5 graphical environment.
 \end_layout
 
 \begin_layout Standard
-// TODO all
+All the graphical part is realized entirely in Python 3.4 using the Qt5 designer
+ editor, and integrated in a full Python program called 
+\emph on
+solGUI.py
+\emph default
+.
+ The interaction between the interface and the virtual machine is in both
+ directions.
+\end_layout
+
+\begin_layout Standard
+By calling solGUI.py a window will appear in which the user can input a SOL
+ source file, compile it and execute the resulting S-code file (or directly
+ input the S-code file).
+ During the execution, in correspondance of every user input or user output,
+ the virtual machine will query Python to open a window with which the user
+ can input the required data or visualize the output.
+\end_layout
+
+\begin_layout Standard
+// TODO expand
 \end_layout
 
 \end_body
