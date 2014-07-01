@@ -52,7 +52,7 @@ typedef struct symtab
 } Symbol;
 
 int yysem();
-Symbol* check_function_subtree( Node*, int );
+Symbol* check_function_subtree( Node*, int* );
 Symbol* create_symbol_table_element( Node*, int* );
 void analyse_decl_list( Node*, int*, ClassSymbol, Boolean hasAssignment );
 int associate_formals_parameters( Node*, Symbol* );
