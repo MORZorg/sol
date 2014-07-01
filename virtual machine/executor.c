@@ -30,6 +30,7 @@ int yyvm( void )
 		pc++;
 	}
 
+	finalize_stacks();
 	finalize_gui();
 
 	return MEM_OK;

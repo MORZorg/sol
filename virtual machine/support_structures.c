@@ -70,6 +70,20 @@ int initialize_stacks()
 	return MEM_OK;
 }
 
+int finalize_stacks()
+{
+	free( astack );
+	free( ostack );
+	free( istack );
+
+	free( t_ostack );
+	free( t_istack );
+
+	hashmap_free( string_map );
+
+	return MEM_OK;
+}
+
 // Interaction with the persistent stacks 
 byte top_istack()
 {
@@ -154,6 +168,7 @@ void enlarge_ostack( int size )
 #ifdef DEBUG
 	fprintf( stderr, "Have to reallocate ostack to host new function objects\n");
 #endif
+	osize = op + size;
 	ostack = realloc( ostack, OSTACK_UNIT * ( op + size ) );
 }
 

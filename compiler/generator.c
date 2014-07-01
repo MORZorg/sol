@@ -19,6 +19,8 @@ stacklist call_list;
 // inside a loop to make them point to the end of the loop itself.
 // Every loop statement has a dedicated list, to handle the nesting correctly.
 stacklist loop_list;
+// Code for the definition of temporary variables defined when generating the code.
+Code temporary_variables;
 
 FILE* yyin;
 
@@ -40,7 +42,6 @@ Stat* new_stat( Operator op )
  * PUBLIC FUNCTIONS
  */
 
-extern unsigned int hashmap_hash_int();
 /**
  * @brief Function that starts the code generation
  *
@@ -598,7 +599,11 @@ Code generate_code( Node* node )
 						current_node = current_node->brother;
 					}
 					
-					entry_code = append_code( entry_code, generate_code( current_node ) );
+                    // Global variable, assigned by FOR, FOREACH loops, etc
+                    // while generating the body code.
+                    temporary_variables = empty_code();
+                    Code body_code = generate_code( current_node );
+					entry_code = concatenate_code( 3, entry_code, temporary_variables, body_code );
 					
 					description->size = func_scope->last_oid - 1;
 					description->entry = entry_code.head;
@@ -947,8 +952,9 @@ Code generate_code( Node* node )
 					node->child->brother = NULL;
 					node->child = init_node;
 
-					result = append_code( make_decl( temp_var->schema ),
-										  generate_code( node ) );
+                    temporary_variables = append_code( temporary_variables,
+                                                       make_decl( temp_var->schema ) );
+                    result = generate_code( node );
 					break;
 				}
 
@@ -1005,10 +1011,11 @@ Code generate_code( Node* node )
 					node->child->brother = NULL;
 					node->child = init_node;
 
-					result = concatenate_code( 3,
-											   make_decl( temp_var->schema ),
-											   make_decl( loop_var->schema ),
-											   generate_code( node ) );
+					temporary_variables = concatenate_code( 3,
+                                                            temporary_variables,
+                                                            make_decl( temp_var->schema ),
+                                                            make_decl( loop_var->schema ) );
+                    result = generate_code( node );
 					break;
 				}
 				

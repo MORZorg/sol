@@ -92,6 +92,7 @@ extern Odescr** t_ostack;
 extern byte* t_istack;
 
 int initialize_stacks( void );
+int finalize_stacks( void );
 
 // Interaction with the persistent stacks
 byte top_istack( void );
