@@ -127,14 +127,14 @@ ByteArray fileInput(char* filename)
 		fclose(file);
 
 		result.value[result.size] = 0;
-		return result;
 	}
 	else
 	{
 		result.size = 0;
 		result.value = NULL;
-		return result;
 	}
+
+    return result;
 }
 
 void fileOutput(char* filename, ByteArray data)

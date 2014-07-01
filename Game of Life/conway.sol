@@ -6,13 +6,13 @@ func game_of_life() : int
 			-- grid: struct( rows: lines; columns: lines; );
 
 	var		world: struct( generation: int; world: grid; );
-			filename: string;
+			input: struct( filename: string; load: bool; );
 			generations: int;
 			initial_state: grid;
 
 	const	world_size: int = 10;
 			summary: string = "Welcome to ORZ's Conway's Game of Life!";
-			enter_filename: string = "Enter the filename of your world.";
+			enter_filename: string = "Enter the filename of your world and if you'd like to load from a saved state.";
 			enter_generations: string = "Enter for how many generations would you like to watch your world go by.";
 			enter_world: string = "Your world doesn't exist yet.\nEnter it now.";
 
@@ -53,17 +53,17 @@ begin game_of_life
 	write summary;
 
 	write enter_filename;
-	read filename;
-	read [ filename ] world;
-
-	write enter_generations;
-	read generations;
-
-	if world.generation == 0 then
+	read input;
+	if input.load then
+		read [ input.filename ] world;
+	else
 		write enter_world;
 		read initial_state;
 		world.world = initial_state;
 	endif;
+
+	write enter_generations;
+	read generations;
 
 	while generations > 0 do
 		world.world = next_state( world.world );
@@ -73,7 +73,7 @@ begin game_of_life
 		generations = generations - 1;
 	endwhile;
 
-	write [ filename ] world;
+	write [ input.filename ] world;
 
 	return 0;
 end game_of_life
