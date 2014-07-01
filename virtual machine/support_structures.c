@@ -73,7 +73,9 @@ int initialize_stacks()
 // Interaction with the persistent stacks 
 byte top_istack()
 {
+#ifdef DEBUG
 	fprintf( stderr, "Top istack, position %d\n", ip - 1 );
+#endif
 
 	return istack[ ip - 1 ]; 
 }
@@ -81,7 +83,9 @@ byte top_istack()
 void deallocate_istack( int size )
 {
 	ip -= size;
+#ifdef DEBUG
 	fprintf( stderr, "Deallocated istack, new ip %d\n", ip );
+#endif
 }
 
 void allocate_istack( int size )
@@ -95,21 +99,23 @@ void allocate_istack( int size )
     while( size-- > 0 )
       istack[ ip++ ] = 0;
 
+#ifdef DEBUG
 	fprintf( stderr, "Allocated istack (ip %d isize %d)\n", ip, isize );
+#endif
 }
 
 Odescr* top_ostack()
 {
 	Odescr* value = ostack[ op - 1 ];
 
-	/* fprintf( stderr, "Top ostack position %d: %d %d %d\n", op - 1, value->mode, value->size, value->inst.sta_val ); */
-
 	return value;
 }
 
 void pop_ostack()
 {
+#ifdef DEBUG
 	fprintf( stderr, "Pop ostack: %d\n", op );
+#endif
 	free( ostack[ --op ] );
 }
 
@@ -117,16 +123,20 @@ void push_ostack( Odescr* value )
 {
 	if( op == osize )
 	{
+#ifdef DEBUG
 		fprintf( stderr, "Have to reallocate ostack.\n" );
+#endif
 		ostack = realloc( ostack, OSTACK_UNIT * ++osize );
 	}
 
+#ifdef DEBUG
 	fprintf( stderr, "Push ostack @ %d: %d %d ", op, value->mode, value->size );
 	if( value->mode == EMB )
 		fprintf( stderr, "%p", value->inst.emb_val );
 	else
 		fprintf( stderr, "%d", value->inst.sta_val );
 	fprintf( stderr, " in %p.\n", value );
+#endif
 
 	ostack[ op++ ] = value;
 }
@@ -135,11 +145,15 @@ void enlarge_ostack( int size )
 {
 	if( op + size <= osize )
 	{
-		printf( "No need to realloc ostack to host new function objects\n" );
+#ifdef DEBUG
+		fprintf( stderr, "No need to realloc ostack to host new function objects\n" );
+#endif
 		return;
 	}
 
-	printf( "Have to reallocate ostack to host new function objects\n");
+#ifdef DEBUG
+	fprintf( stderr, "Have to reallocate ostack to host new function objects\n");
+#endif
 	ostack = realloc( ostack, OSTACK_UNIT * ( op + size ) );
 }
 
@@ -166,14 +180,18 @@ Odescr* top_t_ostack()
 {
 	Odescr* value = t_ostack[ t_op - 1 ];
 
+#ifdef DEBUG
 	fprintf( stderr, "Top t_ostack position %d: %d %d %d\n", t_op - 1, value->mode, value->size, value->inst.sta_val );
+#endif
 
 	return value;
 }
 
 void pop_t_ostack()
 {
+#ifdef DEBUG
 	fprintf( stderr, "Pop t_ostack: %d\n", t_op );
+#endif
 	free( t_ostack[ --t_op ] );
 }
 
@@ -182,19 +200,23 @@ void push_t_ostack( Odescr* value )
 	if( t_op == t_osize )
 		t_ostack = realloc( t_ostack, OSTACK_UNIT * ++t_osize );
 
+#ifdef DEBUG
 	fprintf( stderr, "Push t_ostack @ %d: %d %d ", t_op, value->mode, value->size );
 	if( value->mode == EMB )
 		fprintf( stderr, "%p", value->inst.emb_val );
 	else
 		fprintf( stderr, "%d", value->inst.sta_val );
 	fprintf( stderr, " in %p.\n", value );
+#endif
 
 	t_ostack[ t_op++ ] = value;
 }
 
 byte top_t_istack()
 {
+#ifdef DEBUG
 	fprintf( stderr, "Top t_istack, position %d\n", t_ip - 1 );
+#endif
 
 	return t_istack[ t_ip - 1 ]; 
 }
@@ -202,7 +224,9 @@ byte top_t_istack()
 void pop_t_istack()
 {
 	--t_ip;
+#ifdef DEBUG
 	fprintf( stderr, "Popped t_istack, new t_ip %d\n", t_ip );
+#endif
 }
 
 void push_t_istack( byte value )
@@ -212,7 +236,9 @@ void push_t_istack( byte value )
 
 	t_istack[ t_ip++ ] = value;
 
+#ifdef DEBUG
 	fprintf( stderr, "Pushed t_istack: %d (t_ip %d t_isize %d)\n", value, t_ip, t_isize );
+#endif
 }
 
 // Write and read temporary stuff on the t_istack and the t_ostack;
@@ -225,7 +251,9 @@ ByteArray pop_bytearray()
     result.value = malloc( sizeof( byte ) * object->size );
 	result.size = object->size;
 
+#ifdef DEBUG
 	fprintf( stderr, "******************%d\n", object->size );
+#endif
 
 	int i = object->size - 1;
 	do
@@ -267,7 +295,9 @@ int pop_int()
 
 void push_int( int value )
 {
+#ifdef DEBUG
 	fprintf( stderr, "Push int: %d (%lu)\n", value, sizeof( value ) );
+#endif
 	
 	byte object[ sizeof( value ) ];
 	
@@ -275,8 +305,10 @@ void push_int( int value )
 
 	memcpy( object, &value, sizeof( value ) );
 	
+#ifdef DEBUG
 	for( i = 0; i < sizeof( value ); i++ )
 		fprintf( stderr, "Byte %d: %X\n", i, object[i] );
+#endif
 
 	push_bytearray( object, sizeof( value ) );
 }
@@ -353,16 +385,18 @@ ByteArray decrypt_bytearray( ByteArray* array, char* format )
 
 char* adjust_bytearray( ByteArray* array, ByteArray* result, char* format, char type )
 {
+#ifdef DEBUG
 	fprintf( stderr, "Starting '%c' crypting '%s'  %lu long with '%s' format\n", type, array->value, array->size, format );
-
 	fprintf( stderr, "Processing '%c'\n", *format );
-
+#endif
 	switch( *(format) )
 	{
 		case '(':
 			while( *(format) != ')' )
 			{
+#ifdef DEBUG
                 fprintf( stderr, "starting from %c\n", *format );
+#endif
 				while( *(format) != ':' )
 					format++;
                 format++;
@@ -373,7 +407,9 @@ char* adjust_bytearray( ByteArray* array, ByteArray* result, char* format, char 
 
 		case '[':
 		{
+#ifdef DEBUG
 			fprintf( stderr, "+++ Array start +++\n" );
+#endif
 			format++;
 			int array_times, i;
 			array_times = 0;
@@ -384,7 +420,9 @@ char* adjust_bytearray( ByteArray* array, ByteArray* result, char* format, char 
 			}
 			format++;
 
+#ifdef DEBUG
 			fprintf( stderr, "Vectoring %d times \n", array_times );
+#endif
 			char* array_format = malloc( sizeof( char ) * ( strlen( format ) + 1 ) );
 			memcpy( array_format, format, sizeof( char ) * ( strlen( format ) + 1 ) );
 			char* iterator = array_format;
@@ -464,13 +502,17 @@ char* adjust_bytearray( ByteArray* array, ByteArray* result, char* format, char 
 		}
 
 		default:
+#ifdef DEBUG
 			fprintf( stderr, "Nothing to do with '%c'\n", *(format) );
+#endif
 			format++;
 			break;
 	}
 	
 
+#ifdef DEBUG
 	fprintf( stderr, "Finished '%c' crypting '%s' %lu long\n", type, result->value, result->size );
+#endif
 	return format;
 }
 

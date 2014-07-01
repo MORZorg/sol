@@ -84,16 +84,12 @@ int yygen( FILE* input, FILE* output )
 			int size = func_desc->size;
 			int entry_point = func_desc->entry->address;
 
-			printf( "Correction %d -> %d %d %d -> %d\n", current_call->push_pop.head->args[0].i_val, size, func_desc->scope, current_call->push_pop.head->next->args[0].i_val, entry_point );
-
 			current_call->push_pop.head->args[0].i_val = size;
 			current_call->push_pop.head->next->args[0].i_val = entry_point;
 
 			stacklist_pop( &call_list );
 		}
 	}
-	else
-		printf( "No calls to correct\n" );
 
 	output_code( output, result );
 
@@ -278,7 +274,7 @@ Code generate_code( Node* node )
 							break;
 
 						default:
-							printf(STR_COMPILER_BUG);
+							fprintf( stderr, STR_COMPILER_BUG );
 							exit(1);
 							break;
 					}
@@ -304,7 +300,7 @@ Code generate_code( Node* node )
 							break;
 
 						default:
-							printf(STR_COMPILER_BUG);
+							fprintf( stderr, STR_COMPILER_BUG );
 							exit(1);
 							break;
 					}
@@ -330,7 +326,7 @@ Code generate_code( Node* node )
 							break;
 
 						default:
-							printf(STR_COMPILER_BUG);
+							fprintf( stderr, STR_COMPILER_BUG );
 							exit(1);
 							break;
 					}
@@ -356,7 +352,7 @@ Code generate_code( Node* node )
 							break;
 
 						default:
-							printf(STR_COMPILER_BUG);
+							fprintf( stderr, STR_COMPILER_BUG );
 							exit(1);
 							break;
 					}
@@ -367,7 +363,7 @@ Code generate_code( Node* node )
 					break;
 						
 				default:
-					printf(STR_COMPILER_BUG);
+					fprintf( stderr, STR_COMPILER_BUG );
 					exit(1);
 					break;
 			}
@@ -404,7 +400,7 @@ Code generate_code( Node* node )
 							break;
 
 						default:
-							printf(STR_COMPILER_BUG);
+							fprintf( stderr, STR_COMPILER_BUG );
 							exit(1);
 							break;
 					}
@@ -422,7 +418,7 @@ Code generate_code( Node* node )
 							break;
 
 						default:
-							printf(STR_COMPILER_BUG);
+							fprintf( stderr, STR_COMPILER_BUG );
 							exit(1);
 							break;
 					}
@@ -440,7 +436,7 @@ Code generate_code( Node* node )
 							break;
 
 						default:
-							printf(STR_COMPILER_BUG);
+							fprintf( stderr, STR_COMPILER_BUG );
 							exit(1);
 							break;
 					}
@@ -458,14 +454,14 @@ Code generate_code( Node* node )
 							break;
 
 						default:
-							printf(STR_COMPILER_BUG);
+							fprintf( stderr, STR_COMPILER_BUG );
 							exit(1);
 							break;
 					}
 					break;
 
 				default:
-					printf(STR_COMPILER_BUG);
+					fprintf( stderr, STR_COMPILER_BUG );
 					exit(1);
 					break;
 			}
@@ -500,7 +496,7 @@ Code generate_code( Node* node )
 					break;
 
 				default:
-					printf(STR_COMPILER_BUG);
+					fprintf( stderr, STR_COMPILER_BUG );
 					exit(1);
 					break;
 			}
@@ -607,8 +603,6 @@ Code generate_code( Node* node )
 					description->size = func_scope->last_oid - 1;
 					description->entry = entry_code.head;
 					
-					printf( "Declaration %d %d %d\n", description->size, description->scope, description->entry->address );
-
 					result = concatenate_code( 3, result, entry_code, function_code );
 
 					stacklist_pop( &scope );
@@ -645,8 +639,6 @@ Code generate_code( Node* node )
 						int size = 0; //description->size;
 						int entry = 0; //description->entry->address;
 					
-						printf( "Call %d %d %d\n", 0, description->scope, 0 );
-
 						// The second instruction is the GOTO
 						Code actual_call = make_push_pop( size, chain, entry );
 
@@ -659,7 +651,7 @@ Code generate_code( Node* node )
 						result = append_code( result, actual_call );
 					}
 					else
-						printf("WARNING: NULL FuncDesc*!\n");
+						fprintf( stderr, "WARNING: NULL FuncDesc*!\n" );
 
 					break;
 				}

@@ -17,11 +17,13 @@ int yyvm( void )
 
 	while( program[pc].op != SOL_HALT )
 	{
-		printf( "Line %d, command %s.\n", pc+2, get_operator_name( program[pc].op ) );
+#ifdef DEBUG
+		fprintf( stderr, "Line %d, command %s.\n", pc+2, get_operator_name( program[pc].op ) );
+#endif
 
 		if( ( result = execute( program[pc] ) != 0 ) )
 		{
-			printf( "Error number: %d\n", result );
+			fprintf( stderr, "Error number: %d\n", result );
 			return result;
 		}
 
@@ -278,9 +280,13 @@ int sol_lod( Value* args )
 	if( oid >= astack[ env ]->obj_number )
 		return ERROR_OSTACK_OUT_OF_BOUND;
 
+#ifdef DEBUG
 	fprintf( stderr, "I'm gonna load the value at env %d with oid %d!\n", env, oid );
+#endif
 	object = ostack[ astack[ env ]->first_object + oid ];
+#ifdef DEBUG
 	fprintf( stderr, "I took %p.\n", object);
+#endif
 
 	if( object->mode == EMB )
 		push_bytearray( object->inst.emb_val, object->size );
@@ -339,7 +345,9 @@ int sol_lda( Value* args )
 
 	object = ostack[ astack[ env ]->first_object + oid ];
 
-	printf("%d %d %d\n", env, oid, object->inst.sta_val);
+#ifdef DEBUG
+	fprintf( stderr, "%d %d %d\n", env, oid, object->inst.sta_val );
+#endif
 	push_int( object->inst.sta_val );
 
 	return MEM_OK;
@@ -354,7 +362,9 @@ int sol_fda( Value* args )
 
 	push_int( start_offset + field_offset );
 
-	printf("%d %d\n", start_offset, field_offset);
+#ifdef DEBUG
+	fprintf( stderr, "%d %d\n", start_offset, field_offset );
+#endif
 
 	return MEM_OK;
 }
@@ -371,7 +381,9 @@ int sol_ixa( Value* args )
 
 	push_int( start_offset + vector_dimension * index_value );
 
-	printf( "%d %d %d\n", start_offset, index_value, vector_dimension );
+#ifdef DEBUG
+	fprintf( stderr, "%d %d %d\n", start_offset, index_value, vector_dimension );
+#endif
 
 	return MEM_OK;
 }
@@ -384,7 +396,9 @@ int sol_eil( Value* args )
 	byte* value;
 	int i;
 
-	printf("%d %d -> %d\n", start_offset, field_size, ip);
+#ifdef DEBUG
+	fprintf( stderr, "%d %d -> %d\n", start_offset, field_size, ip );
+#endif
 	if( start_offset + field_size - 1 > ip - 1 )
 		return ERROR_ISTACK_OUT_OF_BOUND;
 
@@ -441,7 +455,9 @@ int sol_sto( Value* args )
 	while( env_offset-- > 0 )
 		env = astack[ env ]->alink;
 
+#ifdef DEBUG
 	fprintf( stderr, "I'm gonna store the value at env %d with oid %d!\n", env, oid );
+#endif
 
 	if( env < 0 )
 		return ERROR_ASTACK_OUT_OF_BOUND;
@@ -450,7 +466,9 @@ int sol_sto( Value* args )
 		return ERROR_OSTACK_OUT_OF_BOUND;
 
 	object = ostack[ astack[ env ]->first_object + oid ];
+#ifdef DEBUG
 	fprintf( stderr, "I took %p.\n", object);
+#endif
 
 	if( object->mode == EMB )	
 		object->inst.emb_val = pop_bytearray().value;
@@ -474,7 +492,9 @@ int sol_ist()
 	int start_address = pop_int();
 	int i;
 
+#ifdef DEBUG
 	fprintf( stderr, "Imma write from %d for %ld bytes, the istack is this big: %d!\n", start_address, value_descriptor.size, isize );
+#endif
 
 	for( i = 0; i < value_descriptor.size; i++ )
 		istack[ start_address + i ] = value_descriptor.value[ i ];
@@ -738,9 +758,13 @@ int sol_push( Value* args )
 	enlarge_ostack( element_number );
 
 	push_int( element_number );
+#ifdef DEBUG
 	fprintf( stderr, "SOL pushed el#: %d\n", element_number );
+#endif
 	push_int( chain );
+#ifdef DEBUG
 	fprintf( stderr, "SOL pushed chain: %d\n", chain );
+#endif
 
 	return MEM_OK;
 }
@@ -753,8 +777,10 @@ int sol_goto( Value* args )
 	int element_number = pop_int();
 	Adescr* function_ar;
 
+#ifdef DEBUG
 	fprintf( stderr, "SOL goto chain: %d\n", chain );
 	fprintf( stderr, "SOL goto el#: %d\n", element_number );
+#endif
 
 	// The number of elements is given, the start point for its objects is the
 	// top of the stack (the objects will be instantiated as part of the

@@ -5,6 +5,8 @@ from collections import deque
 
 from PyQt5 import QtCore, QtWidgets, uic
 
+DEBUG = False
+
 
 class ByteDeque:
     def __init__(self, byteData):
@@ -388,11 +390,13 @@ class SimpleInterface:
         """
         External function to ask for data.
         """
-        print("Python schema: {}".format(textualSchema))
+        if DEBUG == True:
+            print("Python schema: {}".format(textualSchema))
         inputDialog = InputDialog(deque(textualSchema))
         inputDialog.show()
         if inputDialog.exec_():
-            print("Python data: {}".format(inputDialog.data))
+            if DEBUG == True:
+                print("Python data: {}".format(inputDialog.data))
             return (1, inputDialog.data)
         else:
             return (0, None)
@@ -401,8 +405,9 @@ class SimpleInterface:
         """
         External function to show data.
         """
-        print("Python schema: {}".format(textualSchema))
-        print("Python data: {}".format(data))
+        if DEBUG == True:
+            print("Python schema: {}".format(textualSchema))
+            print("Python data: {}".format(data))
         outputDialog = OutputDialog(deque(textualSchema))
         outputDialog.show(ByteDeque(data))
 

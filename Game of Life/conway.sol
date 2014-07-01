@@ -34,13 +34,15 @@ func game_of_life() : int
 				neighbours = 0;
 				for k = ( if i-1>0 then i-1 else 0 endif ) to ( if i+1<world_size then i+1 else world_size endif ) do
 					for h = ( if j-1>0 then j-1 else 0 endif ) to ( if j+1<world_size then j+1 else world_size endif ) do
-						if current_state[ k ][ h ] then
-							neighbours = neighbours + 1;
+						if k != i and j != h then
+							if current_state[ k ][ h ] then
+								neighbours = neighbours + 1;
+							endif;
 						endif;
 					endfor;
 				endfor;
 
-				state[ i ][ j ] = if state[ i ][ j ]
+				state[ i ][ j ] = if current_state[ i ][ j ]
 					then neighbours >= 2 and neighbours <= 3
 					else neighbours == 3 endif;
 			endfor;
