@@ -1,7 +1,7 @@
 func game_of_life() : int
 
-	type	lines: vector [ 5 ] of bool;
-			grid: vector [ 5 ] of lines;
+	type	lines: vector [ 15 ] of bool;
+			grid: vector [ 15 ] of lines;
 			-- Just a bad idea.
 			-- grid: struct( rows: lines; columns: lines; );
 
@@ -10,7 +10,7 @@ func game_of_life() : int
 			generations: int;
 			initial_state: grid;
 
-	const	world_size: int = 5;
+	const	world_size: int = 15;
 			summary: string = "Welcome to ORZ's Conway's Game of Life!";
 			enter_filename: string = "Enter the filename of your world and if you'd like to load from a saved state.";
 			enter_generations: string = "Enter for how many generations would you like to watch your world go by.";
@@ -36,9 +36,9 @@ func game_of_life() : int
 				neighbours = 0;
 				foreach k in neighbour_offset do
 					foreach h in neighbour_offset do
-						write struct( "Counting", vector( vector( i, j ), vector( k, h ) ), current_state[ i + k ][ j + h ] );
 						if k != 0 or h != 0 then
-							if i+k > 0 and i+k < world_size and j+h > 0 and j+h < world_size then
+							if i+k >= 0 and i+k < world_size and j+h >= 0 and j+h < world_size then
+								-- write struct( "Counting", vector( vector( i, j ), vector( k, h ) ), current_state[ i + k ][ j + h ] );
 								if current_state[ i + k ][ j + h ] then
 									neighbours = neighbours + 1;
 								endif;
@@ -51,7 +51,7 @@ func game_of_life() : int
 					then neighbours == 2 or neighbours == 3
 					else neighbours == 3 endif;
 
-				write struct( vector( i, j ), vector( current_state[ i ][ j ], state[ i ][ j ] ), neighbours );
+				-- write struct( vector( i, j ), vector( current_state[ i ][ j ], state[ i ][ j ] ), neighbours );
 			endfor;
 		endfor;
 

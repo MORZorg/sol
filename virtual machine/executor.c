@@ -23,7 +23,7 @@ int yyvm( void )
 
 		if( ( result = execute( program[pc] ) != 0 ) )
 		{
-			fprintf( stderr, "Error number: %d\n", result );
+			fprintf( stdout, "Error number: %d\n", result );
 			return result;
 		}
 

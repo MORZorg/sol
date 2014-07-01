@@ -93,7 +93,8 @@ int main( int argc, char** argv )
 			// In the command i have to substitute the single spaces with the formatted spaces
 			sprintf( terminal_command, "%s %s", GENERATOR_PATH, formatted_file );
 			fprintf( stderr, "Generating code: '%s'\n", terminal_command );
-			system( terminal_command );
+			if( ( result = system( terminal_command ) ) != 0 )
+				exit( result );
 
 			// Changing the fileInput to the compiled one.
 			fileInput = change_file_extension( fileInput, SOL_EXTENSION, OHANA_EXTENSION );
@@ -102,18 +103,20 @@ int main( int argc, char** argv )
 		input = fopen( fileInput, "r" );
 	}
 
-	fprintf( stdout, "I want to do something! ノ┬─┬ノ ︵ ( \\o°o)\\\n" );
 
 	// Parsing the file that the user asked for.
 	yyin = input;
 	if( ( result = yyparse() ) == 0 )
 	{
+#ifdef DEBUG
 		fprintf( stdout, "I have %d code lines to do!\n", program_size );
+#endif
 
-		result = yyvm();
+		if( ( result = yyvm() ) == 0 )
+			fprintf( stdout, "Executed all S-Code ノ┬─┬ノ ︵ ( \\o°o)\\\n" );
 	}
 
-	return 0;
+	return result;
 }
 
 char* get_file_extension( char* filename )

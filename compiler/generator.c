@@ -978,7 +978,7 @@ Code generate_code( Node* node )
 					Value temp_val = { .s_val = temp_var->name };
 					Value loop_val = { .s_val = loop_var->name };
 					Value loop_from = { .i_val = 0 };
-					Value loop_to = { .i_val = temp_var->schema->size + 1 }; // FIXME LT or LEQ in FOR?
+					Value loop_to = { .i_val = temp_var->schema->size }; // FIXME LT or LEQ in FOR?
 
 					Node* init_node = new_nonterminal_node( N_ASSIGN_STAT );
 					init_node->child = new_terminal_node( T_ID, temp_val );
@@ -993,7 +993,7 @@ Code generate_code( Node* node )
 
 					Node* loop_node = new_nonterminal_node( N_ASSIGN_STAT );
 					loop_node->child = new_terminal_node( T_ID, node->child->value );
-					loop_node->child->brother = new_nonterminal_node( N_FIELDING );
+					loop_node->child->brother = new_nonterminal_node( N_INDEXING );
 					loop_node->child->brother->child = new_terminal_node( T_ID, temp_val );
 					loop_node->child->brother->child->brother = new_terminal_node( T_ID, loop_val );
 					loop_node->brother = node->child->brother->brother->child;
