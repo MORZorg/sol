@@ -76,5 +76,30 @@ label{chp:sem}
 Semantical analysis
 \end_layout
 
+\begin_layout Standard
+Starting from the tree, the 
+\emph on
+yysem 
+\emph default
+function (this time written entirely by us, as there's no language for generatin
+g a semantical analyzer automatically) analyzes the whole code in search
+ for semantical errors.
+ To support itself in this operation, it produces a Symbol Table containing
+ all the elements in the code, each of which will be associated with a detailed
+ description of its position in the code, a unique identifier and a schema
+ describing its type (simple or complex).
+\end_layout
+
+\begin_layout Standard
+Please note that, even if this structure is called Symbol Table as the one
+ produced by yylex, it is something entirely different, as yylex simply
+ created a hashmap in which lexeme names and values were associated for
+ simpler further reference.
+\end_layout
+
+\begin_layout Standard
+// TODO all
+\end_layout
+
 \end_body
 \end_document

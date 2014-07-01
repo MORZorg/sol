@@ -82,6 +82,37 @@ In this chapter is presented the formal specification of the syntax of SOL,
 \end_layout
 
 \begin_layout Standard
+Note that the syntax is not left recursive, therefore it is suitable to
+ both top-down and bottom-up parsing.
+ The syntax is expressed in 
+\emph on
+BNF 
+\emph default
+and not in 
+\emph on
+EBNF
+\emph default
+ because we use 
+\emph on
+Yacc
+\emph default
+ to implement the parser, and 
+\emph on
+BNF
+\emph default
+ maps directly to the specification of Yacc.
+\end_layout
+
+\begin_layout Standard
+The precedence of operators is resolved automatically by defining four levels
+ of operations.
+\end_layout
+
+\begin_layout Standard
+// TODO extend?
+\end_layout
+
+\begin_layout Standard
 \begin_inset ERT
 status open
 

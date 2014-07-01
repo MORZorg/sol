@@ -258,6 +258,10 @@ Any function defined in the header of the main function must follow the
  The only mandatory part is, in fact, the body.
 \end_layout
 
+\begin_layout Standard
+// TODO whatelse?
+\end_layout
+
 \begin_layout Section
 A full sol program
 \end_layout
@@ -271,6 +275,10 @@ as an example of full program that can run with our SOL compiler and virtual
  machine.
  The program, in particular, allows us to test the I/O interface in an extensive
  manner.
+\end_layout
+
+\begin_layout Standard
+// TODO GoL
 \end_layout
 
 \end_body

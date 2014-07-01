@@ -76,8 +76,25 @@ label{chp:gen}
 Code generation
 \end_layout
 
+\begin_layout Standard
+From the tree to the apples
+\end_layout
+
+\begin_layout Standard
+// TODO all
+\end_layout
+
 \begin_layout Section
 P-code specification
+\end_layout
+
+\begin_layout Standard
+Meh.
+ not even standard
+\end_layout
+
+\begin_layout Standard
+// TODO all
 \end_layout
 
 \end_body
