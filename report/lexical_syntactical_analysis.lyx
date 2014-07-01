@@ -73,7 +73,7 @@ label{chp:lex}
 
 \end_inset
 
-Introduction, Lexical and Syntactical analysis
+Lexical and Syntactical analysis
 \end_layout
 
 \begin_layout Standard
@@ -94,8 +94,8 @@ lstset{language=C}
 
 \begin_layout Standard
 Our compiler is written in the C language.
- It is divided in 3 main parts that correspond to the 3 stages of compiling,
- executed in sequential order:
+ It is divided in three main parts that correspond to the three stages of
+ compiling, executed in sequential order:
 \end_layout
 
 \begin_layout Itemize
@@ -194,21 +194,7 @@ yylex
 \emph on
 symbol table
 \emph default
-) containing all the symbols found in the code (constants, ids etc) and
- a file 
-\begin_inset Quotes eld
-\end_inset
-
-cleaned up
-\begin_inset Quotes erd
-\end_inset
-
-, that is, without comments, indentation, parenthesis and other non-functional
- stuff referred to as 
-\emph on
-sugar
-\emph default
-.
+) containing all the symbols found in the code (constants, ids etc).
  If, during, the file analysis, an error is encountered (in the file is
  present something that shouldn't be), the 
 \emph on
@@ -222,8 +208,8 @@ yyerror
 \end_layout
 
 \begin_layout Standard
-This cleand up file and the symbol table will be used by the syntactical
- analyzer to check the syntax and produce the 
+The symbol table will be used, along with the source SOL file, by the syntactica
+l analyzer to check the syntax and produce the 
 \emph on
 syntax tree
 \emph default
@@ -231,13 +217,15 @@ syntax tree
 \end_layout
 
 \begin_layout Standard
-Lex is very simple: in the first part of the lex file, lexical elements
- (a 
+The lex file is divided in three parts.
+ In the first part of the lex file, lexical elements (a 
 \emph on
 lexeme
 \emph default
 ) that need to be defined with a regular expression (such as the id) are
- defined, and in the second part these lexeme are associated to a rule.
+ defined, in the second part these lexeme are associated to a rule, and
+ the last part contains mostly C functions used in the lex rules of the
+ second part.
  The lexeme that don't need to be defined are those whose definition is
  fixed, such as the keywords and the operators.
 \end_layout
@@ -269,8 +257,8 @@ status open
 
 
 \backslash
-begin{lstlisting}[language={C},caption={Lex definition of lexical elements},labe
-l={lst:lex_regexp}]
+begin{lstlisting}[caption={Lex definition of lexical elements},label={lst:lex_re
+gexp}]
 \end_layout
 
 \begin_layout Plain Layout
@@ -411,7 +399,7 @@ status open
 
 
 \backslash
-begin{lstlisting}[language={C},caption={Lex rule},label={lst:lex_rule}]
+begin{lstlisting}[caption={Lex rule},label={lst:lex_rule}]
 \end_layout
 
 \begin_layout Plain Layout
@@ -517,8 +505,7 @@ status open
 
 
 \backslash
-begin{lstlisting}[language={C},caption={Lex rule for a keyword},label={lst:lex_k
-eyword}]
+begin{lstlisting}[caption={Lex rule for a keyword},label={lst:lex_keyword}]
 \end_layout
 
 \begin_layout Plain Layout
@@ -566,8 +553,8 @@ status open
 
 
 \backslash
-begin{lstlisting}[language={C},caption={Lex rules for constants and ids},label={
-lst:lex_more}]
+begin{lstlisting}[caption={Lex rules for constants and ids},label={lst:lex_more}
+]
 \end_layout
 
 \begin_layout Plain Layout
@@ -671,7 +658,7 @@ Similarly to Lex, Yacc is used to produce a syntactical analyzer in C.
 \emph on
 yyparse
 \emph default
- that, given the output of the 
+ that, given the source file and the Symbol Table produced by 
 \emph on
 yylex
 \emph default
@@ -681,6 +668,546 @@ yylex
 Syntax Tree
 \emph default
 ) if everything is correct.
+\end_layout
+
+\begin_layout Standard
+The Syntax Tree is realized with the 
+\emph on
+Node
+\emph default
+ structure, presented in Listing 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{lst:Node}
+\end_layout
+
+\end_inset
+
+ along with the union 
+\emph on
+Value
+\emph default
+.
+ A 
+\emph on
+Node
+\emph default
+ contains:
+\end_layout
+
+\begin_layout Itemize
+The number of line in the code in which it appears;
+\end_layout
+
+\begin_layout Itemize
+A 
+\emph on
+type
+\emph default
+, which says what the node represents.
+ In particular, the type is represented as an enumerator which values are
+ the 
+\emph on
+terminals
+\emph default
+ (integer constant, id, etc) and 
+\emph on
+nonterminals
+\emph default
+ (mathematical expressions, assignments, etc) allowed in SOL.
+ To simplify the produced syntax tree, the nonterminals are divided in two
+ categories: the 
+\emph on
+qualified 
+\emph default
+nonterminals are aggregated nonterminals that are then differentiated by
+ mean of a qualifier (eg mathematical expressions are one type of nonterminal
+ and their qualifier is the operator), while the 
+\emph on
+unqualified
+\emph default
+ nonterminals are those that cannot be aggregated (eg an if).
+ To sum up things, the type can either be a terminal, a qualified nonterminal
+ or the special value unqualified nonterminal.
+ The specific type of unqualified nonterminal represented by the node is
+ then contained in the node's value, and so does the qualifier;
+\end_layout
+
+\begin_layout Itemize
+A 
+\emph on
+value
+\emph default
+, represented as an instance of the union 
+\emph on
+Value
+\emph default
+, that can be an elementary value (integer, string..) if the node is a terminal,
+ a unique identifier determining the nonterminal type if the node is an
+ unqualified nonterminal (the identifiers are represented as possible values
+ of the enumerator 
+\emph on
+NonTerminal
+\emph default
+) or a unique identifier determining the qualifier to be used if the node
+ is a qualified nonterminal (these are represented as possibile values of
+ the enumerator 
+\emph on
+Qualifier
+\emph default
+);
+\end_layout
+
+\begin_layout Itemize
+A pointer to the 
+\emph on
+leftmost child
+\emph default
+;
+\end_layout
+
+\begin_layout Itemize
+A pointer to the 
+\emph on
+first right brother
+\emph default
+;
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{lstlisting}[caption={The Node structure},label={lst:Node}]
+\end_layout
+
+\begin_layout Plain Layout
+
+typedef struct snode
+\end_layout
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\begin_layout Plain Layout
+
+	int line;
+\end_layout
+
+\begin_layout Plain Layout
+
+	Value value;
+\end_layout
+
+\begin_layout Plain Layout
+
+	TypeNode type;
+\end_layout
+
+\begin_layout Plain Layout
+
+	struct snode* child;
+\end_layout
+
+\begin_layout Plain Layout
+
+	struct snode* brother;
+\end_layout
+
+\begin_layout Plain Layout
+
+} Node;
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+typedef union
+\end_layout
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\begin_layout Plain Layout
+
+	int i_val;
+\end_layout
+
+\begin_layout Plain Layout
+
+	char* s_val;
+\end_layout
+
+\begin_layout Plain Layout
+
+	double r_val;
+\end_layout
+
+\begin_layout Plain Layout
+
+	Boolean b_val;
+\end_layout
+
+\begin_layout Plain Layout
+
+	Qualifier q_val;
+\end_layout
+
+\begin_layout Plain Layout
+
+	Nonterminal n_val;
+\end_layout
+
+\begin_layout Plain Layout
+
+} Value; 
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{lstlisting}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The syntactical analyzer (also called 
+\emph on
+parser
+\emph default
+) stores as global variable a pointer to the root node of the tree.
+ 
+\end_layout
+
+\begin_layout Standard
+The Yacc file is divided in three parts, whose purpose is the same as that
+ of those in a Lex file.
+ Here, in the first part instead of defining the complexe lexeme we instruct
+ Yacc about which these lexeme are, by defining all the possible unique
+ identifiers returned by the Lex rules as 
+\emph on
+tokens
+\emph default
+.
+ The second part contains 
+\emph on
+translation rules
+\emph default
+ for every syntactical element of the language (all those defined in the
+ BNF description, presented in Chapter 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{chp:bnf}
+\end_layout
+
+\end_inset
+
+), and the third part contains definitions for the C functions used in the
+ translation rules.
+\end_layout
+
+\begin_layout Standard
+A translation rule must create a Node and populate it with the appopriate
+ informations.
+ The structure of a translation rule is the one presented in Listing 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{lst:translation_rule}
+\end_layout
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{lstlisting}[caption={Structure of a translation rule},label={lst:translati
+on_rule}]
+\end_layout
+
+\begin_layout Plain Layout
+
+syntactical_element : /* definition as in the BNF */ { $$ = /* code that
+ creates the Node */ }
+\end_layout
+
+\begin_layout Plain Layout
+
+					| /* alternate definition */ { $$ = /* alternate code */ }
+\end_layout
+
+\begin_layout Plain Layout
+
+					;
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{lstlisting}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+At the left of the colon there is the name of the element, at the right
+ there is a sequence of definitions, each associated to a code that is executed
+ to create the node when that particular definition is found.
+ The definitions are separated by 
+\begin_inset Quotes eld
+\end_inset
+
+|
+\begin_inset Quotes erd
+\end_inset
+
+ and the rule must terminate with a semicolon.
+\end_layout
+
+\begin_layout Standard
+In the code, the symbol 
+\begin_inset Quotes eld
+\end_inset
+
+$$
+\begin_inset Quotes erd
+\end_inset
+
+ represent the lhs of the rule, and the elements of a definition can be
+ referred to as 
+\begin_inset Quotes eld
+\end_inset
+
+$n
+\begin_inset Quotes erd
+\end_inset
+
+, where n is the position of the element in the definition starting from
+ 1.
+\end_layout
+
+\begin_layout Standard
+The 
+\emph on
+yyparse 
+\emph default
+function generated starting from the Yacc file is a recursive function.
+ The code is searched recursively for structures that match the lhs of a
+ translation rule.
+ Once a match is found, for every element in the rhs the function is called
+ again and the process keeps going until every element in the rhs is either
+ a token (which means that it has been processed by 
+\emph on
+yylex
+\emph default
+ and its value is in the Symbol Table, therefore no further processing is
+ required) or has been processed completely by the recursion.
+ At this point, the Node for that rule can be processed and returned to
+ the caller (which will be another rule or the main program if the rule
+ was the root one).
+\end_layout
+
+\begin_layout Standard
+Knowing how the parsing works, we can understand why there must always be
+ a 
+\begin_inset Quotes eld
+\end_inset
+
+root
+\begin_inset Quotes erd
+\end_inset
+
+ rule that will be matched at the first call of 
+\emph on
+yyparse 
+\emph default
+(if the code is correct, obviously) and associates the result of the subsequent
+ calls to the global 
+\emph on
+root
+\emph default
+ variable, instead of returning it to the caller (thus, assign it to $$)
+ like the others.
+ In Listing 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{lst:some_rule}
+\end_layout
+
+\end_inset
+
+ we present, as an example, the root translation rule and the translation
+ rule for a function declaration.
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{lstlisting}[caption={Extract of the translation rules for SOL},label={lst:
+some_rule}]
+\end_layout
+
+\begin_layout Plain Layout
+
+program : func_decl { root = $1; }
+\end_layout
+
+\begin_layout Plain Layout
+
+        ;
+\end_layout
+
+\begin_layout Plain Layout
+
+func_decl : FUNC ID { $$ = new_terminal_node( T_ID, lexval ); }
+\end_layout
+
+\begin_layout Plain Layout
+
+            '(' par_list ')' DEFINE domain
+\end_layout
+
+\begin_layout Plain Layout
+
+            type_sect_opt var_sect_opt const_sect_opt func_list_opt func_body
+\end_layout
+
+\begin_layout Plain Layout
+
+            {
+\end_layout
+
+\begin_layout Plain Layout
+
+                $$ = new_nonterminal_node( N_FUNC_DECL );
+\end_layout
+
+\begin_layout Plain Layout
+
+                $$->child = $3;
+\end_layout
+
+\begin_layout Plain Layout
+
+                Node** current = &($$->child->brother);
+\end_layout
+
+\begin_layout Plain Layout
+
+                current = assign_brother( current, $5 );
+\end_layout
+
+\begin_layout Plain Layout
+
+                current = assign_brother( current, $8 );
+\end_layout
+
+\begin_layout Plain Layout
+
+                current = assign_brother( current, $9 );
+\end_layout
+
+\begin_layout Plain Layout
+
+                current = assign_brother( current, $10 );
+\end_layout
+
+\begin_layout Plain Layout
+
+                current = assign_brother( current, $11 );
+\end_layout
+
+\begin_layout Plain Layout
+
+                current = assign_brother( current, $12 );
+\end_layout
+
+\begin_layout Plain Layout
+
+                current = assign_brother( current, $13 );
+\end_layout
+
+\begin_layout Plain Layout
+
+            }
+\end_layout
+
+\begin_layout Plain Layout
+
+          ;
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{lstlisting}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Note that C code can be inserted in any position between the elements of
+ the rhs, and it must produce something that will then be referred to as
+ $n, just like a normal element.
+ In the presented example, we use this method to create immediately a Node
+ containing the id of the declared function, and this node is then assigned
+ as leftmost child of the node created for the whole rule.
 \end_layout
 
 \end_body
