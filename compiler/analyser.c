@@ -1179,10 +1179,20 @@ Boolean type_check( Node* node )
 
 			has_return = TRUE;
 			Node* current_node;
+			
 			for( current_node = node->child->brother;
-				 current_node != NULL;
+				 current_node->brother != NULL;
 				 current_node = current_node->brother )
 				has_return &= type_check( current_node );
+
+			// Checking if the last brother of the if is an else
+			if( current_node->value.n_val == N_ELSE_STAT )
+				has_return &= type_check( current_node );
+			else
+			{
+				type_check( current_node );
+				has_return = FALSE;
+			}
 
 			break;
 		}
