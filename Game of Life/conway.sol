@@ -1,7 +1,7 @@
 func game_of_life() : int
 
-	type	lines: vector [ 10 ] of bool;
-			grid: vector [ 10 ] of lines;
+	type	lines: vector [ 5 ] of bool;
+			grid: vector [ 5 ] of lines;
 			-- Just a bad idea.
 			-- grid: struct( rows: lines; columns: lines; );
 
@@ -10,7 +10,7 @@ func game_of_life() : int
 			generations: int;
 			initial_state: grid;
 
-	const	world_size: int = 10;
+	const	world_size: int = 5;
 			summary: string = "Welcome to ORZ's Conway's Game of Life!";
 			enter_filename: string = "Enter the filename of your world and if you'd like to load from a saved state.";
 			enter_generations: string = "Enter for how many generations would you like to watch your world go by.";
@@ -26,25 +26,32 @@ func game_of_life() : int
 				neighbours: int;
 				state: grid;
 
+		const	neighbour_offset: vector[ 3 ] of int = vector( -1, 0, 1 );
+
 	begin next_state
 
 		for i = 0 to world_size do
 			for j = 0 to world_size do
 
 				neighbours = 0;
-				for k = ( if i-1>0 then i-1 else 0 endif ) to ( if i+1<world_size then i+1 else world_size endif ) do
-					for h = ( if j-1>0 then j-1 else 0 endif ) to ( if j+1<world_size then j+1 else world_size endif ) do
-						if k != i and j != h then
-							if current_state[ k ][ h ] then
-								neighbours = neighbours + 1;
+				foreach k in neighbour_offset do
+					foreach h in neighbour_offset do
+						write struct( "Counting", vector( vector( i, j ), vector( k, h ) ), current_state[ i + k ][ j + h ] );
+						if k != 0 or h != 0 then
+							if i+k > 0 and i+k < world_size and j+h > 0 and j+h < world_size then
+								if current_state[ i + k ][ j + h ] then
+									neighbours = neighbours + 1;
+								endif;
 							endif;
 						endif;
-					endfor;
-				endfor;
+					endforeach;
+				endforeach;
 
 				state[ i ][ j ] = if current_state[ i ][ j ]
-					then neighbours >= 2 and neighbours <= 3
+					then neighbours == 2 or neighbours == 3
 					else neighbours == 3 endif;
+
+				write struct( vector( i, j ), vector( current_state[ i ][ j ], state[ i ][ j ] ), neighbours );
 			endfor;
 		endfor;
 

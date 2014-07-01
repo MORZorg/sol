@@ -978,7 +978,7 @@ Code generate_code( Node* node )
 					Value temp_val = { .s_val = temp_var->name };
 					Value loop_val = { .s_val = loop_var->name };
 					Value loop_from = { .i_val = 0 };
-					Value loop_to = { .i_val = temp_var->schema->size };
+					Value loop_to = { .i_val = temp_var->schema->size + 1 }; // FIXME LT or LEQ in FOR?
 
 					Node* init_node = new_nonterminal_node( N_ASSIGN_STAT );
 					init_node->child = new_terminal_node( T_ID, temp_val );
@@ -1606,7 +1606,8 @@ char* schema_to_string( Schema* a_schema )
 				if( current_attr->id == NULL )
 					current_attr->id = "";
 				
-				result = realloc( result, ( strlen( result ) + strlen( current_attr->id ) + strlen( schema ) ) * sizeof( char ) );
+                // +3: colon, comma and \0
+				result = realloc( result, ( strlen( result ) + strlen( current_attr->id ) + strlen( schema ) + 3 ) * sizeof( char ) );
 				result[ current_length ] = '\0';
 
 				sprintf( result, "%s%s:%s,", result, current_attr->id, schema );
