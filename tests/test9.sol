@@ -85,7 +85,7 @@ func main(): int
 
 begin main
 	p.str = rd str;
-	for i = 0 to 25 do
+	for i = 0 to factorial( strlen( str ) ) do
 		p = wr next_permutation( p );
 	endfor;
 	return 0;
