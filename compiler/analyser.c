@@ -53,7 +53,8 @@ int yysem()
 
 	if( result == 0 )
 	{
-		symbol_table = check_function_subtree( root, 1 );
+		int oid = 0;
+		symbol_table = check_function_subtree( root, &oid );
 		return ( symbol_table == NULL ? SEM_ERROR : SEM_OK );
 	}
 	else
@@ -67,9 +68,10 @@ int yysem()
  *
  * @return 
  */
-Symbol* check_function_subtree( Node* node, int oid_absolute )
+Symbol* check_function_subtree( Node* node, int* oid_absolute )
 {
-	Symbol* element = create_symbol_table_element( node, &oid_absolute );
+	(*oid_absolute)++;
+	Symbol* element = create_symbol_table_element( node, oid_absolute );
     element->last_oid = 1;
 
 	if( element->nesting != 0 )
@@ -113,7 +115,7 @@ Symbol* check_function_subtree( Node* node, int oid_absolute )
 		Node* current_child = current_node->child;
 		do
 		{
-			if( !insert_unconflicted_element( check_function_subtree( current_child, oid_absolute + 1 ) ) )
+			if( !insert_unconflicted_element( check_function_subtree( current_child, oid_absolute ) ) )
 				yysemerror( current_child, STR_CONFLICT_SCOPE );
 
 			current_child = current_child->brother;
