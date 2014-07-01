@@ -163,7 +163,7 @@ const char* CODE_OPERATORS[] =
   "IUMI",
   "RUMI",
   "NEG",
-  "WE",
+  "WR",
   "FWR",
   "PUSH",
   "GOTO",
