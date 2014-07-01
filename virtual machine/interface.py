@@ -40,7 +40,8 @@ class DataDialog(QtWidgets.QDialog):
         #  Remove, Create, Replace
         self.ui.gridLayout.removeWidget(self.ui.widgetSchema)
         self.ui.widgetSchema.close()
-        self.ui.widgetSchema = DataDialog.resolveSchema(schema, editable=editable)
+        self.ui.widgetSchema = \
+            DataDialog.resolveSchema(schema, editable=editable)
         self.ui.gridLayout.addWidget(self.ui.widgetSchema, 0, 0, 1, 1)
         self.ui.gridLayout.update()
 
@@ -374,7 +375,9 @@ class NestedWidget(DataWidget):
             QtWidgets.QMessageBox \
                 .warning(self,
                          "Missing data",
-                         "You haven't entered enough data! (Verbosize me PLZ)")
+                         ("You haven't entered all the data!\n"
+                          "A window will now appear to allow you to finish "
+                          "entering it."))
 
             self.showWindow()
 
@@ -390,12 +393,12 @@ class SimpleInterface:
         """
         External function to ask for data.
         """
-        if DEBUG == True:
+        if DEBUG:
             print("Python schema: {}".format(textualSchema))
         inputDialog = InputDialog(deque(textualSchema))
         inputDialog.show()
         if inputDialog.exec_():
-            if DEBUG == True:
+            if DEBUG:
                 print("Python data: {}".format(inputDialog.data))
             return (1, inputDialog.data)
         else:
@@ -405,7 +408,7 @@ class SimpleInterface:
         """
         External function to show data.
         """
-        if DEBUG == True:
+        if DEBUG:
             print("Python schema: {}".format(textualSchema))
             print("Python data: {}".format(data))
         outputDialog = OutputDialog(deque(textualSchema))

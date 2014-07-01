@@ -912,31 +912,31 @@ Code generate_code( Node* node )
 				{
 					// Transform the FOR into a WHILE, then delegate
 					// TODO Make sure the nesting is generated correctly
-					Symbol* temp_var = malloc( sizeof( Symbol ) );
-					temp_var->name = malloc( MAX_INT_LEN * sizeof( char ) );
-					sprintf( temp_var->name, "%d", ( (Symbol*) scope->function )->last_oid );
-					temp_var->oid = ( (Symbol*) scope->function )->last_oid++;
-					temp_var->nesting = ( (Symbol*) scope->function )->nesting;
-					temp_var->clazz = CS_VAR;
-					temp_var->schema = fetch_scope( node->child->value.s_val )->schema;
-					insert_unconflicted_element( temp_var );
+					Symbol* final_var = malloc( sizeof( Symbol ) );
+					final_var->name = malloc( MAX_INT_LEN * sizeof( char ) );
+					sprintf( final_var->name, "%d", ( (Symbol*) scope->function )->last_oid );
+					final_var->oid = ( (Symbol*) scope->function )->last_oid++;
+					final_var->nesting = ( (Symbol*) scope->function )->nesting;
+					final_var->clazz = CS_VAR;
+					final_var->schema = fetch_scope( node->child->value.s_val )->schema;
+					insert_unconflicted_element( final_var );
+
+					Value final_val = { .s_val = final_var->name };
+					Node* final_node = new_nonterminal_node( N_ASSIGN_STAT );
+					final_node->child = new_terminal_node( T_ID, final_val );
+					final_node->child->brother = node->child->brother->brother;
 
 					Node* init_node = new_nonterminal_node( N_ASSIGN_STAT );
 					init_node->child = new_terminal_node( T_ID, node->child->value );
 					init_node->child->brother = node->child->brother;
-
-					Value temp_val = { .s_val = temp_var->name };
-					Node* temp_def_node = new_nonterminal_node( N_ASSIGN_STAT );
-					temp_def_node->child = new_terminal_node( T_ID, temp_val );
-					temp_def_node->child->brother = node->child->brother->brother;
-					init_node->brother = temp_def_node;
+                    final_node->brother = init_node;
 
 					Node* while_node = new_nonterminal_node( N_WHILE_STAT );
 					while_node->child = new_qualified_node( T_REL_EXPR, Q_LT ); // FIXME LT or LEQ?
 					while_node->child->child = new_terminal_node( T_ID, node->child->value );
-					while_node->child->child->brother = new_terminal_node( T_ID, temp_val );
+					while_node->child->child->brother = new_terminal_node( T_ID, final_val );
 					while_node->child->brother = node->child->brother->brother->brother;
-					temp_def_node->brother = while_node;
+					init_node->brother = while_node;
 
 					Value increment = { .i_val = 1 };
 					Node* loop_node = new_nonterminal_node( N_ASSIGN_STAT );
@@ -950,10 +950,10 @@ Code generate_code( Node* node )
 					node->child->brother->brother->brother = NULL;
 					node->child->brother->brother = NULL;
 					node->child->brother = NULL;
-					node->child = init_node;
+					node->child = final_node;
 
                     temporary_variables = append_code( temporary_variables,
-                                                       make_decl( temp_var->schema ) );
+                                                       make_decl( final_var->schema ) );
                     result = generate_code( node );
 					break;
 				}

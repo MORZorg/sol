@@ -10,7 +10,9 @@ func game_of_life() : int
 			generations: int;
 
 	const	world_size: int = 15;
-			summary: string = "Welcome to ORZ's Conway's Game of Life!";
+			str_summary: string = "Welcome to ORZ's Conway's Game of Life!";
+            str_goodbye: string = "Thanks for playing with ORZ's Conway's Game of Life!\n\n\tBye!";
+            str_saved: string = "Your data has been successfully saved in the following file:";
 			enter_filename: string = "Enter the filename of your world and if you'd like to load from a saved state.";
 			enter_generations: string = "Enter for how many generations would you like to watch your world go by.";
 			enter_world: string = "Your world doesn't exist yet.\nEnter it now.";
@@ -58,7 +60,7 @@ func game_of_life() : int
 	end next_state
 
 begin game_of_life
-	write summary;
+	write str_summary;
 
 	write enter_filename;
 	read input;
@@ -72,15 +74,14 @@ begin game_of_life
 	write enter_generations;
 	read generations;
 
-	while generations > 0 do
+    for generations = 0 to generations do
 		world.world = next_state( world.world );
         world.generation = world.generation + 1;
 		write world;
-
-		generations = generations - 1;
-	endwhile;
+	endfor;
 
 	write [ input.filename ] world;
+    write struct( str_goodbye, struct( str_saved, input.filename ) );
 
 	return 0;
 end game_of_life
