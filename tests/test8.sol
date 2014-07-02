@@ -62,19 +62,18 @@ func main() : int
 			return strcat( base, to_process );
 		endif;
 
-		current_base = strcpy( base );
 		j = 0;
 		while j < strlen( to_process ) do
 
 			-- Resetting base to the argument value and resetting next_step
-			base = strcpy( current_base );
+			current_base = strcpy( base );
 			next_step = new_pseudo_string();
 			-- Creating the new string to pass as argument
 			for i = 0 to strlen( to_process ) do
 				if i != j then
 					next_step = strcat( next_step, to_process[ i ] );
 				else
-					base = strcat( base, to_process[ i ] );
+					current_base = strcat( current_base, to_process[ i ] );
 				endif;
 			endfor;
 
@@ -89,7 +88,7 @@ func main() : int
 			-- Decrementing the size of the permutations
 			-- result = strcat( base, permutation( next_step, index - 1, base ) );
 			-- write vector( struct( "Out:", permutation( next_step, base ) ) );
-			result = permutation( next_step, base, number );
+			result = permutation( next_step, current_base, number );
 
 			j = j + 1;
 			-- write vector( struct( "Permutation:", strcat( base, result ) ), struct( "Base:", base ), struct( "Result:", result ) );
