@@ -157,11 +157,13 @@ _decl
 \backslash
 rightarrow
 \backslash
-,func
+,
 \backslash
-,id
+text{
 \backslash
-,(
+textnormal{{
+\backslash
+bf func id (}}}
 \backslash
 ,decl
 \backslash
@@ -169,7 +171,13 @@ _list
 \backslash
 _opt
 \backslash
-,)
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf )}}}
 \backslash
 ,:
 \backslash
@@ -239,7 +247,9 @@ _list
 \backslash
 ,
 \backslash
-epsilon
+boldsymbol{
+\backslash
+epsilon}
 \backslash
 
 \backslash
@@ -258,7 +268,13 @@ rightarrow
 \backslash
 ,decl
 \backslash
-,;
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf ;}}}
 \backslash
 ,decl
 \backslash
@@ -268,7 +284,13 @@ _list
 \backslash
 ,decl
 \backslash
-,;
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf ;}}}
 \backslash
 
 \backslash
@@ -306,7 +328,13 @@ _list
 \backslash
 rightarrow
 \backslash
-,id
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf id}}}
 \backslash
 ,,
 \backslash
@@ -316,7 +344,13 @@ _list
 \backslash
 ,|
 \backslash
-,id
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf id}}}
 \backslash
 
 \backslash
@@ -349,7 +383,13 @@ _domain
 \backslash
 ,|
 \backslash
-,id
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf id}}}
 \backslash
 
 \backslash
@@ -366,23 +406,53 @@ _domain
 \backslash
 rightarrow
 \backslash
-,char
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf char}}}
 \backslash
 ,|
 \backslash
-,int
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf int}}}
 \backslash
 ,|
 \backslash
-,real
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf real}}}
 \backslash
 ,|
 \backslash
-,string
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf string}}}
 \backslash
 ,|
 \backslash
-,bool
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf bool}}}
 \backslash
 
 \backslash
@@ -399,15 +469,33 @@ _domain
 \backslash
 rightarrow
 \backslash
-,struct
+,
 \backslash
-,(
+text{
+\backslash
+textnormal{{
+\backslash
+bf struct}}}
+\backslash
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf (}}}
 \backslash
 ,decl
 \backslash
 _list
 \backslash
-,)
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf )}}}
 \backslash
 
 \backslash
@@ -424,15 +512,13 @@ _domain
 \backslash
 rightarrow
 \backslash
-,vector
+,
 \backslash
-,[
+text{
 \backslash
-,intconst
+textnormal{{
 \backslash
-,]
-\backslash
-,of
+bf vector [ intconst ] of}}}
 \backslash
 ,domain
 \backslash
@@ -453,7 +539,13 @@ _opt
 \backslash
 rightarrow
 \backslash
-,type
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf type}}}
 \backslash
 ,decl
 \backslash
@@ -463,7 +555,9 @@ _list
 \backslash
 ,
 \backslash
-epsilon
+boldsymbol{
+\backslash
+epsilon}
 \backslash
 
 \backslash
@@ -482,7 +576,13 @@ _opt
 \backslash
 rightarrow
 \backslash
-,var
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf var}}}
 \backslash
 ,decl
 \backslash
@@ -492,7 +592,9 @@ _list
 \backslash
 ,
 \backslash
-epsilon
+boldsymbol{
+\backslash
+epsilon}
 \backslash
 
 \backslash
@@ -511,7 +613,13 @@ _opt
 \backslash
 rightarrow
 \backslash
-,const
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf const}}}
 \backslash
 ,const
 \backslash
@@ -521,7 +629,9 @@ _list
 \backslash
 ,
 \backslash
-epsilon
+boldsymbol{
+\backslash
+epsilon}
 \backslash
 
 \backslash
@@ -573,7 +683,13 @@ rightarrow
 \backslash
 ,expr
 \backslash
-,;
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf ;}}}
 \backslash
 
 \backslash
@@ -600,7 +716,9 @@ _list
 \backslash
 ,
 \backslash
-epsilon
+boldsymbol{
+\backslash
+epsilon}
 \backslash
 
 \backslash
@@ -646,17 +764,25 @@ _body
 \backslash
 rightarrow
 \backslash
-,begin
+,
 \backslash
-,id
+text{
+\backslash
+textnormal{{
+\backslash
+bf begin id}}}
 \backslash
 ,stat
 \backslash
 _list
 \backslash
-,end
+,
 \backslash
-,id
+text{
+\backslash
+textnormal{{
+\backslash
+bf end id}}}
 \backslash
 
 \backslash
@@ -675,7 +801,13 @@ rightarrow
 \backslash
 ,stat
 \backslash
-,;
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf ;}}}
 \backslash
 ,stat
 \backslash
@@ -685,7 +817,13 @@ _list
 \backslash
 ,stat
 \backslash
-,;
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf ;}}}
 \backslash
 
 \backslash
@@ -799,7 +937,13 @@ _side
 \backslash
 rightarrow
 \backslash
-,id
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf id}}}
 \backslash
 ,|
 \backslash
@@ -828,9 +972,14 @@ _hand
 \backslash
 _side
 \backslash
-,.
+,
 \backslash
-,id
+text{
+\backslash
+textnormal{{
+\backslash
+bf .
+ id}}}
 \backslash
 
 \backslash
@@ -851,11 +1000,23 @@ _hand
 \backslash
 _side
 \backslash
-,[
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf [}}}
 \backslash
 ,expr
 \backslash
-,]
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf ]}}}
 \backslash
 
 \backslash
@@ -872,11 +1033,23 @@ _stat
 \backslash
 rightarrow
 \backslash
-,if
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf if}}}
 \backslash
 ,expr
 \backslash
-,then
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf then}}}
 \backslash
 ,stat
 \backslash
@@ -896,7 +1069,13 @@ _stat
 \backslash
 _opt
 \backslash
-,endif
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf endif}}}
 \backslash
 
 \backslash
@@ -917,11 +1096,23 @@ _opt
 \backslash
 rightarrow
 \backslash
-,elsif
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf elsif}}}
 \backslash
 ,expr
 \backslash
-,then
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf then}}}
 \backslash
 ,stat
 \backslash
@@ -942,11 +1133,27 @@ _list
 \backslash
 _opt
 \backslash
+,
+\backslash
+rightarrow
+\backslash
+
+\backslash
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf else}}}
+\backslash
 ,|
 \backslash
 ,
 \backslash
-epsilon
+boldsymbol{
+\backslash
+epsilon}
 \backslash
 
 \backslash
@@ -975,7 +1182,9 @@ _list
 \backslash
 ,
 \backslash
-epsilon
+boldsymbol{
+\backslash
+epsilon}
 \backslash
 
 \backslash
@@ -992,17 +1201,35 @@ _stat
 \backslash
 rightarrow
 \backslash
-,while
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf while}}}
 \backslash
 ,expr
 \backslash
-,do
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf do}}}
 \backslash
 ,stat
 \backslash
 _list
 \backslash
-,endwhile
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf endwhile}}}
 \backslash
 
 \backslash
@@ -1019,25 +1246,47 @@ _stat
 \backslash
 rightarrow
 \backslash
-,for
+,
 \backslash
-,id
+text{
+\backslash
+textnormal{{
+\backslash
+bf for id}}}
 \backslash
 ,=
 \backslash
 ,expr
 \backslash
-,to
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf to}}}
 \backslash
 ,expr
 \backslash
-,do
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf do}}}
 \backslash
 ,stat
 \backslash
 _list
 \backslash
-,endfor
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf endfor}}}
 \backslash
 
 \backslash
@@ -1054,21 +1303,35 @@ _stat
 \backslash
 rightarrow
 \backslash
-,foreach
+,
 \backslash
-,id
+text{
 \backslash
-,in
+textnormal{{
+\backslash
+bf foreach id in}}}
 \backslash
 ,expr
 \backslash
-,do
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf do}}}
 \backslash
 ,stat
 \backslash
 _list
 \backslash
-,endforeach
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf endforeach}}}
 \backslash
 
 \backslash
@@ -1085,7 +1348,13 @@ _stat
 \backslash
 rightarrow
 \backslash
-,return
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf return}}}
 \backslash
 ,expr
 \backslash
@@ -1104,13 +1373,25 @@ _stat
 \backslash
 rightarrow
 \backslash
-,read
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf read}}}
 \backslash
 ,specifier
 \backslash
 _opt
 \backslash
-,id
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf id}}}
 \backslash
 
 \backslash
@@ -1127,17 +1408,31 @@ _opt
 \backslash
 rightarrow
 \backslash
-,[
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf [}}}
 \backslash
 ,expr
 \backslash
-,]
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf ]}}}
 \backslash
 ,|
 \backslash
 ,
 \backslash
-epsilon
+boldsymbol{
+\backslash
+epsilon}
 \backslash
 
 \backslash
@@ -1154,7 +1449,13 @@ _stat
 \backslash
 rightarrow
 \backslash
-,write
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf write}}}
 \backslash
 ,specifier
 \backslash
@@ -1206,11 +1507,23 @@ _op
 \backslash
 rightarrow
 \backslash
-,and
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf and}}}
 \backslash
 ,|
 \backslash
-,or
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf or}}}
 \backslash
 
 \backslash
@@ -1284,7 +1597,13 @@ rightarrow
 \backslash
 ,|
 \backslash
-,in
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf in}}}
 \backslash
 
 \backslash
@@ -1421,11 +1740,23 @@ _op
 \backslash
 ,|
 \backslash
-,(
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf (}}}
 \backslash
 ,expr
 \backslash
-,)
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf )}}}
 \backslash
 ,|
 \backslash
@@ -1516,7 +1847,13 @@ _
 \backslash
 ,|
 \backslash
-,not
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf not}}}
 \backslash
 ,|
 \backslash
@@ -1539,23 +1876,53 @@ _const
 \backslash
 rightarrow
 \backslash
-,charconst
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf charconst}}}
 \backslash
 ,|
 \backslash
-,intconst
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf intconst}}}
 \backslash
 ,|
 \backslash
-,realconst
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf realconst}}}
 \backslash
 ,|
 \backslash
-,strconst
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf strconst}}}
 \backslash
 ,|
 \backslash
-,boolconst
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf boolconst}}}
 \backslash
 
 \backslash
@@ -1597,15 +1964,25 @@ _construction
 \backslash
 rightarrow
 \backslash
-,struct
+,
 \backslash
-,(
+text{
+\backslash
+textnormal{{
+\backslash
+bf struct (}}}
 \backslash
 ,expr
 \backslash
 _list
 \backslash
-,)
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf )}}}
 \backslash
 
 \backslash
@@ -1649,15 +2026,25 @@ _construction
 \backslash
 rightarrow
 \backslash
-,vector
+,
 \backslash
-,(
+text{
+\backslash
+textnormal{{
+\backslash
+bf vector (}}}
 \backslash
 ,expr
 \backslash
 _list
 \backslash
-,)
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf )}}}
 \backslash
 
 \backslash
@@ -1674,9 +2061,13 @@ _call
 \backslash
 rightarrow
 \backslash
-,id
+,
 \backslash
-,(
+text{
+\backslash
+textnormal{{
+\backslash
+bf id (}}}
 \backslash
 ,expr
 \backslash
@@ -1684,7 +2075,13 @@ _list
 \backslash
 _opt
 \backslash
-,)
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf )}}}
 \backslash
 
 \backslash
@@ -1711,7 +2108,9 @@ _list
 \backslash
 ,
 \backslash
-epsilon
+boldsymbol{
+\backslash
+epsilon}
 \backslash
 
 \backslash
@@ -1728,11 +2127,23 @@ _expr
 \backslash
 rightarrow
 \backslash
-,if
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf if}}}
 \backslash
 ,expr
 \backslash
-,then
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf then}}}
 \backslash
 ,expr
 \backslash
@@ -1744,11 +2155,23 @@ _list
 \backslash
 _opt
 \backslash
-,else
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf else}}}
 \backslash
 ,expr
 \backslash
-,endif
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf endif}}}
 \backslash
 
 \backslash
@@ -1769,11 +2192,23 @@ _opt
 \backslash
 rightarrow
 \backslash
-,elsif
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf elsif}}}
 \backslash
 ,expr
 \backslash
-,then
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf then}}}
 \backslash
 ,expr
 \backslash
@@ -1789,7 +2224,9 @@ _opt
 \backslash
 ,
 \backslash
-epsilon
+boldsymbol{
+\backslash
+epsilon}
 \backslash
 
 \backslash
@@ -1833,13 +2270,23 @@ _call
 \backslash
 rightarrow
 \backslash
-,toint
+,
 \backslash
-,(
+text{
+\backslash
+textnormal{{
+\backslash
+bf toint (}}}
 \backslash
 ,expr
 \backslash
-,)
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf )}}}
 \backslash
 
 \backslash
@@ -1856,13 +2303,23 @@ _call
 \backslash
 rightarrow
 \backslash
-,toreal
+,
 \backslash
-,(
+text{
+\backslash
+textnormal{{
+\backslash
+bf toreal (}}}
 \backslash
 ,expr
 \backslash
-,)
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf )}}}
 \backslash
 
 \backslash
@@ -1879,7 +2336,13 @@ _input
 \backslash
 rightarrow
 \backslash
-,rd
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf rd}}}
 \backslash
 ,specifier
 \backslash
@@ -1902,7 +2365,13 @@ _output
 \backslash
 rightarrow
 \backslash
-,wr
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf wr}}}
 \backslash
 ,specifier
 \backslash
