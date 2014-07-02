@@ -7,6 +7,7 @@ from subprocess import Popen, PIPE
 from PyQt5 import QtCore, QtWidgets, uic
 
 from interface import SimpleInterface
+from settings import DEBUG
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -21,19 +22,23 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def __init__(self):
         QtWidgets.QMainWindow.__init__(self)
-        self.ui = uic.loadUi("MainWindow.ui", self)
+        if DEBUG:
+            self.ui = uic.loadUi("MainWindow_dbg.ui", self)
+        else:
+            self.ui = uic.loadUi("MainWindow.ui", self)
 
         self.ui.actionOpen.triggered.connect(self.open)
         self.ui.actionCompile.triggered.connect(self.compile)
         self.ui.actionRun.triggered.connect(self.run)
 
-        # Debug
-        self.debugInterface = SimpleInterface(False)
-        self.ui.inputButton.clicked \
-            .connect(lambda: self.debugInterface.requestInput(str(self.ui.debugText.text())))
-        self.ui.outputButton.clicked \
-            .connect(lambda: self.debugInterface.requestOutput(str(self.ui.debugText.text()),
-                                                               self.ui.debugData.text().encode("utf-8")))
+        if DEBUG:
+            # Debug
+            self.debugInterface = SimpleInterface(False)
+            self.ui.inputButton.clicked \
+                .connect(lambda: self.debugInterface.requestInput(str(self.ui.debugText.text())))
+            self.ui.outputButton.clicked \
+                .connect(lambda: self.debugInterface.requestOutput(str(self.ui.debugText.text()),
+                                                                   self.ui.debugData.text().encode("utf-8")))
 
     @QtCore.pyqtSlot()
     def open(self):

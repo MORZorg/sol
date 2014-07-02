@@ -34,8 +34,6 @@ comment         --.*
 spacing			([ \t])+
 sugar			[()\[\]{}.,;]
 
-%x charconst
-
 %%
 EOF                 { return 0; }
 \n					{ SPAM( "\n" ); line++; }

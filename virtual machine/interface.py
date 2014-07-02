@@ -5,7 +5,7 @@ from collections import deque
 
 from PyQt5 import QtCore, QtWidgets, uic
 
-DEBUG = False
+from settings import DEBUG
 
 
 class ByteDeque:

@@ -113,7 +113,7 @@ int main( int argc, char** argv )
 					break;
 
 				default:
-					fprintf( stderr, ERROR_UNDEFINED_FLAG );
+					fprintf( stdout, ERROR_UNDEFINED_FLAG );
 					print_help();
 					exit( 1 );
 			}
@@ -124,31 +124,31 @@ int main( int argc, char** argv )
 	FILE* output;
 	if( fileInput == NULL )
 	{
-		fprintf( stderr, "Reading from stdin!\n" );
+		fprintf( stdout, "Reading from stdin!\n" );
 		input = stdin;
 	}
 	else
 	{
-		fprintf( stderr, "Reading from '%s'!\n", fileInput );
+		fprintf( stdout, "Reading from '%s'!\n", fileInput );
 		input = fopen( fileInput, "r" );
 	}
 	if( fileOutput == NULL )
 	{
 		if( fileInput == NULL )
 		{
-			fprintf( stderr, "Printing to stdout!\n" );
+			fprintf( stdout, "Printing to stdout!\n" );
 			output = stdout;
 		}
 		else
 		{
 			fileOutput = change_extension( fileInput );
 			output = fopen( fileOutput, "w+" );
-			fprintf( stderr, "Printing to '%s'!\n", fileOutput );
+			fprintf( stdout, "Printing to '%s'!\n", fileOutput );
 		}
 	}
 	else
 	{
-		fprintf( stderr, "Printing to '%s'!\n", fileOutput );
+		fprintf( stdout, "Printing to '%s'!\n", fileOutput );
 		output = fopen( fileOutput, "w+" );
 	}
 
