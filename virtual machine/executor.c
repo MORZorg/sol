@@ -625,36 +625,27 @@ int sol_string_compare( Operator op )
 }
 
 // The check is done byte-by-byte
-// FIXME WRONG.   "pino" in vector( "campi", "nonno argald" ) == true
 int sol_in()
 {
 	ByteArray set = pop_bytearray();
 	ByteArray value = pop_bytearray();
 
 	int i, j;
-	for( i = 0; i < set.size - value.size; i++ )
-	{
-		if( set.value[ i ] == value.value[ 0 ] )
+	for( i = 0; i < set.size / value.size; i++ )
+		if( set.value[ i * value.size ] == value.value[ 0 ] )
 		{
 			for( j = 1; j < value.size; j++ )
-			{
-				if( set.value[ i + j ] != value.value[ j ] )
-				{
-					push_char( FALSE );
+				if( set.value[ ( i * value.size ) + j ] != value.value[ j ] )
 					break;
-				}
-			}
 
-			if( j == value.size )
+			if( j >= value.size )
 			{
 				push_char( TRUE );
-				break;
+				return MEM_OK;
 			}
 		}
-	}
 
-	if( i == set.size - value.size )
-		push_char( FALSE );
+	push_char( FALSE );
 
 	return MEM_OK;
 }
