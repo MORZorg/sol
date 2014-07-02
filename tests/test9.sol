@@ -82,7 +82,6 @@ func main(): int
 
 	func next_permutation( p: permutation; ): permutation
 		var result: permutation;
-			temp: char;
 			len, i: int;
 
 		func circ_shift( s: str; a, b: int; ): str
