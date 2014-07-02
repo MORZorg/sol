@@ -142,6 +142,4 @@ size_t schema_size( Schema* );
 char* schema_to_string( Schema* );
 void output_code( FILE*, Code );
 
-#include "tree_print.h"
-
 #endif // __GENERATOR_H__

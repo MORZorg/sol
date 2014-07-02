@@ -546,8 +546,10 @@ Code generate_code( Node* node )
 					
 					hashmap_put( func_map, key, description );
 					
-					// TODO Find a way to avoid to duplicate the base function.
-					stacklist_push( &scope, (stacklist_t) func_scope );
+					// Avoids duplication of the base function, should cause no
+					// problems in other cases.
+					if( scope->function != func_scope )
+						stacklist_push( &scope, (stacklist_t) func_scope );
 					current_node = current_node->brother;
 
 					Code entry_code = empty_code();
@@ -631,32 +633,25 @@ Code generate_code( Node* node )
 
 					hashmap_get( func_map, key, (any_t*) &description );
 
-					// FIXME Shouldn't be checked, only done to avoid debugging crashes
-					if( description != NULL )
-					{
-						// Since description->scope contains the nesting in
-						// which the function is defined, theoretically the
-						// following value should represent the distance
-						// between the actual call nesting and the definition
-						// nesting
-						int chain = ( (Symbol*) scope->function )->nesting - description->scope + 1;
-						// Both adjusted in post_processing
-						int size = 0; //description->size;
-						int entry = 0; //description->entry->address;
-					
-						// The second instruction is the GOTO
-						Code actual_call = make_push_pop( size, chain, entry );
+					// Since description->scope contains the nesting in which
+					// the function is defined, theoretically the following
+					// value should represent the distance between the actual
+					// call nesting and the definition nesting
+					int chain = ( (Symbol*) scope->function )->nesting - description->scope + 1;
+					// Both adjusted in post_processing
+					int size = 0; //description->size;
+					int entry = 0; //description->entry->address;
+				
+					// The second instruction is the GOTO
+					Code actual_call = make_push_pop( size, chain, entry );
 
-						CallDesc* call = malloc( sizeof( CallDesc ) );
-						call->oid = oid;
-						call->push_pop = actual_call;
+					CallDesc* call = malloc( sizeof( CallDesc ) );
+					call->oid = oid;
+					call->push_pop = actual_call;
 
-						stacklist_push( &call_list, (stacklist_t) call );
+					stacklist_push( &call_list, (stacklist_t) call );
 
-						result = append_code( result, actual_call );
-					}
-					else
-						fprintf( stderr, "WARNING: NULL FuncDesc*!\n" );
+					result = append_code( result, actual_call );
 
 					break;
 				}
@@ -911,7 +906,6 @@ Code generate_code( Node* node )
 				case N_FOR_STAT:
 				{
 					// Transform the FOR into a WHILE, then delegate
-					// TODO Make sure the nesting is generated correctly
 					Symbol* final_var = malloc( sizeof( Symbol ) );
 					final_var->name = malloc( MAX_INT_LEN * sizeof( char ) );
 					sprintf( final_var->name, "%d", ( (Symbol*) scope->function )->last_oid );
@@ -961,7 +955,6 @@ Code generate_code( Node* node )
 				case N_FOREACH_STAT:
 				{
 					// Transform the FOREACH into a FOR, then delegate
-					// TODO Make sure the nesting is generated correctly
 					Symbol* temp_var = malloc( sizeof( Symbol ) );
 					temp_var->name = malloc( MAX_INT_LEN * sizeof( char ) );
 					sprintf( temp_var->name, "%d", ( (Symbol*) scope->function )->last_oid );

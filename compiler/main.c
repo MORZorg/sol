@@ -71,12 +71,7 @@ int main()
 
 #else
 
-#include <string.h>
-
-#include "generator.h"
-
-// FIXME Put in a .h file
-char* change_extension( char* a_path );
+#include "main.h"
 
 int main( int argc, char** argv )
 {
@@ -94,7 +89,7 @@ int main( int argc, char** argv )
 
 			if( !strcmp( argv[ i ], "help" ) )
 			{
-				/* TODO printHelp(); */
+				print_help();
 				return 0;
 			}
 			else if( !strcmp( argv[ i ], "output" ) )
@@ -119,8 +114,7 @@ int main( int argc, char** argv )
 
 				default:
 					fprintf( stderr, ERROR_UNDEFINED_FLAG );
-					// TODO
-					/* printHelp(); */
+					print_help();
 					exit( 1 );
 			}
 		}
@@ -180,13 +174,20 @@ char* change_extension( char* a_path )
 	char* result = calloc( ( base_len + strlen( INTERMEDIATE_CODE_EXTENSION ) + 1 ),
 						   sizeof( char ) );
 
-	// FIXME Could cause problems when the original extension is longer than
-	// the new one.
-	strcat( result, a_path );
+	memcpy( result, a_path, sizeof( char ) * base_len );
 	result[ base_len ] = 0;
 	strcat( result, INTERMEDIATE_CODE_EXTENSION );
 
 	return result;
+}
+
+void print_help()
+{
+	fprintf( stdout, "usage: solc [-h] [-o output_file] [input_file]\n" );
+	fprintf( stdout, "  If no input file is specified, the input will be `stdin`.\n" );
+	fprintf( stdout, "  If no output file is specified, the output will be a file with the same name\n" );
+	fprintf( stdout, "  as the input file, with the extension changed to \".ohana\". If the input is\n" );
+	fprintf( stdout, "  `stdin`, the output will be `stdout`.\n" );
 }
 
 #endif

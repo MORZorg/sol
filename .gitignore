@@ -39,6 +39,7 @@ analyser
 generator
 solc
 machine
+solvm
 
 # Sol compiled code
 *.ohana

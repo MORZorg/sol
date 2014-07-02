@@ -1,4 +1,5 @@
 #include "analyser.h"
+#include "tree_print.h"
 
 #define STR_BUG "compiler bug"
 
@@ -181,7 +182,6 @@ Symbol* create_symbol_table_element( Node* node, int* oid )
 			break;
 
 		case N_PAR_LIST:
-			// FIXME The parameters should be added to the func as well
 			analyse_decl_list( node->child, oid, CS_PAR, FALSE );
 			break;
 
@@ -493,7 +493,8 @@ Boolean simplify_expression( Node* node )
 	Node* right_child = left_child->brother;
 	if( simplify_expression( left_child ) && simplify_expression( right_child ) )
 	{
-		// TODO: i should want to be useful
+		// NOTE: This check is disabled since it happens very rarely and it's
+		// quite complex to implement. It should be possible, though.
 		if( node->value.q_val == Q_IN )
 			return FALSE;
 
@@ -520,9 +521,6 @@ Boolean simplify_expression( Node* node )
 				break;
 
 			case T_REL_EXPR:
-				// TODO: i should want to be useful, also with serious Q_IN
-				printf( "rel!\t" );
-				
 				node->type = T_BOOL_CONST;
 				switch( node->value.q_val )
 				{
@@ -572,7 +570,9 @@ Boolean simplify_expression( Node* node )
 						break;
 				}
 
-				printf( "Result: %d\n", node->value.b_val );
+#ifdef DEBUG
+				fprintf( stderr, "Result: %d\n", node->value.b_val );
+#endif
 				break;
 
 			case T_MATH_EXPR:
@@ -646,8 +646,7 @@ Boolean simplify_expression( Node* node )
 				break;
 
 			case T_INSTANCE_EXPR:
-				printf( "inst!\n" );
-
+			{
 				Node* current_child = node->child;
 				node->value.b_val = TRUE;
 				while( current_child != NULL )
@@ -656,6 +655,7 @@ Boolean simplify_expression( Node* node )
 					current_child = current_child->brother;
 				}
 				break;
+			}
 
 			case T_BUILT_IN_CALL:
 				if( node->value.q_val == Q_TOREAL )
@@ -675,9 +675,8 @@ Boolean simplify_expression( Node* node )
 				yysemerror( node, PRINT_ERROR( STR_BUG, "simplify not an expression" ) );
 		}
 
-        // FIXME
-		/* free(left_child); */
-		/* free(right_child); */
+		free(left_child);
+		free(right_child);
 		node->child = NULL;
 
 		return TRUE;
@@ -1121,7 +1120,9 @@ Boolean type_check( Node* node )
 		case N_CONST_SECT:
 		case N_CONST_DECL:
 		case N_FUNC_LIST:
-			// TODO Remove?
+		case N_FIELDING:
+		case N_INDEXING:
+			// Just for switch completeness
 			break;
 
 		case N_FUNC_BODY:
@@ -1164,11 +1165,6 @@ Boolean type_check( Node* node )
 
 			break;
 		}
-
-		case N_FIELDING:
-		case N_INDEXING:
-			// TODO Remove?
-			break;
 
 		case N_IF_STAT:
 		{
@@ -1225,9 +1221,12 @@ Boolean type_check( Node* node )
 			if( infere_expression_schema( node->child )->type != TS_BOOL )
 				yysemerror( node, STR_COND_EXPR );
 			
-			// TODO: Check for totally trueness of condition for the return value
+			// NOTE: A possible optimisation could be, if the while-condition
+			// simplifies to TRUE, to check if there exists inside the
+			// statement list a return statement. If it does not, this is an
+			// infinite loop and therefore the user should be notified.
 			Node* current_node = node->child->brother;
-			while( current_node == NULL )
+			while( current_node != NULL )
 			{
 				type_check( current_node );
 				current_node = current_node->brother;
@@ -1275,7 +1274,6 @@ Boolean type_check( Node* node )
 			Symbol* iterable_variable = fetch_scope( current_node->value.s_val );
 			if( iterable_variable == NULL )
 				yysemerror( current_node, PRINT_ERROR( STR_UNDECLARED, "foreach" ) );
-			// TODO Can this variable be assigned?
 			switch( iterable_variable->clazz )
 			{
 				case CS_VAR:

@@ -7,24 +7,35 @@
  */
 #include <stdio.h>
 
-#ifdef MACHINE
+#ifdef PARSER
 
-#include "string.h"
 #include "def.h"
-#include "executor.h"
+#include "tree_print.h"
 
-#define ERROR_UNDEFINED_FLAG "No such flag."
-#define SOL_EXTENSION "sol"
-#define OHANA_EXTENSION "ohana"
-#define GENERATOR_PATH "./solc"
+extern int yyparse( void );
+extern Stat* program;
+extern int program_size;
+
+int main( int argc, char** argv )
+{
+	int result;
+
+	if( ( result = yyparse() ) == 0 )
+	{
+		fprintf( stdout, "*** Read code ***\n" );
+		code_array_print( program, program_size );
+	}
+
+	return 0;
+}
+
+#else
+
+#include "main.h"
 
 extern FILE* yyin;
 extern int yyparse( void );
 extern int program_size;
-
-char* get_file_extension( char* );
-char* change_file_extension( char*, char*, char* );
-char* formatted_command( char* );
 
 int main( int argc, char** argv )
 {
@@ -46,8 +57,7 @@ int main( int argc, char** argv )
 
 				if( !strcmp( argv[ i ], "help" ) )
 				{
-					// TODO print_help();
-					fprintf( console_output, "*** HELP ***\n" );
+					print_help();
 					return 0;
 				}
 				else
@@ -69,7 +79,7 @@ int main( int argc, char** argv )
 
 					default:
 						fprintf( console_output, ERROR_UNDEFINED_FLAG );
-						// TODO print_help();
+						print_help();
 						exit( 1 );
 				}
 				argv[ i-- ] = &extended_command[ 0 ];
@@ -171,28 +181,13 @@ char* formatted_command( char* command )
 	return formatted;
 }
 
-#else
-#ifdef PARSER
-
-#include "def.h"
-#include "tree_print.h"
-
-extern int yyparse( void );
-extern Stat* program;
-extern int program_size;
-
-int main( int argc, char** argv )
+void print_help()
 {
-	int result;
-
-	if( ( result = yyparse() ) == 0 )
-	{
-		fprintf( stdout, "*** Read code ***\n" );
-		code_array_print( program, program_size );
-	}
-
-	return 0;
+	fprintf( stdout, "usage: solvm [-h] [[-i] input_file]\n" );
+	fprintf( stdout, "  If no input file is specified, the input will be `stdin`.\n" );
+	fprintf( stdout, "  If the input file's extension is \".sol\", the file will be compiled before\n" );
+	fprintf( stdout, "  being executed.\n" );
 }
 
-#endif
+
 #endif

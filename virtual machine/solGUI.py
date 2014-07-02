@@ -13,7 +13,7 @@ class MainWindow(QtWidgets.QMainWindow):
     EXT_SOURCE = ".sol"
     EXT_SCODE = ".ohana"
     EXE_COMPILER = "./solc"
-    EXE_VM = "./machine"  # Only for debug, the real one should be "./solvm"
+    EXE_VM = "./solvm"
 
     STR_START = "No file selected: open a file to start."
     STR_COMPILABLE = "The file must be compiled."

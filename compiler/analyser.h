@@ -68,8 +68,5 @@ Boolean insert_unconflicted_element( Symbol* );
 
 int yysemerror( Node*, char* );
 
-// FIXME Used only for debug and put in the end due to cyclicity.
-#include "tree_print.h"
-
 #endif // __ANALYZER_H__
 
