@@ -46,3 +46,5 @@ solvm
 
 # .sbra files
 *.sbra
+*.lyx~
+*.lyx#

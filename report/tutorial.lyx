@@ -253,6 +253,10 @@ end{lstlisting}
 \end_layout
 
 \begin_layout Standard
+
+\end_layout
+
+\begin_layout Standard
 As we can notice immediately, the function definition is divided in two
  main parts: a 
 \emph on

@@ -18,27 +18,29 @@
 % Enum lists stuff
 \usepackage{enumerate}
 
+% Graphics, including pdf
+\usepackage{epstopdf}
+\usepackage{graphicx}
+
 % Code listing
 \usepackage{listings}
-% \usepackage{pxfonts}
 \usepackage[usenames,dvipsnames]{color}
+% \usepackage{pxfonts}
+% \usepackage{epsf}
 
 \floatstyle{ruled}
 \newfloat{code}{H}{loc}[chapter]
 \floatname{code}{Code}
 
-% SOL language definition
-\lstdefinelanguage{SOL}
-{
-  morekeywords={func,char,int,real,string,bool,vector,of,types,var,const,begin,end,if,then,endif,elsif,else,while,do,endwhile,for,to,endfor,foreach,in,endforeach,return,read,write,and,or,not,struct,toint,toreal,rd,wr},
-  sensitive=true,
-  morecomment=[l]{--},
-  morestring=[b]",
-}
+\newcommand{\constcolor}{\textcolor{blue}}
+\newcommand{\commentcolor}{\color{Gray}}
+\newcommand{\kwcolor}{\color{OliveGreen}}
+\newcommand{\typecolor}{\color{RedOrange}}
+\newcommand{\symbolcolor}{\color{OliveGreen}}
 
 \lstset
 {
-  backgroundcolor=\color{Apricot},
+  literate={0},
   aboveskip=0.5cm,
   basicstyle=\small\ttfamily,
   numbers=left,
@@ -49,9 +51,52 @@
   showstringspaces=false,
   showtabs=false,
   keepspaces,
-  stringstyle=\color{Cerulean},
-  commentstyle=\color{Gray},
-  keywordstyle=\color{OliveGreen}
+  stringstyle=\constcolor,
+  commentstyle=\commentcolor,
+  keywordstyle=[1]\kwcolor,
+  keywordstyle=[2]\typecolor,
+}
+
+\lstdefinestyle{FormattedNumber}
+{
+    literate=
+             {0}{{\constcolor{0}}}{1}
+             {1}{{\constcolor{1}}}{1}
+             {2}{{\constcolor{2}}}{1}
+             {3}{{\constcolor{3}}}{1}
+             {4}{{\constcolor{4}}}{1}
+             {5}{{\constcolor{5}}}{1}
+             {6}{{\constcolor{6}}}{1}
+             {7}{{\constcolor{7}}}{1}
+             {8}{{\constcolor{8}}}{1}
+             {9}{{\constcolor{9}}}{1}
+             {.0}{{\constcolor{.0}}}{2}
+             {.1}{{\constcolor{.1}}}{2}
+             {.2}{{\constcolor{.2}}}{2}
+             {.3}{{\constcolor{.3}}}{2}
+             {.4}{{\constcolor{.4}}}{2}
+             {.5}{{\constcolor{.5}}}{2}
+             {.6}{{\constcolor{.6}}}{2}
+             {.7}{{\constcolor{.7}}}{2}
+             {.8}{{\constcolor{.8}}}{2}
+             {.9}{{\constcolor{.9}}}{2},
+}
+
+% SOL language definition
+\lstdefinelanguage{SOL}
+{
+  style=FormattedNumber,
+  keywords=[1]{begin,end,if,then,endif,elsif,else,while,do,endwhile,for,to,endfor,foreach,in,endforeach,return,read,write,and,or,not,struct,toint,toreal,rd,wr},
+  keywords=[2]{func,char,int,real,string,bool,vector,of,types,var,const},
+  sensitive=true,
+  morecomment=[l]{--},
+  morestring=[b]",
+}
+
+\lstdefinelanguage{Scode}
+{
+  morekeywords={},
+  sensitive=false
 }
 
 % Other

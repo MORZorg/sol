@@ -106,10 +106,7 @@ The lexical and syntactical analysis of the language, presented in this
 \end_layout
 
 \begin_layout Itemize
-The semantical analysis, presented in 
-Chapter 
-\lang english
-
+The semantical analysis, presented in Chapter 
 \begin_inset ERT
 status open
 
@@ -257,8 +254,8 @@ status open
 
 
 \backslash
-begin{lstlisting}[caption={Lex definition of lexical elements},label={lst:lex_re
-gexp}]
+begin{lstlisting}[language={},caption={Lex definition of lexical elements},label
+={lst:lex_regexp}]
 \end_layout
 
 \begin_layout Plain Layout
