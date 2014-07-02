@@ -65,7 +65,7 @@ func main() : int
 	end factorial
 
 	func permutation( to_process: pseudo_string; base: pseudo_string; number: int; ) : pseudo_string
-		var next_step, current_base, result: pseudo_string;
+		var next_step, current_base, result, temp: pseudo_string;
 			i, j: int;
 	begin permutation
 		-- Returning if i have only one char to process
@@ -75,6 +75,7 @@ func main() : int
 		endif;
 
 		j = 0;
+		temp = new_pseudo_string();
 		while j < strlen( to_process ) do
 
 			-- Resetting base to the argument value and resetting next_step
@@ -82,10 +83,11 @@ func main() : int
 			next_step = new_pseudo_string();
 			-- Creating the new string to pass as argument
 			for i = 0 to strlen( to_process ) do
+				temp[ 0 ] = to_process[ i ];
 				if i != j then
-					next_step = strcat( next_step, to_process[ i ] );
+					next_step = strcat( next_step, temp );
 				else
-					current_base = strcat( current_base, to_process[ i ] );
+					current_base = strcat( current_base, temp );
 				endif;
 			endfor;
 
