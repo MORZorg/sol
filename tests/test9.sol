@@ -54,28 +54,79 @@ func main(): int
 		return result;
 	end ceil
 
+	func floor( r: real; ): int
+		var result: int;
+	begin floor
+		result = toint( r );
+		if toreal( result ) < r then
+			result = result + 1;
+		endif;
+
+		return result;
+	end floor
+
 	func mod( a, b: int; ): int
 	begin mod
 		return a - ceil( toreal( a ) / toreal( b ) ) * b;
 	end mod
 
+	func is_even( a: int; ): bool
+	begin is_even
+		return mod( a, 2 ) == 0;
+	end is_even
+
+	func xor( a, b: bool; ): bool
+	begin xor
+		return ( a and not b ) or ( not a and b );
+	end xor
+
 	func next_permutation( p: permutation; ): permutation
 		var result: permutation;
 			temp: char;
 			len, i: int;
+
+		func circ_shift( s: str; a, b: int; ): str
+			var i: int;
+				temp: char;
+		begin circ_shift
+			for i = a to b do
+				temp = s[ i ];
+				s[ i ] = s[ i + 1 ];
+				s[ i + 1 ] = temp;
+			endfor;
+
+			return s;
+		end circ_shift
+
+		func flip( s: str; a, b: int; ): str
+			var i: int;
+				temp: char;
+		begin flip
+			for i = 0 to floor( toreal( b - a ) / 2.0 ) do
+				temp = s[ a + i ];
+				s[ a + i ] = s[ b - i ];
+				s[ b - i ] = temp;
+			endfor;
+
+			return s;
+		end flip
+
 	begin next_permutation
 		len = strlen( p.str );
-		if p.perm == factorial( len ) then
-			p.perm = 0;
-		endif;
 
 		p.perm = p.perm + 1;
+		if p.perm == factorial( len ) then
+			p.perm = 0;
+			p.str = flip( p.str, 0, len - 1 );
+
+			return p;
+		endif;
 
 		for i = 2 to len+1 do
 			if mod( p.perm, factorial( i ) ) != 0 then
-				temp = p.str[ len - 1 ];
-				p.str[ len - 1 ] = p.str[ len - i ];
-				p.str[ len - i ] = temp;
+				p.str = circ_shift( flip( p.str, len - i + 1, len - 1 ),
+									len - i,
+									len - 1 );
 				break;
 			endif;
 		endfor;
@@ -85,7 +136,7 @@ func main(): int
 
 begin main
 	p.str = rd str;
-	for i = 0 to factorial( strlen( str ) ) do
+	for i = 0 to factorial( strlen( p.str ) ) do
 		p = wr next_permutation( p );
 	endfor;
 	return 0;
