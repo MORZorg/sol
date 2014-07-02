@@ -38,7 +38,7 @@
 
 \lstset
 {
-  language={SOL},
+  backgroundcolor=\color{Apricot},
   aboveskip=0.5cm,
   basicstyle=\small\ttfamily,
   numbers=left,
