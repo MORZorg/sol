@@ -1,8 +1,11 @@
+-- Riccardo Orizio
+-- 1 Luglio 2014
+-- SOL program that shows all permutations of a read set of characters.
+
 func main() : int 
 	type pseudo_string: vector [ 15 ] of char;
 
 	var word, empty: pseudo_string;
-		i: int;
 
 	const	MAX_LEN: int = 15;
 			INTRO: string = "Insert a word:";
@@ -52,6 +55,15 @@ func main() : int
 		return result;
 	end strcpy
 
+	func factorial( number: int; ) : int
+	begin factorial
+		if number <= 2 then
+			return number;
+		endif;
+
+		return number * factorial( number - 1 );
+	end factorial
+
 	func permutation( to_process: pseudo_string; base: pseudo_string; number: int; ) : pseudo_string
 		var next_step, current_base, result: pseudo_string;
 			i, j: int;
@@ -77,22 +89,11 @@ func main() : int
 				endif;
 			endfor;
 
-		--	write vector(	struct( "Number before", number ),
-		--					struct( "Number after", number + strlen( next_step ) * j  ),
-		--					struct( "J", j ),
-		--					struct( "to_process", strlen( next_step ) ) );
-		--	write vector( struct( "Base", base ), struct( "Next step", next_step ) );
-			number = number + j * strlen( next_step );
-			-- write vector( struct( "Saving", result ), struct( "Next:", next_step ) );
-
 			-- Decrementing the size of the permutations
-			-- result = strcat( base, permutation( next_step, index - 1, base ) );
-			-- write vector( struct( "Out:", permutation( next_step, base ) ) );
 			result = permutation( next_step, current_base, number );
+			number = number + factorial( strlen( next_step ) );
 
 			j = j + 1;
-			-- write vector( struct( "Permutation:", strcat( base, result ) ), struct( "Base:", base ), struct( "Result:", result ) );
-
 		endwhile;
 
 		-- Completly useless
