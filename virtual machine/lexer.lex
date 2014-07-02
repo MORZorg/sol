@@ -181,12 +181,11 @@ char parse_escape_seq( char* s )
 				break;
 
 			case '0':
-				if( s[ 2 ] == 0 )
-					result = '\0';
+				if( s[ 2 ] >= '0' && s[ 2 ] <= '7' )
+					result = s[ 2 ] - '0';
 				else
+					// TODO: Add support for octal, hexadecimal and unicode.
 					break;
-
-				// TODO: Add support for octal, hexadecimal and unicode.
 		}
 	else
 		result = s[ 0 ];

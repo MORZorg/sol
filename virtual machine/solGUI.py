@@ -93,7 +93,6 @@ class MainWindow(QtWidgets.QMainWindow):
         proc = Popen([self.EXE_VM, "{}{}".format(self.fileName,
                                                  self.EXT_SCODE)],
                      stdout=PIPE)
-        # TODO Iterative output (or no output in the vm?)
         output, _ = proc.communicate()
 
         self.ui.outputText.append(output.decode("utf-8"))
