@@ -68,12 +68,12 @@ status collapsed
 
 
 \backslash
-label{chp:lex}
+label{chp:Lex}
 \end_layout
 
 \end_inset
 
-Lexical and Syntactic analysis
+Lexical and Syntactical analysis
 \end_layout
 
 \begin_layout Standard
@@ -100,8 +100,8 @@ Our compiler is written in the C language.
 
 \begin_layout Itemize
 The lexical and syntactical analysis of the language, presented in this
- chapter, that together aim at determining wether the given SOL source file
- is well-written or not and to construct a data structure that describes
+ chapter, that together aim at determining whether the given SOL source
+ file is well-written or not and to construct a data structure that describes
  the code in a functional manner;
 \end_layout
 
@@ -141,7 +141,7 @@ ref{chp:gen}
 
 , which, given that the code is both well-written and semantically correct,
  translates it in a lower-level and standard code, easier to execute directly
- (and executed by the virtual machine, of which we talk in Part 
+ (and executed by the virtual machine, of which we will talk in Part 
 \begin_inset ERT
 status collapsed
 
@@ -168,10 +168,17 @@ raw
 \end_layout
 
 \begin_layout Standard
-Our compiler uses Lex and Yacc to perform lexical and syntactical analysis,
- respectively.
+Our compiler uses 
+\noun on
+Lex
+\noun default
+ and 
+\noun on
+Yacc
+\noun default
+ to perform lexical and syntactical analysis, respectively.
  These are two languages specifically designed for this purpose and they
- produce complete analyzer programs written in C.
+ produce complete analysis programs written in C.
 \end_layout
 
 \begin_layout Section
@@ -179,34 +186,50 @@ Lexical analyzer
 \end_layout
 
 \begin_layout Standard
-Lex is used to produce a lexical analyzer in C language.
- After the lex file compilation, we get a C file defining a function called
- 
+
+\noun on
+Lex
+\noun default
+ is used to produce a lexical analyzer in C language.
+ After the 
+\noun on
+Lex
+\noun default
+ file compilation, we get a C file defining a function called 
 \emph on
 yylex
 \emph default
 .
- This function, given the input file, produces a data structure (called
- 
+ This function reads from the input file, whose reference is stored in the
+ variable 
+\emph on
+yyin
+\emph default
+, and returns to the caller the first token found.
+ While doing this, it creates a data structure (called 
 \emph on
 symbol table
 \emph default
-) containing all the symbols found in the code (constants, ids etc).
- If, during, the file analysis, an error is encountered (in the file is
- present something that shouldn't be), the 
+ and realized through an hash-map) containing all the symbols found in the
+ code (that is, string constants and ids); this allows to create a single
+ instance for every string given in input and to reduce name-checking from
+ a comparison between strings to a comparison between pointers.
+ If, during the analysis, an error is encountered (i.e., in the file is present
+ something that isn't part of the language, like an id starting with a digit),
+ the 
 \emph on
 yylex 
 \emph default
-function stops and produces an error (calling the 
+function stops and produces an error calling the 
 \emph on
 yyerror
 \emph default
- function).
+ function.
 \end_layout
 
 \begin_layout Standard
-The symbol table will be used, along with the source SOL file, by the syntactica
-l analyzer to check the syntax and produce the 
+This function will be called by the syntactical analyzer to check the syntax
+ and produce the 
 \emph on
 syntax tree
 \emph default
@@ -214,21 +237,37 @@ syntax tree
 \end_layout
 
 \begin_layout Standard
-The lex file is divided in three parts.
- In the first part of the lex file, lexical elements (a 
+The 
+\noun on
+Lex
+\noun default
+ file is divided in three parts.
+ In the first part of the 
+\noun on
+Lex
+\noun default
+ file, the lexical elements (or 
 \emph on
-lexeme
+lexemes
 \emph default
 ) that need to be defined with a regular expression (such as the id) are
- defined, in the second part these lexeme are associated to a rule, and
- the last part contains mostly C functions used in the lex rules of the
- second part.
- The lexeme that don't need to be defined are those whose definition is
- fixed, such as the keywords and the operators.
+ defined, in the second part these lexemes are associated to a rule which
+ defines the behavior of 
+\emph on
+yylex
+\emph default
+ when the specific lexeme is found, and the last part contains specific
+ C functions used in the 
+\noun on
+Lex
+\noun default
+ rules of the second part.
+ The lexemes that don't need to be defined in the first part are those whose
+ denotation is fixed, such as keywords and operators.
 \end_layout
 
 \begin_layout Standard
-The definition of lexeme for the SOL language is, for our compiler, the
+The definition of lexemes for the SOL language is, for our compiler, the
  one presented in 
 \begin_inset ERT
 status collapsed
@@ -237,7 +276,7 @@ status collapsed
 
 
 \backslash
-ref{lst:lex_regexp}
+ref{lst:Lex_regexp}
 \end_layout
 
 \end_inset
@@ -255,7 +294,7 @@ status collapsed
 
 \backslash
 begin{lstlisting}[language={},caption={Lex definition of lexical elements},label
-={lst:lex_regexp}]
+={lst:Lex_regexp},language={}]
 \end_layout
 
 \begin_layout Plain Layout
@@ -365,14 +404,14 @@ status collapsed
 
 
 \backslash
-ref{lst:lex_rule}
+ref{lst:Lex_rule}
 \end_layout
 
 \end_inset
 
 .
- The value returned by each rule must be a unique identifier of the found
- lexeme.
+ The value returned by each rule must be an identifier (i.e., the value of
+ an enumerator) of the found lexeme.
 \end_layout
 
 \begin_layout Standard
@@ -383,7 +422,7 @@ status collapsed
 
 
 \backslash
-begin{lstlisting}[caption={Lex rule},label={lst:lex_rule}]
+begin{lstlisting}[caption={Lex rule},label={lst:Lex_rule}]
 \end_layout
 
 \begin_layout Plain Layout
@@ -405,8 +444,8 @@ end{lstlisting}
 \end_layout
 
 \begin_layout Standard
-For the fixed lexemes (keywords and other simple stuff), the rules are as
- simple the ones in in Listing 
+For the fixed lexemes (keywords and other simple stuff), the rules are usually
+ as simple the ones in in Listing 
 \begin_inset ERT
 status collapsed
 
@@ -414,44 +453,23 @@ status collapsed
 
 
 \backslash
-ref{lst:lex_keyword}
+ref{lst:Lex_keyword}
 \end_layout
 
 \end_inset
 
 .
- The complexe lexeme, however, comprise a 
-\begin_inset Quotes eld
-\end_inset
-
-value
-\begin_inset Quotes erd
-\end_inset
-
-, since they're not fixed.
- This value must be 
-\begin_inset Quotes eld
-\end_inset
-
-elaborated
-\begin_inset Quotes erd
-\end_inset
-
- from the 
-\begin_inset Quotes eld
-\end_inset
-
-raw
-\begin_inset Quotes erd
-\end_inset
-
- (simple string) value presented in the variable 
+ The complex lexemes, however, have a dynamic structure and hence are attached
+ a value.
+ This value must be elaborated from the raw textual value contained in the
+ variable 
 \emph on
 yytext
 \emph default
- and put in a new variable that will be used to build the symbol table.
+ and put in a new variable that will be used throughout the compiler.
  The elaboration consists, normally, in the conversion of the value to the
- correct type.
+ correct type; for strings and ids the elaboration includes the addition
+ of the textual value to the lexical symbol table.
  In our program, the destination variable is 
 \emph on
 lexval
@@ -460,11 +478,8 @@ lexval
 \emph on
 Value, 
 \emph default
-a
-\emph on
- 
-\emph default
-C union that can contain any type of value (integer, real, string..).
+a union that can contain any type of value accepted by SOL (integer, real,
+ string,...).
  The rules for the complex lexemes are all presented in Listing 
 \begin_inset ERT
 status collapsed
@@ -473,7 +488,7 @@ status collapsed
 
 
 \backslash
-ref{lst:lex_more}
+ref{lst:Lex_more}
 \end_layout
 
 \end_inset
@@ -489,7 +504,7 @@ status collapsed
 
 
 \backslash
-begin{lstlisting}[caption={Lex rule for a keyword},label={lst:lex_keyword},langu
+begin{lstlisting}[caption={Lex rule for a keyword},label={lst:Lex_keyword},langu
 age={}]
 \end_layout
 
@@ -538,7 +553,7 @@ status collapsed
 
 
 \backslash
-begin{lstlisting}[caption={Lex rules for constants and ids},label={lst:lex_more}
+begin{lstlisting}[caption={Lex rules for constants and ids},label={lst:Lex_more}
 ,language={}]
 \end_layout
 
@@ -594,7 +609,7 @@ t]*     ;
 
 \begin_layout Plain Layout
 
-                         return STR_CONST; }
+                         return( STR_CONST ); }
 \end_layout
 
 \begin_layout Plain Layout
@@ -686,13 +701,13 @@ status collapsed
 
 
 \backslash
-ref{lst:lex_more}
+ref{lst:Lex_more}
 \end_layout
 
 \end_inset
 
  means that whatever doesn't match the previous rules must result in an
- error (as in the regular expressions, 
+ error (in the regular expressions, 
 \begin_inset Quotes eld
 \end_inset
 
@@ -700,12 +715,13 @@ ref{lst:lex_more}
 \begin_inset Quotes erd
 \end_inset
 
- means any value).
- The 
-\emph on
-SPAM
-\emph default
- function is simply a redefinition of fprintf pointing to the standard error.
+ means any character).
+ Our 
+\noun on
+Lex
+\noun default
+ file contains also, for each rule, some debugging (enabled with an apposite
+ flag) code which is not included here for clarity.
 \end_layout
 
 \begin_layout Section
@@ -713,26 +729,41 @@ Syntactical analyzer
 \end_layout
 
 \begin_layout Standard
-Similarly to Lex, Yacc is used to produce a syntactical analyzer in C.
- The compilation of the Yacc file produces a C file containing a function
- called 
+Similarly to 
+\noun on
+Lex
+\noun default
+, 
+\noun on
+Yacc
+\noun default
+ is used to produce a syntactical analyzer in C.
+ The compilation of the 
+\noun on
+Yacc
+\noun default
+ file produces a 
+\noun on
+C
+\noun default
+ file containing a function called 
 \emph on
 yyparse
 \emph default
- that, given the source file and the Symbol Table produced by 
+ that, through calls to 
 \emph on
 yylex
 \emph default
-, checks its syntax correctness and produces another data structure (the
- 
+, checks syntax's correctness of the file and produces another data structure,
+ the 
 \emph on
 Syntax Tree
 \emph default
-) if everything is correct.
+, if everything is correct.
 \end_layout
 
 \begin_layout Standard
-The Syntax Tree is realized with the 
+The syntax tree is realized using the 
 \emph on
 Node
 \emph default
@@ -762,7 +793,8 @@ Node
 \end_layout
 
 \begin_layout Itemize
-The number of line in the code in which it appears;
+The number of the line of code in which the represented syntactical symbol
+ appears;
 \end_layout
 
 \begin_layout Itemize
@@ -780,23 +812,30 @@ terminals
 \emph on
 nonterminals
 \emph default
- (mathematical expressions, assignments, etc) allowed in SOL.
+ (mathematical expressions, assignments, etc) allowed in 
+\noun on
+SOL
+\noun default
+.
  To simplify the produced syntax tree, the nonterminals are divided in two
  categories: the 
 \emph on
 qualified 
 \emph default
-nonterminals are aggregated nonterminals that are then differentiated by
- mean of a qualifier (eg mathematical expressions are one type of nonterminal
- and their qualifier is the operator), while the 
+nonterminals, which are aggregates of nonterminals differentiated by mean
+ of a qualifier (e.g.
+ mathematical expressions are one type of nonterminal and their qualifier
+ is the mathematical operator), and the 
 \emph on
 unqualified
 \emph default
- nonterminals are those that cannot be aggregated (eg an if).
+ nonterminals, which are those that cannot be aggregated (e.g.
+ an if statement).
  To sum up things, the type can either be a terminal, a qualified nonterminal
  or the special value unqualified nonterminal.
  The specific type of unqualified nonterminal represented by the node is
- then contained in the node's value, and so does the qualifier;
+ then contained in the node's value, as does the qualifier for qualified
+ nonterminals;
 \end_layout
 
 \begin_layout Itemize
@@ -804,7 +843,7 @@ A
 \emph on
 value
 \emph default
-, represented as an instance of the union 
+, represented through an instance of the union 
 \emph on
 Value
 \emph default
@@ -816,7 +855,7 @@ Value
 NonTerminal
 \emph default
 ) or a unique identifier determining the qualifier to be used if the node
- is a qualified nonterminal (these are represented as possibile values of
+ is a qualified nonterminal (these are represented as possible values of
  the enumerator 
 \emph on
 Qualifier
@@ -965,31 +1004,36 @@ concrete tree
 \emph on
 abstract tree
 \emph default
- that cuts off some node without loss of information but with great gain
- in space occupation an visiting time (eg the expressions are defined in
+ that cuts off some nodes without loss of information but with great gain
+ in space occupation an visiting time (e.g., the expressions are defined in
  4 levels to maintain the correct precedence when analyzing the code; these
  levels are of no use after the code has been recognized in the correct
- order, therefore there are no levels in the resulting abstract tree).
-\begin_inset Newline newline
-\end_inset
-
-
+ order, therefore in the resulting abstract tree just the most specific
+ level is preserved).
 \end_layout
 
 \begin_layout Standard
-// TODO add characteristics of Yacc (leftmost lookahead etc)
-\begin_inset Newline newline
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-The Yacc file is divided in three parts, whose purpose is the same as that
- of those in a Lex file.
- Here, in the first part instead of defining the complexe lexeme we instruct
- Yacc about which these lexeme are, by defining all the possible unique
- identifiers returned by the Lex rules as 
+The 
+\noun on
+Yacc
+\noun default
+ file is divided in three parts, whose purpose is the same as that of those
+ in a 
+\noun on
+Lex
+\noun default
+ file.
+ Here, in the first part instead of defining the complex lexemes we instruct
+ 
+\noun on
+Yacc
+\noun default
+ about which these lexemes are, by defining all the possible unique identifiers
+ returned by the 
+\noun on
+Lex
+\noun default
+ rules as 
 \emph on
 tokens
 \emph default
@@ -999,7 +1043,11 @@ tokens
 translation rules
 \emph default
  for every syntactical element of the language (all those defined in the
- BNF description, presented in Chapter 
+ 
+\emph on
+BNF
+\emph default
+ description, presented in Chapter 
 \begin_inset ERT
 status collapsed
 
@@ -1017,8 +1065,11 @@ ref{chp:bnf}
 \end_layout
 
 \begin_layout Standard
-A translation rule must create a Node and populate it with the appopriate
- informations.
+A translation rule must create a 
+\emph on
+Node
+\emph default
+ and populate it with the appropriate informations.
  The structure of a translation rule is the one presented in Listing 
 \begin_inset ERT
 status collapsed
@@ -1049,18 +1100,18 @@ on_rule}]
 
 \begin_layout Plain Layout
 
-syntactical_element : /* definition as in the BNF */ { $$ = /* code that
- creates the Node */ }
+syntactical_element : /*BNF definition*/ { $$ = /*code to the Node*/ }
 \end_layout
 
 \begin_layout Plain Layout
 
-					| /* alternate definition */ { $$ = /* alternate code */ }
+                    | /*alternate definition*/ { $$ = /*alternate code*/
+ }
 \end_layout
 
 \begin_layout Plain Layout
 
-					;
+                    ;
 \end_layout
 
 \begin_layout Plain Layout
@@ -1079,37 +1130,25 @@ end{lstlisting}
 At the left of the colon there is the name of the element, at the right
  there is a sequence of definitions, each associated to a code that is executed
  to create the node when that particular definition is found.
- The definitions are separated by 
-\begin_inset Quotes eld
-\end_inset
-
-|
-\begin_inset Quotes erd
-\end_inset
-
- and the rule must terminate with a semicolon.
+ The definitions are separated by a pipe and the rule must terminate with
+ a semicolon.
 \end_layout
 
 \begin_layout Standard
 In the code, the symbol 
-\begin_inset Quotes eld
+\begin_inset Formula $\$\$$
 \end_inset
 
-$$
-\begin_inset Quotes erd
+ represents the lefthand-side of the rule, and the elements of a definition
+ can be referred to as 
+\begin_inset Formula $\$n$
 \end_inset
 
- represent the lhs of the rule, and the elements of a definition can be
- referred to as 
-\begin_inset Quotes eld
+, where 
+\begin_inset Formula $n$
 \end_inset
 
-$n
-\begin_inset Quotes erd
-\end_inset
-
-, where n is the position of the element in the definition starting from
- 1.
+ is the position of the element in the definition starting from 1.
 \end_layout
 
 \begin_layout Standard
@@ -1117,20 +1156,28 @@ The
 \emph on
 yyparse 
 \emph default
-function generated starting from the Yacc file is a recursive function.
- The code is searched recursively for structures that match the lhs of a
- translation rule.
- Once a match is found, for every element in the rhs the function is called
- again and the process keeps going until every element in the rhs is either
- a token (which means that it has been processed by 
+function generated starting from the 
+\noun on
+Yacc
+\noun default
+ file implements a 
 \emph on
-yylex
+Bottom-Up Parsing
 \emph default
- and its value is in the Symbol Table, therefore no further processing is
- required) or has been processed completely by the recursion.
- At this point, the Node for that rule can be processed and returned to
- the caller (which will be another rule or the main program if the rule
- was the root one).
+ method.
+ In simple terms, the function is composed of two actions working on a stack,
+ the action to execute is chosen basing the stack and on the next token.
+ The first action, called 
+\emph on
+shift
+\emph default
+, consists in pushing on the stack the newly found token; the second action,
+ called 
+\emph on
+reduce
+\emph default
+, simplifies a part of the stack according to the given BNF rules and executes
+ the relative instructions
 \end_layout
 
 \begin_layout Standard
@@ -1152,8 +1199,11 @@ yyparse
 \emph on
 root
 \emph default
- variable, instead of returning it to the caller (thus, assign it to $$)
- like the others.
+ variable, instead of assigning it to 
+\begin_inset Formula $\$\$$
+\end_inset
+
+, like the other rules.
  In Listing 
 \begin_inset ERT
 status collapsed
@@ -1200,12 +1250,12 @@ func_decl : FUNC ID { $$ = new_terminal_node( T_ID, lexval ); }
 
 \begin_layout Plain Layout
 
-            '(' par_list ')' DEFINE domain
+            '(' par_list ')' DEFINE domain type_sect_opt var_sect_opt
 \end_layout
 
 \begin_layout Plain Layout
 
-            type_sect_opt var_sect_opt const_sect_opt func_list_opt func_body
+            const_sect_opt func_list_opt func_body
 \end_layout
 
 \begin_layout Plain Layout
@@ -1287,11 +1337,18 @@ end{lstlisting}
 
 \begin_layout Standard
 Note that C code can be inserted in any position between the elements of
- the rhs, and it must produce something that will then be referred to as
- $n, just like a normal element.
- In the presented example, we use this method to create immediately a Node
- containing the id of the declared function, and this node is then assigned
- as leftmost child of the node created for the whole rule.
+ the righthand-side, and it must produce something that will then be referred
+ to as $n, just like a normal element.
+ In the presented example, we use this method to create a Node containing
+ the id of the declared function, and this node is then assigned as leftmost
+ child of the node created for the whole rule.
+ This is a required practice for ids and other constants since their value
+ is readable from 
+\emph on
+lexval
+\emph default
+ only after the token has been recognized and it's overwritten when the
+ next token is found.
 \end_layout
 
 \end_body

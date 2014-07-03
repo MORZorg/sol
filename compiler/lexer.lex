@@ -100,7 +100,7 @@ break                  { return( BREAK ); }
 <strconst>\n[ \t]*     ;
 <strconst>\"           { lexval.s_val = new_string( strbuf );
                          BEGIN 0;
-                         return STR_CONST; }
+                         return( STR_CONST ); }
 {charconst}            { yytext[ strlen( yytext ) - 1 ] = '\0';
                          lexval.s_val = new_string( yytext + 1 );
                          return( CHAR_CONST ); }
