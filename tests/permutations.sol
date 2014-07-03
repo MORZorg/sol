@@ -7,7 +7,7 @@ func main() : int
 	var
 		i: int;
 		p: permutation;
-		word, empty: pseudo_string;
+		word: pseudo_string;
 
 	const
 		MAX_LEN: int = 15;
@@ -207,8 +207,8 @@ func main() : int
 		for i = 2 to len do
 			if mod( p.perm, factorial( i ) ) != 0 then
 				p.str = circ_shift( flip( p.str, len - i + 1, len - 1 ),
-				len - i,
-				len - 1 );
+														len - i,
+														len - 1 );
 				break;
 			endif;
 		endfor;

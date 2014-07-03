@@ -5,7 +5,7 @@
 func main() : int 
 	type pseudo_string: vector [ 15 ] of char;
 
-	var word, empty: pseudo_string;
+	var word: pseudo_string;
 
 	const	MAX_LEN: int = 15;
 			INTRO: string = "Insert a word:";
