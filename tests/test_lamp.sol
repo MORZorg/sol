@@ -1,7 +1,7 @@
 func prog(): int
 
 	type
-		from_slides: vector [10] of struct( la: int; lala: vector[20] of vector [5] of real; );
+		from_slides: vector [ 10 ] of struct( la: int; lala: vector[ 20 ] of vector [ 5 ] of real; );
 		T2: string;
 	var
 		c: char;
