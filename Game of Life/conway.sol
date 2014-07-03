@@ -31,8 +31,8 @@ func game_of_life() : int
 
 	begin next_state
 
-		for i = 0 to world_size do
-			for j = 0 to world_size do
+		for i = 0 to world_size-1 do
+			for j = 0 to world_size-1 do
 
 				neighbours = 0;
 				foreach k in neighbour_offset do
@@ -74,7 +74,7 @@ begin game_of_life
 	write enter_generations;
 	read generations;
 
-    for generations = 0 to generations do
+    for generations = 0 to generations-1 do
 		world.world = next_state( world.world );
         world.generation = world.generation + 1;
 		write world;
