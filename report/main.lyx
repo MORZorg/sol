@@ -87,7 +87,7 @@
 {
   style=FormattedNumber,
   keywords=[1]{begin,end,if,then,endif,elsif,else,while,do,endwhile,for,to,endfor,foreach,in,endforeach,return,read,write,and,or,not,struct,toint,toreal,rd,wr},
-  keywords=[2]{func,char,int,real,string,bool,vector,of,types,var,const},
+  keywords=[2]{func,char,int,real,string,bool,vector,of,type,var,const},
   sensitive=true,
   morecomment=[l]{--},
   morestring=[b]",

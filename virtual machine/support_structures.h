@@ -77,19 +77,13 @@ extern int pc;
 
 // Pointers to first free positions in the stacks
 extern int ap, op, ip;
-extern int t_op, t_ip;
 // Actual allocated sizes of the stacks
 extern int asize, osize, isize;
-extern int t_osize, t_isize;
 
 // The stacks (actually vectors)
 extern Adescr** astack;
 extern Odescr** ostack;
 extern byte* istack;
-
-// Stacks for temporary objects and instances
-extern Odescr** t_ostack;
-extern byte* t_istack;
 
 int initialize_stacks( void );
 int finalize_stacks( void );
@@ -113,17 +107,6 @@ Adescr* top_astack( void );
 
 void pop_astack( void );
 void push_astack( Adescr* );
-
-// Interactions with the temporary stacks
-Odescr* top_t_ostack( void );
-
-void pop_t_ostack( void );
-void push_t_ostack( Odescr* );
-
-byte top_t_istack( void );
-
-void pop_t_istack( void );
-void push_t_istack( byte );
 
 // Embedded instructions to interact with the temporary istack
 ByteArray pop_bytearray( void );

@@ -94,7 +94,8 @@ lstset{language={SOL}}
 
 \begin_layout Standard
 The project here presented aims at the realization of a full Compiler and
- execution environment for the SOL programming language.
+ execution environment for the SOL (Structured Odd Language) programming
+ language.
  The execution environment comprises a Virtual Machine which executes the
  intermediate code (namely S-code) produced as result of the compilation.
  Such Virtual Machine embodies an interface that allows the user to load
@@ -104,8 +105,7 @@ The project here presented aims at the realization of a full Compiler and
 \end_layout
 
 \begin_layout Standard
-SOL (Structured Odd Language) is a classic procedural programming language,
- not different from C.
+SOL is a classic procedural programming language.
 \end_layout
 
 \begin_layout Standard
@@ -119,7 +119,93 @@ main
 \emph default
 procedure in C, with the difference that, here, we don't need to call this
  function in a particular way).
- The function is defined in a precise manner, as in Code 
+ The function is defined in a precise manner, as in Listing 
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{lst:hello_world}
+\end_layout
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{lstlisting}[caption={Hello world program},label={lst:hello_world}]
+\end_layout
+
+\begin_layout Plain Layout
+
+func hello_world(): int
+\end_layout
+
+\begin_layout Plain Layout
+
+begin hello_world
+\end_layout
+
+\begin_layout Plain Layout
+
+	write "Hello world!";
+\end_layout
+
+\begin_layout Plain Layout
+
+	return 0;
+\end_layout
+
+\begin_layout Plain Layout
+
+end hello_world 
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{lstlisting}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+In this first example we can notice that a function definition is essentially
+ divided in two parts: a 
+\emph on
+header
+\emph default
+, in which the function's name and its return type are declared, and a 
+\emph on
+body
+\emph default
+ in which the function's instructions are written.
+\end_layout
+
+\begin_layout Standard
+
+This first example, obviously, does not comprise all the elements allowed
+ in a function definition.
+ We present another one, more complex and more comprehensive
+\lang english
+, in Listing 
 \begin_inset ERT
 status open
 
@@ -153,12 +239,12 @@ func function_name( param: int; ): int
 
 \begin_layout Plain Layout
 
-	types
+	type
 \end_layout
 
 \begin_layout Plain Layout
 
-		T: vector[10] of string;
+		T: vector[ 10 ] of string;
 \end_layout
 
 \begin_layout Plain Layout
@@ -217,6 +303,20 @@ func function_name( param: int; ): int
 
 \begin_layout Plain Layout
 
+		s = name;
+\end_layout
+
+\begin_layout Plain Layout
+
+		write s;
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
 		return 0;
 \end_layout
 
@@ -253,29 +353,52 @@ end{lstlisting}
 \end_layout
 
 \begin_layout Standard
-As we can notice immediately, the function definition is divided in two
- main parts: a 
+Now we can have a better clue of what the function's header can contain.
+ In particular, it contains the declaration of 
 \emph on
-header
+types
 \emph default
- in which the local elements (types, variables, constants and functions)
- are defined, and a 
+, 
 \emph on
-body
+variables
 \emph default
- in which the function performs whatever it should.
+, 
+\emph on
+constants 
+\emph default
+and 
+\emph on
+functions
+\emph default
+ in the local environment of the defined function.
+ All these parts are facultative, as we can notice both from the example
+ in Listing 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{lst:hello_world}
 \end_layout
 
-\begin_layout Standard
-Any function defined in the header of the main function must follow the
- very same structure.
- As we can notice from the above example, however, all the sections in the
- header and the function parameters are facultative.
+\end_inset
+
+ and in the definition of the 
+\emph on
+sub_function
+\emph default
+ function.
  The only mandatory part is, in fact, the body.
 \end_layout
 
 \begin_layout Standard
-// TODO whatelse?
+// TODO explanation of elementary and complex types sbra pwcock
+\end_layout
+
+\begin_layout Standard
+// TODO add tests
 \end_layout
 
 \begin_layout Section

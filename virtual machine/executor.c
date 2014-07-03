@@ -230,7 +230,7 @@ int sol_news( Value* args )
 	return MEM_OK;
 }
 
-// Loads the given char on t_istack
+// Loads the given char on istack
 int sol_ldc( Value* args )
 {
 	push_char( args[ 0 ].c_val );
@@ -238,7 +238,7 @@ int sol_ldc( Value* args )
 	return MEM_OK;
 }
 
-// Loads the given int on t_istack
+// Loads the given int on istack
 int sol_ldi( Value* args )
 {
 	push_int( args[ 0 ].i_val );
@@ -246,7 +246,7 @@ int sol_ldi( Value* args )
 	return MEM_OK;
 }
 
-// Loads the given real on t_istack
+// Loads the given real on istack
 int sol_ldr( Value* args )
 {
 	push_real( args[ 0 ].r_val );
@@ -254,7 +254,7 @@ int sol_ldr( Value* args )
 	return MEM_OK;
 }
 
-// Loads the given string on t_istack
+// Loads the given string on istack
 int sol_lds( Value* args )
 {
 	push_string( args[ 0 ].s_val );
@@ -262,7 +262,7 @@ int sol_lds( Value* args )
 	return MEM_OK;
 }
 
-// Retrieves the value of the given object (referred with its oid) and loads its value on the temporary stack (copies it from the istack if the object if STA)
+// Retrieves the value of the given object (referred with its oid) and loads its value on the stack (copies it from the istack if the object if STA)
 int sol_lod( Value* args )
 {
 	int env_offset = args[ 0 ].i_val;
@@ -315,14 +315,14 @@ int sol_cat( Value* args )
 	// Remove the descriptor of the single elements
 	// A descriptor of the whole structure is created as purpose of this instruction 
 	while( element_number-- > 0 )
-		pop_t_ostack();
+		pop_ostack();
 
 	object = malloc( sizeof( Odescr ) );
 	object->mode = STA;
 	object->size = total_size;
 	object->inst.sta_val = ip - total_size;
 
-	push_t_ostack( object );
+	push_ostack( object );
 
 	return MEM_OK;
 }
@@ -372,7 +372,7 @@ int sol_fda( Value* args )
 
 // Identical to FDA but specific for vectors
 // The only given parameter is the size of the vector's elements dimension (eg vector [ 10 ] of int has dimension |int|, while vector [ 10 ] of vector [ 20 ] of int has 2 dimensions which elements have size 20*|int| and |int|)
-// The index value must have been previously calculated (and therefore be present as last value on the t_istack), the same applies for the base address of the vector, loaded with a LDA
+// The index value must have been previously calculated (and therefore be present as last value on the istack), the same applies for the base address of the vector, loaded with a LDA
 int sol_ixa( Value* args )
 {
 	int vector_dimension = args[ 0 ].i_val;
@@ -389,7 +389,7 @@ int sol_ixa( Value* args )
 	return MEM_OK;
 }
 
-// Gets the start_offset from the t_istack, previously calculated with LDA and various FDA (or IXA), goes on the istack to the field, copies it in its entirety and puts it on the stack
+// Gets the staroffset from the istack, previously calculated with LDA and various FDA (or IXA), goes on the istack to the field, copies it in its entirety and puts it on the stack
 int sol_eil( Value* args )
 {
 	int field_size = args[ 0 ].i_val;
@@ -420,7 +420,7 @@ int sol_sil( Value* args )
 	return sol_eil( args );
 }
 
-// Pops the last value from the t_istack and puts it as instance of the referred object, whose size is known as part of Odescr
+// Pops the last value from the istack and puts it as instance of the referred object, whose size is known as part of Odescr
 int sol_sto( Value* args )
 {
 	int env_offset = args[ 0 ].i_val;
@@ -718,7 +718,7 @@ int sol_neg()
 	return MEM_OK;
 }
 
-// Push the chain and element_number on the t_istack, in preaparation of the call to GOTO, and instantiate a new activation record
+// Push the chain and element_number on the istack, in preparation of the call to GOTO, and instantiate a new activation record
 int sol_push( Value* args )
 {
 	int element_number = args[ 0 ].i_val;
@@ -771,7 +771,7 @@ int sol_goto( Value* args )
 }
 
 // Clean the stacks after the last function call
-// FIXME now the eventually temporary stuff present is left on the t_istack. Does this create some problem?
+// FIXME now the eventually temporary stuff present is left on the istack. Does this create some problem?
 // Is there anything at all?
 int sol_pop()
 {
@@ -794,7 +794,7 @@ int sol_pop()
 }
 
 // Write on the std output in the given format
-// Leaves the expr result available on the t_istack
+// Leaves the expr result available on the istack
 int sol_wr( Value* args )
 {
 	char* format = args[ 0 ].s_val;
@@ -808,7 +808,7 @@ int sol_wr( Value* args )
 	return MEM_OK;
 }
 
-// Leaves the expr result available on the t_istack
+// Leaves the expr result available on the istack
 int sol_fwr( Value* args )
 {
 	char* format = args[ 0 ].s_val;
@@ -826,7 +826,7 @@ int sol_fwr( Value* args )
 }
 
 // Read input from user and save it in the lhs object
-// Leaves the input result available on the t_istack
+// Leaves the input result available on the istack
 int sol_rd( Value* args )
 {
 	char* format = args[ 0 ].s_val;
@@ -839,7 +839,7 @@ int sol_rd( Value* args )
 }
 
 // Same as rd but reads from file
-// Leaves the input result available on the t_istack
+// Leaves the input result available on the istack
 int sol_frd( Value* args )
 {
 	char* format = args[ 0 ].s_val;

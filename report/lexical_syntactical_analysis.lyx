@@ -73,7 +73,7 @@ label{chp:lex}
 
 \end_inset
 
-Lexical and Syntactical analysis
+Lexical and Syntactix analysis
 \end_layout
 
 \begin_layout Standard
@@ -120,9 +120,9 @@ ref{chp:sem}
 \end_inset
 
 , which aims at determinining if the written statements (which are correct
- due to the previous analysis) make sense (eg, performing the sum of an
- integer and a string makes no sense, therefore it is not semantically correct),
- relying on the data structure produced by the previous analysis;
+ thanks to the previous analyses) make sense (eg, performing the sum of
+ an integer and a string makes no sense, therefore it is not semantically
+ correct), relying on the data structure produced by the previous analysis;
 \end_layout
 
 \begin_layout Itemize

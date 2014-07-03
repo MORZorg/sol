@@ -49,21 +49,15 @@ char* insert_unconflicted_element( char* string )
 
 int initialize_stacks()
 {
-	pc = ap = op = ip = t_op = 0;
+	pc = ap = op = ip = 0;
 
 	astack = malloc( ASTACK_UNIT );
 	ostack = malloc( OSTACK_UNIT );
 	istack = malloc( ISTACK_UNIT );
 
-	t_ostack = malloc( OSTACK_UNIT );
-	t_istack = malloc( ISTACK_UNIT );
-	
 	asize = 1;
 	osize = 1;
 	isize = 1;
-
-	t_osize = 1;
-	t_isize = 1;
 
 	string_map = hashmap_new();
 
@@ -75,9 +69,6 @@ int finalize_stacks()
 	free( astack );
 	free( ostack );
 	free( istack );
-
-	free( t_ostack );
-	free( t_istack );
 
 	hashmap_free( string_map );
 
@@ -190,77 +181,11 @@ void push_astack( Adescr* value )
 	astack[ ap++ ] = value;
 }
 
-// Interactions with the temporary stacks
-Odescr* top_t_ostack()
-{
-	Odescr* value = t_ostack[ t_op - 1 ];
-
-#ifdef DEBUG
-	fprintf( stderr, "Top t_ostack position %d: %d %d %d\n", t_op - 1, value->mode, value->size, value->inst.sta_val );
-#endif
-
-	return value;
-}
-
-void pop_t_ostack()
-{
-#ifdef DEBUG
-	fprintf( stderr, "Pop t_ostack: %d\n", t_op );
-#endif
-	free( t_ostack[ --t_op ] );
-}
-
-void push_t_ostack( Odescr* value )
-{
-	if( t_op == t_osize )
-		t_ostack = realloc( t_ostack, OSTACK_UNIT * ++t_osize );
-
-#ifdef DEBUG
-	fprintf( stderr, "Push t_ostack @ %d: %d %d ", t_op, value->mode, value->size );
-	if( value->mode == EMB )
-		fprintf( stderr, "%p", value->inst.emb_val );
-	else
-		fprintf( stderr, "%d", value->inst.sta_val );
-	fprintf( stderr, " in %p.\n", value );
-#endif
-
-	t_ostack[ t_op++ ] = value;
-}
-
-byte top_t_istack()
-{
-#ifdef DEBUG
-	fprintf( stderr, "Top t_istack, position %d\n", t_ip - 1 );
-#endif
-
-	return t_istack[ t_ip - 1 ]; 
-}
-
-void pop_t_istack()
-{
-	--t_ip;
-#ifdef DEBUG
-	fprintf( stderr, "Popped t_istack, new t_ip %d\n", t_ip );
-#endif
-}
-
-void push_t_istack( byte value )
-{
-	if( t_ip == t_isize )
-		t_istack = realloc( t_istack, ISTACK_UNIT * ++t_isize );
-
-	t_istack[ t_ip++ ] = value;
-
-#ifdef DEBUG
-	fprintf( stderr, "Pushed t_istack: %d (t_ip %d t_isize %d)\n", value, t_ip, t_isize );
-#endif
-}
-
-// Write and read temporary stuff on the t_istack and the t_ostack;
+// Write and read temporary stuff on the istack and the ostack;
 // All methods pass from the bytearray ones
 ByteArray pop_bytearray()
 {
-	Odescr* object = top_t_ostack();
+	Odescr* object = top_ostack();
 
 	ByteArray result;
     result.value = malloc( sizeof( byte ) * object->size );
@@ -273,14 +198,13 @@ ByteArray pop_bytearray()
 	int i = object->size - 1;
 	do
 	{
-		result.value[ i ] = top_t_istack();
-
-		pop_t_istack();
+		result.value[ i ] = top_istack();
+		deallocate_istack( sizeof( byte ) );
 	}
 	while( --i >= 0 );
 	
 	// Must be last because it destroys the value referred by object
-	pop_t_ostack();
+	pop_ostack();
 
 	return result;
 }
@@ -289,14 +213,17 @@ void push_bytearray( byte* value, int size )
 {
 	int i;
 	for( i = 0; i < size; i++ )
-		push_t_istack( value[ i ] );
+	{
+		allocate_istack( sizeof( byte ) );
+		istack[ ip - 1 ] = value[ i ];
+	}
 
 	Odescr* object = malloc( sizeof( Odescr ) );
 	object->mode = STA;
 	object->size = size;
-	object->inst.sta_val = t_ip - size;
+	object->inst.sta_val = ip - size;
 
-	push_t_ostack( object );
+	push_ostack( object );
 }
 
 int pop_int()
