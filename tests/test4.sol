@@ -1,6 +1,7 @@
 func hello_world(): int
 	var
 		s: int;
+        i: string;
 
 	func hello(): int
 
@@ -8,9 +9,9 @@ func hello_world(): int
 		return 4;
 	end hello
 begin hello_world
-	--write [ "helloworld.sbra" ] "Hello, world!";
-	--read [ "helloworld.sbra" ] s;
-	--write s;
+	write [ "helloworld.sbra" ] "Hello, world!";
+	read [ "helloworld.sbra" ] i;
+	write i;
 	s = hello();
 	return s;
 end hello_world

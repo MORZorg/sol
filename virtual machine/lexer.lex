@@ -180,12 +180,22 @@ char parse_escape_seq( char* s )
 				result = '\?';
 				break;
 
-			case '0':
-				if( s[ 2 ] >= '0' && s[ 2 ] <= '7' )
-					result = s[ 2 ] - '0';
+			default:
+				if( s[ 1 ] >= '0' && s[ 1 ] <= '7' )
+				{
+					result = s[ 1 ] - '0';
+					if( s[ 2 ] >= '0' && s[ 2 ] <= '7' )
+					{
+						result = result * 8 + s[ 2 ] - '0';
+						if( s[ 3 ] >= '0' && s[ 3 ] <= '7' )
+							result = result * 8 + s[ 2 ] - '0';
+					}
+				}
 				else
-					// TODO: Add support for octal, hexadecimal and unicode.
-					break;
+				{
+					// TODO: Add support for hexadecimal and unicode.
+				}
+				break;
 		}
 	else
 		result = s[ 0 ];

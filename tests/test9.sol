@@ -8,7 +8,7 @@ func main(): int
 	func strlen( s: str; ): int
 		var i: int;
 	begin strlen
-		for i = 0 to MAX_LEN do
+		for i = 0 to MAX_LEN-1 do
 			if s[ i ] == '\0' then
 				break;
 			endif;
@@ -36,7 +36,7 @@ func main(): int
 		var result: int;
 	begin factorial
 		result = 1;
-		for i = 2 to i+1 do
+		for i = 2 to i do
 			result = result * i;
 		endfor;
 
@@ -88,7 +88,7 @@ func main(): int
 			var i: int;
 				temp: char;
 		begin circ_shift
-			for i = a to b do
+			for i = a to b-1 do
 				temp = s[ i ];
 				s[ i ] = s[ i + 1 ];
 				s[ i + 1 ] = temp;
@@ -101,7 +101,7 @@ func main(): int
 			var i: int;
 				temp: char;
 		begin flip
-			for i = 0 to floor( toreal( b - a ) / 2.0 ) do
+			for i = 0 to floor( toreal( b - a ) / 2.0 ) - 1 do
 				temp = s[ a + i ];
 				s[ a + i ] = s[ b - i ];
 				s[ b - i ] = temp;
@@ -121,7 +121,7 @@ func main(): int
 			return p;
 		endif;
 
-		for i = 2 to len+1 do
+		for i = 2 to len do
 			if mod( p.perm, factorial( i ) ) != 0 then
 				p.str = circ_shift( flip( p.str, len - i + 1, len - 1 ),
 									len - i,
@@ -135,7 +135,7 @@ func main(): int
 
 begin main
 	p.str = rd str;
-	for i = 0 to factorial( strlen( p.str ) ) do
+	for i = 0 to factorial( strlen( p.str ) ) - 1 do
 		p = wr next_permutation( p );
 	endfor;
 	return 0;
