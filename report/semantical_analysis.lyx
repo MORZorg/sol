@@ -84,21 +84,688 @@ yysem
 function (this time written entirely by us, as there's no language for generatin
 g a semantical analyzer automatically) analyzes the whole code in search
  for semantical errors.
- To support itself in this operation, it produces a Symbol Table containing
- all the elements in the code, each of which will be associated with a detailed
- description of its position in the code, a unique identifier and a schema
- describing its type (simple or complex).
+ To support itself in this operation, the analyzer produces a Symbol Table
+ containing all the elements in the code, each of which will be associated
+ with a detailed description of its position in the code, a unique identifier
+ and a schema describing its type (simple or complex).
 \end_layout
 
 \begin_layout Standard
 Please note that, even if this structure is called Symbol Table as the one
- produced by yylex, it is something entirely different, as yylex simply
- created a hashmap in which lexeme names and values were associated for
- simpler further reference.
+ produced during the lexical analysis, it is something entirely different,
+ as in the lexical analyzer we have simply created an hashmap containing
+ lexemes values of strings and identifiers, so there couldn't be any repetition
+ of the same lexeme.
+ [magari è già stato descritto durante l'analizi lessicale, quindi si può
+ togliere da qui]
 \end_layout
 
 \begin_layout Standard
-// TODO IDK how this works
+The Symbol Table is based on the following auto-esplicative C structures
+ (Listing 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{lst:symbol_table_struct}
+\end_layout
+
+\end_inset
+
+):
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{lstlisting}[caption={Symbol Table structure},label={lst:symbol_table_struc
+t},language={C}]
+\end_layout
+
+\begin_layout Plain Layout
+
+// Structure to represent the Schema of a Symbol
+\end_layout
+
+\begin_layout Plain Layout
+
+typedef struct schema
+\end_layout
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\begin_layout Plain Layout
+
+	TypeSchema type;
+\end_layout
+
+\begin_layout Plain Layout
+
+	char* id;
+\end_layout
+
+\begin_layout Plain Layout
+
+	int size;
+\end_layout
+
+\begin_layout Plain Layout
+
+	struct schema* child;
+\end_layout
+
+\begin_layout Plain Layout
+
+	struct schema* brother;
+\end_layout
+
+\begin_layout Plain Layout
+
+} Schema;
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+// Structure to represent a Symbol in the Symbol Table
+\end_layout
+
+\begin_layout Plain Layout
+
+typedef struct symtab
+\end_layout
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\begin_layout Plain Layout
+
+	char* name;
+\end_layout
+
+\begin_layout Plain Layout
+
+	int oid;
+\end_layout
+
+\begin_layout Plain Layout
+
+	ClassSymbol clazz;
+\end_layout
+
+\begin_layout Plain Layout
+
+	Schema* schema;
+\end_layout
+
+\begin_layout Plain Layout
+
+	map_t locenv;
+\end_layout
+
+\begin_layout Plain Layout
+
+	int nesting;
+\end_layout
+
+\begin_layout Plain Layout
+
+	int last_oid;
+\end_layout
+
+\begin_layout Plain Layout
+
+	int formals_size;
+\end_layout
+
+\begin_layout Plain Layout
+
+	struct symtab** formals;
+\end_layout
+
+\begin_layout Plain Layout
+
+} Symbol;
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{lstlisting}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The main function of this part is 
+\emph on
+yysem
+\emph default
+ in which we look through the Abstract Syntax Tree, generated before, and
+ check if there are any types error between nodes.
+\end_layout
+
+\begin_layout Standard
+Every symbol, depending on its type, has to be enumerated so it could be
+ uniquely found when executing the code.
+ We will keep track of two possible enumerations: the first one is global,
+ associated to every function defined in the code, and the second one is
+ relative to the scope of every function, so we could define, for example,
+ variables with same name, but each one belonging to different function
+ scopes.
+\end_layout
+
+\begin_layout Standard
+To make the relative enumeration possible and to check the visibility of
+ a symbol, we have defined a stack representing the scope of the function
+ in where we are.
+\end_layout
+
+\begin_layout Standard
+Most of the semantic checks are related to the type schema compatibility
+ between nodes in the same expression, so the first critical point is to
+ create the correct schema of every node, in this way after we will just
+ have to check the equality of these schemas.
+ Every time a function, a variable or a parameter, a constant and a type
+ definition is found in the code, the Symbol Table is updated with its schema,
+ so it will be more simply to access in the future and we don't have to
+ recalculate its schema every time we found it.
+\end_layout
+
+\begin_layout Standard
+Here we show an example of a Symbol Table
+ (Listing 
+\lang english
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{lst:symbol_table_example}
+\end_layout
+
+\end_inset
+
+):
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{lstlisting}[caption={Symbol Table example},label={lst:symbol_table_example
+},language={}]
+\end_layout
+
+\begin_layout Plain Layout
+
+FUNC   1    prog       0   INT
+\end_layout
+
+\begin_layout Plain Layout
+
+  CONST  15   PAIR       0   STRUCT( ATTR: a ( INT ), ATTR: b ( CHAR ) )
+\end_layout
+
+\begin_layout Plain Layout
+
+  CONST  14   name       0   STRING
+\end_layout
+
+\begin_layout Plain Layout
+
+  VAR    7    b          0   BOOL
+\end_layout
+
+\begin_layout Plain Layout
+
+  VAR    1    c          0   CHAR
+\end_layout
+
+\begin_layout Plain Layout
+
+  TYPE   0    T2         0   STRING
+\end_layout
+
+\begin_layout Plain Layout
+
+  VAR    6    s          0   STRING
+\end_layout
+
+\begin_layout Plain Layout
+
+  VAR    12   out_v      0   VECTOR[10]( REAL )
+\end_layout
+
+\begin_layout Plain Layout
+
+  VAR    11   out_x      0   REAL
+\end_layout
+
+\begin_layout Plain Layout
+
+  VAR    4    y          0   REAL
+\end_layout
+
+\begin_layout Plain Layout
+
+  VAR    10   v2         0   VECTOR[100]( STRUCT( ATTR: a ( INT ), ATTR:
+ b ( CHAR ) ) )
+\end_layout
+
+\begin_layout Plain Layout
+
+  CONST  16   VECT       0   VECTOR[5]( REAL )
+\end_layout
+
+\begin_layout Plain Layout
+
+  VAR    3    x          0   REAL
+\end_layout
+
+\begin_layout Plain Layout
+
+  CONST  17   MAT        0   VECTOR[2]( VECTOR[5]( REAL ) )
+\end_layout
+
+\begin_layout Plain Layout
+
+  TYPE   0    from_slides 0   VECTOR[10]( STRUCT( ATTR: la ( INT ), ATTR:
+ lala ( VECTOR[20]( VECTOR[5]( REAL ) ) ) ) )
+\end_layout
+
+\begin_layout Plain Layout
+
+  VAR    9    v1         0   VECTOR[5]( INT )
+\end_layout
+
+\begin_layout Plain Layout
+
+  FUNC   2    ref        1   INT
+\end_layout
+
+\begin_layout Plain Layout
+
+    VAR    2    y          1   REAL
+\end_layout
+
+\begin_layout Plain Layout
+
+    VAR    1    x          1   REAL
+\end_layout
+
+\begin_layout Plain Layout
+
+    VAR    5    v          1   VECTOR[10]( REAL )
+\end_layout
+
+\begin_layout Plain Layout
+
+    VAR    3    r1         1   STRUCT( ATTR: a ( INT ), ATTR: b ( STRING
+ ) )
+\end_layout
+
+\begin_layout Plain Layout
+
+    VAR    4    r2         1   STRUCT( ATTR: a ( INT ), ATTR: b ( STRING
+ ) )
+\end_layout
+
+\begin_layout Plain Layout
+
+  VAR    8    r          0   STRUCT( ATTR: a ( CHAR ), ATTR: b ( STRING
+ ) )
+\end_layout
+
+\begin_layout Plain Layout
+
+  CONST  13   MAX        0   INT
+\end_layout
+
+\begin_layout Plain Layout
+
+  VAR    2    i          0   INT
+\end_layout
+
+\begin_layout Plain Layout
+
+  VAR    5    z          0   REAL
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{lstlisting}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The type checking has also to be done in expressions where there aren't
+ only variables with a known schema: in this case we have to infere the
+ schema of the not known part and check if it is equal to the known part,
+ or also check if two unknown schema are compatible each other.
+\end_layout
+
+\begin_layout Standard
+To create a schema we used a recursive approach, descending through the
+ node until its leaves, which have to be 
+\emph on
+Atomic Domain
+\emph default
+ types.
+\end_layout
+
+\begin_layout Standard
+A really useful function that we decided to implement is the 
+\emph on
+infere_lhs_schema
+\emph default
+, needed to infere the schema of a 
+\emph on
+lhs term
+\emph default
+ that could be an orthogonal innested composition of 
+\emph on
+indexing
+\emph default
+ and 
+\emph on
+fielding
+\emph default
+ nodes, reaching at the end an 
+\emph on
+Atomic Domain
+\emph default
+ type.
+ Our solution for 
+\emph on
+vector
+\emph default
+ and 
+\emph on
+structures
+\emph default
+ cases is here reported 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{lst:infere_lhs_code}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{lstlisting}[caption={Symbol Table example},label={lst:symbol_table_example
+},language={C}]
+\end_layout
+
+\begin_layout Plain Layout
+
+switch( node->value.n_val )
+\end_layout
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\begin_layout Plain Layout
+
+	case N_FIELDING:
+\end_layout
+
+\begin_layout Plain Layout
+
+		result = infere_lhs_schema( node->child, is_assigned );
+\end_layout
+
+\begin_layout Plain Layout
+
+		if( result->type != TS_STRUCT )
+\end_layout
+
+\begin_layout Plain Layout
+
+			yysemerror( node->child,
+\end_layout
+
+\begin_layout Plain Layout
+
+						PRINT_ERROR( STR_CONFLICT_TYPE,
+\end_layout
+
+\begin_layout Plain Layout
+
+									"not a struct" ) );
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+		result = result->child;
+\end_layout
+
+\begin_layout Plain Layout
+
+		while( result != NULL )
+\end_layout
+
+\begin_layout Plain Layout
+
+		{
+\end_layout
+
+\begin_layout Plain Layout
+
+			if( result->id == node->child->brother->value.s_val )
+\end_layout
+
+\begin_layout Plain Layout
+
+				return result->child;
+\end_layout
+
+\begin_layout Plain Layout
+
+			result = result->brother;
+\end_layout
+
+\begin_layout Plain Layout
+
+		}
+\end_layout
+
+\begin_layout Plain Layout
+
+		yysemerror( node->child->brother,
+\end_layout
+
+\begin_layout Plain Layout
+
+					PRINT_ERROR( STR_UNDECLARED,
+\end_layout
+
+\begin_layout Plain Layout
+
+								"not a struct attribute" ) );
+\end_layout
+
+\begin_layout Plain Layout
+
+		break;
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	case N_INDEXING:
+\end_layout
+
+\begin_layout Plain Layout
+
+		result = infere_lhs_schema( node->child, is_assigned );
+\end_layout
+
+\begin_layout Plain Layout
+
+		if( result->type != TS_VECTOR )
+\end_layout
+
+\begin_layout Plain Layout
+
+			yysemerror( node->child,
+\end_layout
+
+\begin_layout Plain Layout
+
+						PRINT_ERROR( STR_CONFLICT_TYPE,
+\end_layout
+
+\begin_layout Plain Layout
+
+									"not a vector" ) );
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+		simplify_expression( node->child->brother );
+\end_layout
+
+\begin_layout Plain Layout
+
+		if( infere_expression_schema( node->child->brother )->type != TS_INT )
+\end_layout
+
+\begin_layout Plain Layout
+
+			yysemerror( node->child,
+\end_layout
+
+\begin_layout Plain Layout
+
+						PRINT_ERROR( STR_CONFLICT_TYPE,
+\end_layout
+
+\begin_layout Plain Layout
+
+									"expression must be integer" ) );
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\end_layout
+
+\begin_layout Plain Layout
+
+		result = result->child;
+\end_layout
+
+\begin_layout Plain Layout
+
+		break;
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	default:
+\end_layout
+
+\begin_layout Plain Layout
+
+		yysemerror( node,
+\end_layout
+
+\begin_layout Plain Layout
+
+					PRINT_ERROR( STR_BUG,
+\end_layout
+
+\begin_layout Plain Layout
+
+								"unknown unqualified nonterminal expression" ) );
+\end_layout
+
+\begin_layout Plain Layout
+
+		break;
+\end_layout
+
+\begin_layout Plain Layout
+
+} 
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{lstlisting}
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \end_body

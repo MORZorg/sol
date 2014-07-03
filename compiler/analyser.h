@@ -46,7 +46,7 @@ typedef struct symtab
 	Schema* schema;
 	map_t locenv;
 	int nesting;
-    int last_oid;
+	int last_oid;
 	int formals_size;
 	struct symtab** formals;
 } Symbol;
