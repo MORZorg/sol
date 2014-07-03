@@ -73,7 +73,7 @@ label{chp:lex}
 
 \end_inset
 
-Lexical and Syntactix analysis
+Lexical and Syntactic analysis
 \end_layout
 
 \begin_layout Standard
@@ -119,8 +119,8 @@ ref{chp:sem}
 
 \end_inset
 
-, which aims at determinining if the written statements (which are correct
- thanks to the previous analyses) make sense (eg, performing the sum of
+, which aims at determining if the written statements (which are correct
+ thanks to the previous analyses) make sense (e.g., performing the sum of
  an integer and a string makes no sense, therefore it is not semantically
  correct), relying on the data structure produced by the previous analysis;
 \end_layout
@@ -260,17 +260,12 @@ begin{lstlisting}[language={},caption={Lex definition of lexical elements},label
 
 \begin_layout Plain Layout
 
-alpha	[a-zA-Z]
+alpha           [a-zA-Z]
 \end_layout
 
 \begin_layout Plain Layout
 
-digit	[0-9]
-\end_layout
-
-\begin_layout Plain Layout
-
-id	{alpha}({alpha}|{digit}|_)*
+digit           [0-9]
 \end_layout
 
 \begin_layout Plain Layout
@@ -279,7 +274,16 @@ id	{alpha}({alpha}|{digit}|_)*
 
 \begin_layout Plain Layout
 
-charconst	'([^
+id              {alpha}({alpha}|{digit}|_)*
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+charconst       '([^
 \backslash
 ']|
 \backslash
@@ -290,36 +294,19 @@ charconst	'([^
 
 \begin_layout Plain Layout
 
-intconst	{digit}+
+intconst        {digit}+
 \end_layout
 
 \begin_layout Plain Layout
 
-realconst	{digit}+
+realconst       {digit}+
 \backslash
 .{digit}+
 \end_layout
 
 \begin_layout Plain Layout
 
-boolconst	true|false
-\end_layout
-
-\begin_layout Plain Layout
-
-strconst	
-\backslash
-"([^"
-\backslash
-
-\backslash
-]|
-\backslash
-
-\backslash
-.)*
-\backslash
-"
+boolconst       true|false
 \end_layout
 
 \begin_layout Plain Layout
@@ -328,19 +315,19 @@ strconst
 
 \begin_layout Plain Layout
 
-comment	--.*
+comment         --.*
 \end_layout
 
 \begin_layout Plain Layout
 
-spacing	([ 
+spacing         ([ 
 \backslash
 t])+
 \end_layout
 
 \begin_layout Plain Layout
 
-sugar	[()
+sugar           [()
 \backslash
 [
 \backslash
@@ -353,7 +340,7 @@ sugar	[()
 
 \begin_layout Plain Layout
 
-%x charconst 
+%x strconst 
 \end_layout
 
 \begin_layout Plain Layout
@@ -401,8 +388,8 @@ begin{lstlisting}[caption={Lex rule},label={lst:lex_rule}]
 
 \begin_layout Plain Layout
 
-lexeme	{ /*C code to execute when such lexeme is found*/; return lexeme_descript
-or; }
+lexeme	{ /*action when such lexeme is found*/; return lexeme_descriptor;
+ }
 \end_layout
 
 \begin_layout Plain Layout
@@ -418,7 +405,7 @@ end{lstlisting}
 \end_layout
 
 \begin_layout Standard
-For the fixed lexeme (keywords and other simple stuff), the rules are as
+For the fixed lexemes (keywords and other simple stuff), the rules are as
  simple the ones in in Listing 
 \begin_inset ERT
 status open
@@ -478,7 +465,7 @@ a
  
 \emph default
 C union that can contain any type of value (integer, real, string..).
- The rules for the complexe lexeme are all presented in Listing 
+ The rules for the complex lexemes are all presented in Listing 
 \begin_inset ERT
 status open
 
@@ -502,32 +489,33 @@ status open
 
 
 \backslash
-begin{lstlisting}[caption={Lex rule for a keyword},label={lst:lex_keyword}]
+begin{lstlisting}[caption={Lex rule for a keyword},label={lst:lex_keyword},langu
+age={}]
 \end_layout
 
 \begin_layout Plain Layout
 
-func	{ SPAM( "FUNC" ); return( FUNC ); }
+func                   { return( FUNC ); }
 \end_layout
 
 \begin_layout Plain Layout
 
-char	{ SPAM( "CHAR" ); return( CHAR ); }
+char                   { return( CHAR ); }
 \end_layout
 
 \begin_layout Plain Layout
 
-int	{ SPAM( "INT" ); return( INT ); }
+int                    { return( INT ); }
 \end_layout
 
 \begin_layout Plain Layout
 
-real	{ SPAM( "REAL" ); return( REAL ); }
+real                   { return( REAL ); }
 \end_layout
 
 \begin_layout Plain Layout
 
-string	{ SPAM( "STRING" ); return( STRING ); }
+string                 { return( STRING ); } 
 \end_layout
 
 \begin_layout Plain Layout
@@ -551,54 +539,130 @@ status open
 
 \backslash
 begin{lstlisting}[caption={Lex rules for constants and ids},label={lst:lex_more}
-]
+,language={}]
 \end_layout
 
 \begin_layout Plain Layout
 
-{intconst}	{ SPAM( "INT_CONST" ); lexval.i_val = atoi( yytext ); return(
- INT_CONST ); }
+{intconst}             { lexval.i_val = atoi( yytext );
 \end_layout
 
 \begin_layout Plain Layout
 
-{strconst}	{ SPAM( "STR_CONST" ); yytext[ strlen( yytext ) - 1 ] = '
+                         return( INT_CONST ); }
+\end_layout
+
+\begin_layout Plain Layout
+
+"
 \backslash
-0'; lexval.s_val = new_string( yytext + 1 ); return ( STR_CONST ); }
+""                   { BEGIN strconst;
 \end_layout
 
 \begin_layout Plain Layout
 
-{charconst}	{ SPAM( "CHAR_CONST" ); yytext[ strlen( yytext ) - 1 ] = '
+                         strbuf = malloc( sizeof( char ) ); }
+\end_layout
+
+\begin_layout Plain Layout
+
+<strconst>([^"
 \backslash
-0'; lexval.s_val = new_string( yytext + 1 ); return( CHAR_CONST ); }
+n])*    { concatenate_string( &strbuf, yytext ); }
 \end_layout
 
 \begin_layout Plain Layout
 
-{realconst}	{ SPAM( "REAL_CONST" ); lexval.r_val = atof( yytext ); return(
- REAL_CONST ); }
+<strconst>
+\backslash
+n[ 
+\backslash
+t]*     ;
 \end_layout
 
 \begin_layout Plain Layout
 
-{boolconst}	{ SPAM( "BOOL_CONST" ); lexval.b_val = ( yytext[ 0 ] == 'f' ?
- FALSE : TRUE ); return( BOOL_CONST ); }
+<strconst>
+\backslash
+"           { lexval.s_val = new_string( strbuf );
 \end_layout
 
 \begin_layout Plain Layout
 
-{id}	{ SPAM( "ID" ); lexval.s_val = new_string( yytext ); return( ID ); }
+                         BEGIN 0;
 \end_layout
 
 \begin_layout Plain Layout
 
-{sugar}	{ SPAM( yytext ); return( yytext[ 0 ] ); }
+                         return STR_CONST; }
 \end_layout
 
 \begin_layout Plain Layout
 
-.	{ yyerror( STR_ERROR ); } 
+{charconst}            { yytext[ strlen( yytext ) - 1 ] = '
+\backslash
+0';
+\end_layout
+
+\begin_layout Plain Layout
+
+                         lexval.s_val = new_string( yytext + 1 );
+\end_layout
+
+\begin_layout Plain Layout
+
+                         return( CHAR_CONST ); }
+\end_layout
+
+\begin_layout Plain Layout
+
+{realconst}            { lexval.r_val = atof( yytext );
+\end_layout
+
+\begin_layout Plain Layout
+
+                         return( REAL_CONST ); }
+\end_layout
+
+\begin_layout Plain Layout
+
+{boolconst}            { lexval.b_val = ( yytext[ 0 ] == 'f'
+\end_layout
+
+\begin_layout Plain Layout
+
+                                          ? FALSE
+\end_layout
+
+\begin_layout Plain Layout
+
+                                          : TRUE );
+\end_layout
+
+\begin_layout Plain Layout
+
+                         return( BOOL_CONST ); }
+\end_layout
+
+\begin_layout Plain Layout
+
+{id}                   { lexval.s_val = new_string( yytext );
+\end_layout
+
+\begin_layout Plain Layout
+
+                         return( ID ); }
+\end_layout
+
+\begin_layout Plain Layout
+
+{sugar}                { return( yytext[ 0 ] ); }
+\end_layout
+
+\begin_layout Plain Layout
+
+.
+                      { yyerror( STR_ERROR ); } 
 \end_layout
 
 \begin_layout Plain Layout

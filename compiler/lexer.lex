@@ -20,118 +20,128 @@ int yyerror(char * type);
 %}
 %option noyywrap
 
-alpha			[a-zA-Z]
-digit			[0-9]
+alpha           [a-zA-Z]
+digit           [0-9]
 
-id				{alpha}({alpha}|{digit}|_)*
+id              {alpha}({alpha}|{digit}|_)*
 
-charconst		'([^\']|\\.)'
-intconst		{digit}+
-realconst		{digit}+\.{digit}+
-boolconst		true|false
+charconst       '([^\']|\\.)'
+intconst        {digit}+
+realconst       {digit}+\.{digit}+
+boolconst       true|false
 
 comment         --.*
-spacing			([ \t])+
-sugar			[()\[\]{}.,;]
+spacing         ([ \t])+
+sugar           [()\[\]{}.,;]
 
 %x strconst
 
 %%
 EOF                    { return 0; }
-\n					   { SPAM( "\n" ); line++; }
-{spacing}			   ;
-{comment}              { SPAM( "COMMENT" ); }
-func				   { SPAM( "FUNC" ); return( FUNC ); }
-char				   { SPAM( "CHAR" ); return( CHAR ); }
-int					   { SPAM( "INT" ); return( INT ); }
-real				   { SPAM( "REAL" ); return( REAL ); }
-string				   { SPAM( "STRING" ); return( STRING ); }
-bool				   { SPAM( "BOOL" ); return( BOOL ); }
-struct				   { SPAM( "STRUCT" ); return( STRUCT ); }
-vector				   { SPAM( "VECTOR" ); return( VECTOR ); }
-of					   { SPAM( "OF" ); return( OF ); }
-type				   { SPAM( "TYPE" ); return( TYPE ); }
-var					   { SPAM( "VAR" ); return( VAR ); }
-const				   { SPAM( "CONST" ); return( CONST ); }
-begin				   { SPAM( "BEGIN" ); return( SOL_BEGIN ); }
-end					   { SPAM( "END" ); return( END ); }
-if					   { SPAM( "IF" ); return( IF ); }
-then				   { SPAM( "THEN" ); return( THEN ); }
-endif				   { SPAM( "ENDIF" ); return( ENDIF ); }
-elsif				   { SPAM( "ELSIF" ); return( ELSIF ); }
-else				   { SPAM( "ELSE" ); return( ELSE ); }
-while				   { SPAM( "WHILE" ); return( WHILE ); }
-do					   { SPAM( "DO" ); return( DO ); }
-endwhile			   { SPAM( "ENDWHILE" ); return( ENDWHILE ); }
-for					   { SPAM( "FOR" ); return( FOR ); }
-to					   { SPAM( "TO" ); return( TO ); }
-endfor				   { SPAM( "ENDFOR" ); return( ENDFOR ); }
-foreach				   { SPAM( "FOREACH" ); return( FOREACH ); }
-endforeach			   { SPAM( "ENDFOREACH" ); return( ENDFOREACH ); }
-return				   { SPAM( "RETURN" ); return( RETURN ); }
-read				   { SPAM( "READ" ); return( READ ); }
-write				   { SPAM( "WRITE" ); return( WRITE ); }
-and					   { SPAM( "AND" ); return( AND ); }
-or					   { SPAM( "OR" ); return( OR ); }
-in					   { SPAM( "IN" ); return( IN ); }
-not					   { SPAM( "NOT" ); return( NOT ); }
-toint				   { SPAM( "TOINT" ); return( TOINT ); }
-toreal				   { SPAM( "TOREAL" ); return( TOREAL ); }
-rd					   { SPAM( "RD" ); return( RD ); }
-wr					   { SPAM( "WR" ); return( WR ); }
-break                  { SPAM( "BREAK" ); return( BREAK ); }
-":"					   { SPAM( "DEFINE" ); return( DEFINE ); }
-"="					   { SPAM( "ASSIGN" ); return( ASSIGN ); }
-"=="				   { SPAM( "EQ" ); return( EQ ); }
-"!="				   { SPAM( "NEQ" ); return( NEQ ); }
-">"					   { SPAM( "GT" ); return( GT ); }
-">="				   { SPAM( "GEQ" ); return( GEQ ); }
-"<"					   { SPAM( "LT" ); return( LT ); }
-"<="				   { SPAM( "LEQ" ); return( LEQ ); }
-"+"					   { SPAM( "PLUS" ); return( PLUS ); }
-"-"					   { SPAM( "MINUS" ); return( MINUS ); }
-"*"					   { SPAM( "MULTIPLY" ); return( MULTIPLY ); }
-"/"					   { SPAM( "DIVIDE" ); return( DIVIDE ); }
-{intconst}			   { SPAM( "INT_CONST" ); lexval.i_val = atoi( yytext ); return( INT_CONST ); }
-"\""                   { BEGIN strconst; strbuf = malloc( sizeof( char ) ); }
+\n                     { line++; }
+{spacing}              ;
+{comment}              { }
+func                   { return( FUNC ); }
+char                   { return( CHAR ); }
+int                    { return( INT ); }
+real                   { return( REAL ); }
+string                 { return( STRING ); }
+bool                   { return( BOOL ); }
+struct                 { return( STRUCT ); }
+vector                 { return( VECTOR ); }
+of                     { return( OF ); }
+type                   { return( TYPE ); }
+var                    { return( VAR ); }
+const                  { return( CONST ); }
+begin                  { return( SOL_BEGIN ); }
+end                    { return( END ); }
+if                     { return( IF ); }
+then                   { return( THEN ); }
+endif                  { return( ENDIF ); }
+elsif                  { return( ELSIF ); }
+else                   { return( ELSE ); }
+while                  { return( WHILE ); }
+do                     { return( DO ); }
+endwhile               { return( ENDWHILE ); }
+for                    { return( FOR ); }
+to                     { return( TO ); }
+endfor                 { return( ENDFOR ); }
+foreach                { return( FOREACH ); }
+endforeach             { return( ENDFOREACH ); }
+return                 { return( RETURN ); }
+read                   { return( READ ); }
+write                  { return( WRITE ); }
+and                    { return( AND ); }
+or                     { return( OR ); }
+in                     { return( IN ); }
+not                    { return( NOT ); }
+toint                  { return( TOINT ); }
+toreal                 { return( TOREAL ); }
+rd                     { return( RD ); }
+wr                     { return( WR ); }
+break                  { return( BREAK ); }
+":"                    { return( DEFINE ); }
+"="                    { return( ASSIGN ); }
+"=="                   { return( EQ ); }
+"!="                   { return( NEQ ); }
+">"                    { return( GT ); }
+">="                   { return( GEQ ); }
+"<"                    { return( LT ); }
+"<="                   { return( LEQ ); }
+"+"                    { return( PLUS ); }
+"-"                    { return( MINUS ); }
+"*"                    { return( MULTIPLY ); }
+"/"                    { return( DIVIDE ); }
+{intconst}             { lexval.i_val = atoi( yytext );
+                         return( INT_CONST ); }
+"\""                   { BEGIN strconst;
+                         strbuf = malloc( sizeof( char ) ); }
 <strconst>([^"\n])*    { concatenate_string( &strbuf, yytext ); }
-<strconst>\n[ \t]*     {}
-<strconst>\"           { lexval.s_val = new_string( strbuf ); BEGIN 0; SPAM( "STR_CONST" ); return STR_CONST; }
-{charconst}			   { SPAM( "CHAR_CONST" ); yytext[ strlen( yytext ) - 1 ] = '\0'; lexval.s_val = new_string( yytext + 1 ); return( CHAR_CONST ); }
-{realconst}			   { SPAM( "REAL_CONST" ); lexval.r_val = atof( yytext ); return( REAL_CONST ); }
-{boolconst}			   { SPAM( "BOOL_CONST" ); lexval.b_val = ( yytext[ 0 ] == 'f' ? FALSE : TRUE ); return( BOOL_CONST ); }
-{id}				   { SPAM( "ID" ); lexval.s_val = new_string( yytext ); return( ID ); }
-{sugar}				   { SPAM( yytext ); return( yytext[ 0 ] ); }
-.					   { yyerror( STR_ERROR ); }
+<strconst>\n[ \t]*     ;
+<strconst>\"           { lexval.s_val = new_string( strbuf );
+                         BEGIN 0;
+                         return STR_CONST; }
+{charconst}            { yytext[ strlen( yytext ) - 1 ] = '\0';
+                         lexval.s_val = new_string( yytext + 1 );
+                         return( CHAR_CONST ); }
+{realconst}            { lexval.r_val = atof( yytext );
+                         return( REAL_CONST ); }
+{boolconst}            { lexval.b_val = ( yytext[ 0 ] == 'f'
+                                          ? FALSE
+                                          : TRUE );
+                         return( BOOL_CONST ); }
+{id}                   { lexval.s_val = new_string( yytext );
+                         return( ID ); }
+{sugar}                { return( yytext[ 0 ] ); }
+.                      { yyerror( STR_ERROR ); }
 %%
-/* <strconst>.+        { concatenate_string( &strbuf, yytext ); } */
 
 char* new_string( char* s )
 {
-	if( lex_symbol_table == NULL )
-		lex_symbol_table = hashmap_new();
+    if( lex_symbol_table == NULL )
+        lex_symbol_table = hashmap_new();
 
-	char* result;
+    char* result;
 
-	if( hashmap_get( lex_symbol_table, s, (any_t*) &result ) == MAP_MISSING )
-	{
-		result = malloc( ( strlen( s ) + 1 ) * sizeof( char ) );
-		sprintf( result, "%s", s );
+    if( hashmap_get( lex_symbol_table, s, (any_t*) &result ) == MAP_MISSING )
+    {
+        result = malloc( ( strlen( s ) + 1 ) * sizeof( char ) );
+        sprintf( result, "%s", s );
 
-		hashmap_put( lex_symbol_table, result, result );
-	}
+        hashmap_put( lex_symbol_table, result, result );
+    }
 
-	return result;
+    return result;
 }
 
 void concatenate_string( char** base, char* addition )
 {
-	*base = realloc( *base, sizeof( char ) * ( strlen( *base ) + strlen( addition ) + 1 ) ); 
-	strcat( *base, addition );
+    *base = realloc( *base, sizeof( char ) * ( strlen( *base ) + strlen( addition ) + 1 ) ); 
+    strcat( *base, addition );
 }
 
 int yyerror( char* type )
 {
-	fprintf( stdout, "Line %d: %s on symbol \"%s\".\n", line, type, yytext );
-	exit( 2 );
+    fprintf( stdout, "Line %d: %s on symbol \"%s\".\n", line, type, yytext );
+    exit( 2 );
 }
