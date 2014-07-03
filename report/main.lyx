@@ -42,7 +42,7 @@
 {
   literate={0},
   aboveskip=0.5cm,
-  basicstyle=\small\ttfamily,
+  basicstyle=\scriptsize\ttfamily,
   numbers=left,
   numberstyle=\tiny,
   frame=tb,

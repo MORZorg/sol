@@ -62,7 +62,7 @@
 
 \begin_layout Chapter
 \begin_inset ERT
-status collapsed
+status open
 
 \begin_layout Plain Layout
 
@@ -78,7 +78,7 @@ SOL language introduction and examples
 
 \begin_layout Standard
 \begin_inset ERT
-status collapsed
+status open
 
 \begin_layout Plain Layout
 
@@ -121,7 +121,7 @@ procedure in C, with the difference that, here, we don't need to call this
  function in a particular way).
  The function is defined in a precise manner, as in Listing 
 \begin_inset ERT
-status collapsed
+status open
 
 \begin_layout Plain Layout
 
@@ -137,7 +137,7 @@ ref{lst:hello_world}
 
 \begin_layout Standard
 \begin_inset ERT
-status collapsed
+status open
 
 \begin_layout Plain Layout
 
@@ -205,12 +205,19 @@ This first example, obviously, does not comprise all the elements allowed
  in the presented order:
 \end_layout
 
-\begin_layout Itemize
-The function's parameters.
- These are defined in the round brackets after the function's name as a
- list of variable definitions (as can be seen in Listing 
+\begin_layout Description
+The
+\begin_inset space ~
+\end_inset
+
+function's
+\begin_inset space ~
+\end_inset
+
+parameters These are defined in the round brackets after the function's
+ name as a list of variable definitions (as can be seen in Listing 
 \begin_inset ERT
-status collapsed
+status open
 
 \begin_layout Plain Layout
 
@@ -233,7 +240,7 @@ and any number of variable of the same type can be defined with a single
 \emph on
 int, real, bool, string, char
 \emph default
- and the two complex ones 
+, the two complex ones 
 \emph on
 vector
 \emph default
@@ -241,7 +248,7 @@ vector
 \emph on
 struct
 \emph default
-, whose syntax is defined later.
+ (whose syntax is defined later) and all the user-defined types.
 \end_layout
 
 \begin_layout Standard
@@ -257,7 +264,7 @@ begin{lstlisting}[caption={Parameters},label={lst:par_eg}]
 
 \begin_layout Plain Layout
 
-func program( par1, par2: int; par3: string ): int
+func program( par, par_two: int; par_three: string; ): int
 \end_layout
 
 \begin_layout Plain Layout
@@ -272,18 +279,30 @@ end{lstlisting}
 
 \end_layout
 
-\begin_layout Itemize
-A list of types.
- The definition of a type has the very same purpose of the instruction 
+\begin_layout Description
+A
+\begin_inset space ~
+\end_inset
+
+list
+\begin_inset space ~
+\end_inset
+
+of
+\begin_inset space ~
+\end_inset
+
+types The definition of a type has the very same purpose of the instruction
+ 
 \emph on
 typedef
 \emph default
- in C, and any type can be redefined with a custom name, even if this is
+ in C, and any type can be redefined with a custom name, although this is
  particularly useful only with complex types.
  The syntax of a type definition is very similar to that of a variable definitio
 n, as can be seen in Listing 
 \begin_inset ERT
-status collapsed
+status open
 
 \begin_layout Plain Layout
 
@@ -305,7 +324,7 @@ vector[ size ] of element_type;
 struct 
 \emph default
 followed by round brackets in which a list of variables is contained.
- The variables in the list are the flieds of the structure.
+ The variables in the list are the fields of the structure.
  The types are completely orthogonal (one can define a vector of structs
  containing vectors, for example).
 \end_layout
@@ -349,11 +368,23 @@ end{lstlisting}
 
 \end_layout
 
-\begin_layout Itemize
-A list of variables, similar to that in the definition of parameters, as
- in Listing 
+\begin_layout Description
+A
+\begin_inset space ~
+\end_inset
+
+list
+\begin_inset space ~
+\end_inset
+
+of
+\begin_inset space ~
+\end_inset
+
+variables This is similar to that in the definition of parameters, as in
+ Listing 
 \begin_inset ERT
-status collapsed
+status open
 
 \begin_layout Plain Layout
 
@@ -445,12 +476,24 @@ end{lstlisting}
 
 \end_layout
 
-\begin_layout Itemize
-A list of constants, whose definition is identical to that of variables
+\begin_layout Description
+A
+\begin_inset space ~
+\end_inset
+
+list
+\begin_inset space ~
+\end_inset
+
+of
+\begin_inset space ~
+\end_inset
+
+constants The definition of a constant is identical to that of variables
  except for the fact that a value must be assigned to each constant at definitio
 n time (see Listing 
 \begin_inset ERT
-status collapsed
+status open
 
 \begin_layout Plain Layout
 
@@ -461,7 +504,7 @@ ref{lst:const_eg}
 
 \end_inset
 
-.
+).
  Note that an assignment separated by the variable's definition follows
  the same syntax but without the indication of the variable's type (that
  is, something like 
@@ -473,7 +516,7 @@ variable_name = value;
 
 \begin_layout Standard
 \begin_inset ERT
-status collapsed
+status open
 
 \begin_layout Plain Layout
 
@@ -494,7 +537,7 @@ begin{lstlisting}[caption={Constants},label={lst:const_eg}]
 
 \begin_layout Plain Layout
 
-		name: T2 = "alpha";
+		name: T = "alpha";
 \end_layout
 
 \begin_layout Plain Layout
@@ -525,8 +568,20 @@ end{lstlisting}
 
 \end_layout
 
-\begin_layout Itemize
-A list of functions, defined exactly as the main one.
+\begin_layout Description
+A
+\begin_inset space ~
+\end_inset
+
+list
+\begin_inset space ~
+\end_inset
+
+of
+\begin_inset space ~
+\end_inset
+
+functions Every function is defined exactly as the main one.
  These functions will be visible inside the main function since they are
  part of its environment.
  They can, obviously, contain other functions' definitions, and these are
@@ -556,12 +611,490 @@ Conway's Game of Life
 \emph default
 as an example of full program that can run with our SOL compiler and virtual
  machine.
- The program, in particular, allows us to test the I/O interface in an extensive
- manner.
+ The program, in particular, allows us to test the I/O interface of the
+ virtual machine in an extensive manner.
 \end_layout
 
 \begin_layout Standard
-// TODO GoL
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{lstlisting}[caption={Game of Life}, label={lst:gol}]
+\end_layout
+
+\begin_layout Plain Layout
+
+func game_of_life() : int
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	type
+\end_layout
+
+\begin_layout Plain Layout
+
+		lines: vector [ 15 ] of bool;
+\end_layout
+
+\begin_layout Plain Layout
+
+		grid: vector [ 15 ] of lines;
+\end_layout
+
+\begin_layout Plain Layout
+
+	var 
+\end_layout
+
+\begin_layout Plain Layout
+
+		state: struct( generation: int; world: grid; ); 
+\end_layout
+
+\begin_layout Plain Layout
+
+		input: struct( filename: string; load: bool; ); 
+\end_layout
+
+\begin_layout Plain Layout
+
+		generations: int;
+\end_layout
+
+\begin_layout Plain Layout
+
+	const 
+\end_layout
+
+\begin_layout Plain Layout
+
+		world_size: int = 15;
+\end_layout
+
+\begin_layout Plain Layout
+
+		str_summary: string = "Welcome to ORZ's Conway's Game of Life!"; 
+\end_layout
+
+\begin_layout Plain Layout
+
+		str_goodbye: string = "Thanks for playing with ORZ's Conway's Game of
+ 
+\end_layout
+
+\begin_layout Plain Layout
+
+												Life! 
+\backslash
+n
+\backslash
+n
+\backslash
+tBye!";
+\end_layout
+
+\begin_layout Plain Layout
+
+		str_saved: string = "Your data has been successfully saved in the
+\end_layout
+
+\begin_layout Plain Layout
+
+												following file:"; 
+\end_layout
+
+\begin_layout Plain Layout
+
+		enter_filename: string = "Enter the filename of your world and if you'd
+ 
+\end_layout
+
+\begin_layout Plain Layout
+
+												like to load from a saved state.";
+\end_layout
+
+\begin_layout Plain Layout
+
+		enter_generations: string = "Enter for how many generations would you
+\end_layout
+
+\begin_layout Plain Layout
+
+												like to watch your world go by.";
+\end_layout
+
+\begin_layout Plain Layout
+
+		enter_world: string = "Your world doesn't exist yet.
+\backslash
+nEnter it now.";
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	-- Rules:
+\end_layout
+
+\begin_layout Plain Layout
+
+	--	* Any live cell with fewer than two live neighbours dies, as if caused
+\end_layout
+
+\begin_layout Plain Layout
+
+	--		by under-population.
+\end_layout
+
+\begin_layout Plain Layout
+
+	--	* Any live cell with two or three live neighbours lives on to the next
+\end_layout
+
+\begin_layout Plain Layout
+
+	--		generation.
+\end_layout
+
+\begin_layout Plain Layout
+
+	--	* Any live cell with more than three live neighbours dies, as if by
+\end_layout
+
+\begin_layout Plain Layout
+
+	--		overcrowding.
+\end_layout
+
+\begin_layout Plain Layout
+
+	--	* Any dead cell with exactly three live neighbours becomes a live
+\end_layout
+
+\begin_layout Plain Layout
+
+	--		cell, as if by reproduction.
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	func next_state( current_state: grid; ) : grid
+\end_layout
+
+\begin_layout Plain Layout
+
+		var
+\end_layout
+
+\begin_layout Plain Layout
+
+			i, j, k, h: int;
+\end_layout
+
+\begin_layout Plain Layout
+
+			neighbours: int;
+\end_layout
+
+\begin_layout Plain Layout
+
+			state: grid;
+\end_layout
+
+\begin_layout Plain Layout
+
+		const
+\end_layout
+
+\begin_layout Plain Layout
+
+			neighbour_offset: vector[ 3 ] of int = vector( -1, 0, 1 );
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	begin next_state
+\end_layout
+
+\begin_layout Plain Layout
+
+		for i = 0 to world_size-1 do
+\end_layout
+
+\begin_layout Plain Layout
+
+			for j = 0 to world_size-1 do
+\end_layout
+
+\begin_layout Plain Layout
+
+				neighbours = 0;
+\end_layout
+
+\begin_layout Plain Layout
+
+				foreach k in neighbour_offset do
+\end_layout
+
+\begin_layout Plain Layout
+
+					foreach h in neighbour_offset do
+\end_layout
+
+\begin_layout Plain Layout
+
+						if k != 0 or h != 0 then
+\end_layout
+
+\begin_layout Plain Layout
+
+							if i+k >= 0 and i+k < world_size and
+\end_layout
+
+\begin_layout Plain Layout
+
+							   j+h >= 0 and j+h < world_size then
+\end_layout
+
+\begin_layout Plain Layout
+
+								if current_state[ i + k ][ j + h ] then
+\end_layout
+
+\begin_layout Plain Layout
+
+									neighbours = neighbours + 1;
+\end_layout
+
+\begin_layout Plain Layout
+
+								endif;
+\end_layout
+
+\begin_layout Plain Layout
+
+							endif;
+\end_layout
+
+\begin_layout Plain Layout
+
+						endif;
+\end_layout
+
+\begin_layout Plain Layout
+
+					endforeach;
+\end_layout
+
+\begin_layout Plain Layout
+
+				endforeach;
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+				state[ i ][ j ] = if current_state[ i ][ j ]
+\end_layout
+
+\begin_layout Plain Layout
+
+														then neighbours == 2 or neighbours == 3
+\end_layout
+
+\begin_layout Plain Layout
+
+														else neighbours == 3 endif;
+\end_layout
+
+\begin_layout Plain Layout
+
+			endfor;
+\end_layout
+
+\begin_layout Plain Layout
+
+		endfor;
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+		return state;
+\end_layout
+
+\begin_layout Plain Layout
+
+	end next_state
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+begin game_of_life
+\end_layout
+
+\begin_layout Plain Layout
+
+	write str_summary;
+\end_layout
+
+\begin_layout Plain Layout
+
+	write enter_filename;
+\end_layout
+
+\begin_layout Plain Layout
+
+	read input;
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\end_layout
+
+\begin_layout Plain Layout
+
+	if input.load then
+\end_layout
+
+\begin_layout Plain Layout
+
+		read [ input.filename ] state;
+\end_layout
+
+\begin_layout Plain Layout
+
+	else
+\end_layout
+
+\begin_layout Plain Layout
+
+		write enter_world;
+\end_layout
+
+\begin_layout Plain Layout
+
+		state.world = rd grid;
+\end_layout
+
+\begin_layout Plain Layout
+
+	endif;
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	write enter_generations;
+\end_layout
+
+\begin_layout Plain Layout
+
+	read generations;
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	for generations = 0 to generations-1 do
+\end_layout
+
+\begin_layout Plain Layout
+
+		state.world = next_state( state.world );
+\end_layout
+
+\begin_layout Plain Layout
+
+		state.generation = state.generation + 1;
+\end_layout
+
+\begin_layout Plain Layout
+
+		write state;
+\end_layout
+
+\begin_layout Plain Layout
+
+	endfor;
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	write [ input.filename ] state;
+\end_layout
+
+\begin_layout Plain Layout
+
+	write struct( str_goodbye, struct( str_saved, input.filename ) );
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	return 0;
+\end_layout
+
+\begin_layout Plain Layout
+
+end game_of_life
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{lstlisting}
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \end_body
