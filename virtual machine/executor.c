@@ -779,6 +779,7 @@ int sol_goto( Value* args )
 int sol_pop()
 {
 	int i;
+	ByteArray function_result = pop_bytearray();
 
 	for( i = 0; i < top_astack()->obj_number; i++ )
 	{
@@ -792,6 +793,9 @@ int sol_pop()
 	}
 
 	pop_astack();
+
+	// Restores the result obtained from the called function
+	push_bytearray( function_result.value, function_result.size );
 
 	return MEM_OK;
 }

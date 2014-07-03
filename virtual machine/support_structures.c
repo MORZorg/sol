@@ -61,6 +61,12 @@ int initialize_stacks()
 
 int finalize_stacks()
 {
+	while( ap > 0 )
+		pop_astack();
+
+	while( op > 0 )
+		pop_ostack();
+
 	free( astack );
 	free( ostack );
 	free( istack );
