@@ -68,7 +68,7 @@ status collapsed
 
 
 \backslash
-label{chp:Lex}
+label{chp:lex}
 \end_layout
 
 \end_inset
@@ -276,7 +276,7 @@ status collapsed
 
 
 \backslash
-ref{lst:Lex_regexp}
+ref{lst:lex_regexp}
 \end_layout
 
 \end_inset
@@ -294,7 +294,7 @@ status collapsed
 
 \backslash
 begin{lstlisting}[language={},caption={Lex definition of lexical elements},label
-={lst:Lex_regexp},language={}]
+={lst:lex_regexp},language={}]
 \end_layout
 
 \begin_layout Plain Layout
@@ -404,7 +404,7 @@ status collapsed
 
 
 \backslash
-ref{lst:Lex_rule}
+ref{lst:lex_rule}
 \end_layout
 
 \end_inset
@@ -422,7 +422,7 @@ status collapsed
 
 
 \backslash
-begin{lstlisting}[caption={Lex rule},label={lst:Lex_rule}]
+begin{lstlisting}[caption={Lex rule},label={lst:lex_rule}]
 \end_layout
 
 \begin_layout Plain Layout
@@ -453,7 +453,7 @@ status collapsed
 
 
 \backslash
-ref{lst:Lex_keyword}
+ref{lst:lex_keyword}
 \end_layout
 
 \end_inset
@@ -488,7 +488,7 @@ status collapsed
 
 
 \backslash
-ref{lst:Lex_more}
+ref{lst:lex_more}
 \end_layout
 
 \end_inset
@@ -504,7 +504,7 @@ status collapsed
 
 
 \backslash
-begin{lstlisting}[caption={Lex rule for a keyword},label={lst:Lex_keyword},langu
+begin{lstlisting}[caption={Lex rule for a keyword},label={lst:lex_keyword},langu
 age={}]
 \end_layout
 
@@ -553,7 +553,7 @@ status collapsed
 
 
 \backslash
-begin{lstlisting}[caption={Lex rules for constants and ids},label={lst:Lex_more}
+begin{lstlisting}[caption={Lex rules for constants and ids},label={lst:lex_more}
 ,language={}]
 \end_layout
 
@@ -701,7 +701,7 @@ status collapsed
 
 
 \backslash
-ref{lst:Lex_more}
+ref{lst:lex_more}
 \end_layout
 
 \end_inset
