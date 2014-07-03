@@ -347,8 +347,12 @@ begin{lstlisting}[caption={Types},label={lst:type_eg}]
 
 \begin_layout Plain Layout
 
-		from_slides: vector[ 10 ] of struct( la: int: lala: vector[ 20 ] of vector[
- 5 ] of real );
+		from_slides: vector[ 10 ] of
+\end_layout
+
+\begin_layout Plain Layout
+
+				struct( la: int: lala: vector[ 20 ] of vector[ 5 ] of real );
 \end_layout
 
 \begin_layout Plain Layout
@@ -552,8 +556,12 @@ begin{lstlisting}[caption={Constants},label={lst:const_eg}]
 
 \begin_layout Plain Layout
 
-		MAT: vector [ 2 ] of vector [ 5 ] of real = vector( VECT, vector( x, y,
- z, 10.0, x+y+z ) ); 
+		MAT: vector [ 2 ] of vector [ 5 ] of real =
+\end_layout
+
+\begin_layout Plain Layout
+
+				vector( VECT, vector( x, y, z, 10.0, x+y+z ) ); 
 \end_layout
 
 \begin_layout Plain Layout
@@ -597,7 +605,7 @@ n except a definition).
 \end_layout
 
 \begin_layout Standard
-// TODO add tests
+// TODO add tests and explanations?
 \end_layout
 
 \begin_layout Section
@@ -693,7 +701,7 @@ func game_of_life() : int
 
 \begin_layout Plain Layout
 
-												Life! 
+			Life! 
 \backslash
 n
 \backslash
@@ -709,7 +717,7 @@ tBye!";
 
 \begin_layout Plain Layout
 
-												following file:"; 
+			following file:"; 
 \end_layout
 
 \begin_layout Plain Layout
@@ -720,7 +728,7 @@ tBye!";
 
 \begin_layout Plain Layout
 
-												like to load from a saved state.";
+			like to load from a saved state.";
 \end_layout
 
 \begin_layout Plain Layout
@@ -730,7 +738,7 @@ tBye!";
 
 \begin_layout Plain Layout
 
-												like to watch your world go by.";
+			like to watch your world go by.";
 \end_layout
 
 \begin_layout Plain Layout

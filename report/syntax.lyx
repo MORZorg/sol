@@ -109,10 +109,6 @@ The precedence of operators is resolved automatically by defining four levels
 \end_layout
 
 \begin_layout Standard
-// TODO extend?
-\end_layout
-
-\begin_layout Standard
 \begin_inset ERT
 status open
 
