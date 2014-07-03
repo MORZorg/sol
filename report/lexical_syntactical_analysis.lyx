@@ -62,7 +62,7 @@
 
 \begin_layout Chapter
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -78,7 +78,7 @@ Lexical and Syntactic analysis
 
 \begin_layout Standard
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -108,7 +108,7 @@ The lexical and syntactical analysis of the language, presented in this
 \begin_layout Itemize
 The semantical analysis, presented in Chapter 
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -128,7 +128,7 @@ ref{chp:sem}
 \begin_layout Itemize
 The code generation, presented in Chapter 
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -143,7 +143,7 @@ ref{chp:gen}
  translates it in a lower-level and standard code, easier to execute directly
  (and executed by the virtual machine, of which we talk in Part 
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -231,7 +231,7 @@ lexeme
 The definition of lexeme for the SOL language is, for our compiler, the
  one presented in 
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -248,7 +248,7 @@ ref{lst:lex_regexp}
 
 \begin_layout Standard
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -359,7 +359,7 @@ end{lstlisting}
 The rules associated to each lexeme must be in the form presented in Listing
  
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -377,7 +377,7 @@ ref{lst:lex_rule}
 
 \begin_layout Standard
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -408,7 +408,7 @@ end{lstlisting}
 For the fixed lexemes (keywords and other simple stuff), the rules are as
  simple the ones in in Listing 
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -467,7 +467,7 @@ a
 C union that can contain any type of value (integer, real, string..).
  The rules for the complex lexemes are all presented in Listing 
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -483,7 +483,7 @@ ref{lst:lex_more}
 
 \begin_layout Standard
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -532,7 +532,7 @@ end{lstlisting}
 
 \begin_layout Standard
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -680,7 +680,7 @@ end{lstlisting}
 \begin_layout Standard
 The last line of 
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -738,7 +738,7 @@ Node
 \emph default
  structure, presented in Listing 
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -840,7 +840,7 @@ first right brother.
 
 \begin_layout Standard
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -1001,7 +1001,7 @@ translation rules
  for every syntactical element of the language (all those defined in the
  BNF description, presented in Chapter 
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -1021,7 +1021,7 @@ A translation rule must create a Node and populate it with the appopriate
  informations.
  The structure of a translation rule is the one presented in Listing 
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -1037,7 +1037,7 @@ ref{lst:translation_rule}
 
 \begin_layout Standard
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -1156,7 +1156,7 @@ root
  like the others.
  In Listing 
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -1173,7 +1173,7 @@ ref{lst:some_rule}
 
 \begin_layout Standard
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 

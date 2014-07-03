@@ -100,7 +100,11 @@ Yacc
 \emph on
 BNF
 \emph default
- maps directly to the specification of Yacc.
+ maps directly to the specification of 
+\emph on
+Yacc
+\emph default
+.
 \end_layout
 
 \begin_layout Standard

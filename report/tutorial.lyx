@@ -62,7 +62,7 @@
 
 \begin_layout Chapter
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -78,7 +78,7 @@ SOL language introduction and examples
 
 \begin_layout Standard
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -121,7 +121,7 @@ procedure in C, with the difference that, here, we don't need to call this
  function in a particular way).
  The function is defined in a precise manner, as in Listing 
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -137,7 +137,7 @@ ref{lst:hello_world}
 
 \begin_layout Standard
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -217,7 +217,7 @@ function's
 parameters These are defined in the round brackets after the function's
  name as a list of variable definitions (as can be seen in Listing 
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -253,7 +253,7 @@ struct
 
 \begin_layout Standard
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -302,7 +302,7 @@ typedef
  The syntax of a type definition is very similar to that of a variable definitio
 n, as can be seen in Listing 
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -331,7 +331,7 @@ followed by round brackets in which a list of variables is contained.
 
 \begin_layout Standard
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -388,7 +388,7 @@ of
 variables This is similar to that in the definition of parameters, as in
  Listing 
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -404,7 +404,7 @@ ref{lst:var_eg}
 
 \begin_layout Standard
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -497,7 +497,7 @@ constants The definition of a constant is identical to that of variables
  except for the fact that a value must be assigned to each constant at definitio
 n time (see Listing 
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -509,18 +509,11 @@ ref{lst:const_eg}
 \end_inset
 
 ).
- Note that an assignment separated by the variable's definition follows
- the same syntax but without the indication of the variable's type (that
- is, something like 
-\emph on
-variable_name = value;
-\emph default
-).
 \end_layout
 
 \begin_layout Standard
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -605,7 +598,973 @@ n except a definition).
 \end_layout
 
 \begin_layout Standard
-// TODO add tests and explanations?
+The body of a function must always contain a 
+\emph on
+return
+\emph default
+ statement in every branch (if the body is branched by a conditional statement
+ and a branch contains a 
+\emph on
+return
+\emph default
+, then every other branch must terminate with one too).
+\end_layout
+
+\begin_layout Section
+The body of a function - instructions of SOL
+\end_layout
+
+\begin_layout Standard
+In this section we present all the instructions allowed in a SOL program
+ (except for the definitions, explained before).
+ They follow a syntax which is pretty standard, anyway.
+\end_layout
+
+\begin_layout Subsection
+Access to struct fields and vector values
+\end_layout
+
+\begin_layout Standard
+Access to a field of a structure is done with a dot, while indexing a vector
+ is done by enclosing the index in square brackets.
+ Both operations are exemplified in Listing 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{lst:ixa_fda}
+\end_layout
+
+\end_inset
+
+.
+ Note that a double dash starts a comment.
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{lstlisting}[caption={Examples of indexing and fielding},label={lst:ixa_fda
+}]
+\end_layout
+
+\begin_layout Plain Layout
+
+s: struct( a: int; b: struct( c: string ) );
+\end_layout
+
+\begin_layout Plain Layout
+
+v: vector [ 10 ] of vector [ 5 ] of int;
+\end_layout
+
+\begin_layout Plain Layout
+
+...
+\end_layout
+
+\begin_layout Plain Layout
+
+-- Reference to the field a of the structure s
+\end_layout
+
+\begin_layout Plain Layout
+
+s.a;
+\end_layout
+
+\begin_layout Plain Layout
+
+-- Reference to the field c of the field b of the structure s
+\end_layout
+
+\begin_layout Plain Layout
+
+s.b.c;
+\end_layout
+
+\begin_layout Plain Layout
+
+-- Indexing of the fourth element of v
+\end_layout
+
+\begin_layout Plain Layout
+
+v[3];
+\end_layout
+
+\begin_layout Plain Layout
+
+-- Indexing of the second element of the first element of v
+\end_layout
+
+\begin_layout Plain Layout
+
+v[0][1];
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{lstlisting}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Arithmetic expressions
+\end_layout
+
+\begin_layout Standard
+In SOL, any numerical (integer or real) variable can be involved in an arithmeti
+c expression, but the language does not provide implicit type coercion.
+ This means that an expression can contain only real or only integer operands,
+ but there are two functions that allow to mix things up by providing explicit
+ casting.
+ These two functions are 
+\emph on
+toint 
+\emph default
+and 
+\emph on
+toreal 
+\emph default
+(with obvious semantics).
+\end_layout
+
+\begin_layout Standard
+The operands are the same for real and integer variables and are + (plus),
+ - (minus), / (divide) and * (multiply).
+ The minus operand can be applied to a single value to obtain its opposite
+ (
+\begin_inset Formula $-a=-1*a$
+\end_inset
+
+ ), otherwise all the operands are binary, left associative, and multiply
+ and divide have higher precedence than minus and plus (the unary minus
+ has the highest precedence, though).
+\end_layout
+
+\begin_layout Standard
+The operands in an expression are evaluated from left to right.
+\end_layout
+
+\begin_layout Standard
+An example of arithmetic expression is presented in Listing 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{lst:arith_eg}
+\end_layout
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{lstlisting}[caption={Example of arithmetic expression},label={lst:arith_eg
+}]
+\end_layout
+
+\begin_layout Plain Layout
+
+i, j: int;
+\end_layout
+
+\begin_layout Plain Layout
+
+x, y: real;
+\end_layout
+
+\begin_layout Plain Layout
+
+...
+\end_layout
+
+\begin_layout Plain Layout
+
+x = toreal( i + j ) * ( r - toreal( i ) );
+\end_layout
+
+\begin_layout Plain Layout
+
+j = toint( x + y - 1.25 );
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{lstlisting}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In this example we can also notice the syntax of an assignment, simply 
+\emph on
+variable_name = value;
+\emph default
+.
+\end_layout
+
+\begin_layout Subsection
+Conditional constructs and logical expressions
+\end_layout
+
+\begin_layout Standard
+There are two conditional constructs in sol: the conditional 
+\emph on
+expression 
+\emph default
+is an expression that assumes different values when different conditions
+ apply, while the conditional 
+\emph on
+statement
+\emph default
+ is a construct
+\emph on
+ 
+\emph default
+than allows different lists of statements to be executed when different
+ conditions apply.
+\end_layout
+
+\begin_layout Standard
+The syntax of a conditional expression is presented in Listing 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{lst:cond_expr_eg}
+\end_layout
+
+\end_inset
+
+, while that of a conditional statement is presented in Listing 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{lst:cond_stat_eg}
+\end_layout
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{lstlisting}[caption={Example of conditional expression},label={lst:cond_ex
+pr_eg}]
+\end_layout
+
+\begin_layout Plain Layout
+
+a, b, c: int;
+\end_layout
+
+\begin_layout Plain Layout
+
+...
+\end_layout
+
+\begin_layout Plain Layout
+
+a = if b > c then b + c elsif b == c + 1 then b - c else a + 1 endif;
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{lstlisting}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{lstlisting}[caption={Example of conditional statement},label={lst:cond_sta
+t_eg}]
+\end_layout
+
+\begin_layout Plain Layout
+
+a, b, c: int;
+\end_layout
+
+\begin_layout Plain Layout
+
+...
+\end_layout
+
+\begin_layout Plain Layout
+
+if a == b then
+\end_layout
+
+\begin_layout Plain Layout
+
+	b = c;
+\end_layout
+
+\begin_layout Plain Layout
+
+elsif a > b then
+\end_layout
+
+\begin_layout Plain Layout
+
+	c = b + a;
+\end_layout
+
+\begin_layout Plain Layout
+
+else
+\end_layout
+
+\begin_layout Plain Layout
+
+	c = b - a;
+\end_layout
+
+\begin_layout Plain Layout
+
+endif;
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{lstlisting}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Both constructs use the same keywords in the same order, in both cases after
+ an 
+\emph on
+if 
+\emph default
+or an 
+\emph on
+elsif 
+\emph default
+there must be a logical expression and both constructs terminate with the
+ keyword 
+\emph on
+endif
+\emph default
+ followed by a semicolon.
+ The main difference is that in a conditional expression what follows a
+ 
+\emph on
+then 
+\emph default
+or an 
+\emph on
+else 
+\emph default
+must be an expression returning a single value, while in a conditional construct
+ such keywords can be followed by any number of statements.
+ Moreover, in a conditional expression the 
+\emph on
+else
+\emph default
+ clause is mandatory (to ensure that the expression always assumes a value),
+ while in a conditional statement is facultative.
+ In both constructs the 
+\emph on
+elsif
+\emph default
+ clauses are not mandatory.
+\end_layout
+
+\begin_layout Standard
+The logical expressions allows the boolean binary operators 
+\emph on
+and 
+\emph default
+(conjunction) and 
+\emph on
+or
+\emph default
+ (disjunction) and the unary 
+\emph on
+not
+\emph default
+ (negation).
+ The negation operator has higher precedence than the other two.
+\end_layout
+
+\begin_layout Standard
+Operands of a logical expression can be relational expressions, that is,
+ expressions with arithmetic expressions as operands involving the operators
+ == (equality), != (inequality), > (greater than), >= (greater than or equal),
+ < (less than), <= (less than or equal), 
+\emph on
+in 
+\emph default
+(membership).
+ The equality and inequality operators can be applied to any type of operands,
+ while the other (except for the membership, which is somewhat special)
+ can only be applied to integer, real or string operands.
+ Operands must be of the same type.
+ In the case of the membership, the second operand must be a vector and
+ the first operand must be of the same type of the vector's elements.
+\end_layout
+
+\begin_layout Standard
+Combining all the types of operators, the precedence goes as in Table 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{tbl:op_prec}
+\end_layout
+
+\end_inset
+
+ (precedence increases with the number of line).
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float table
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Tabular
+<lyxtabular version="3" rows="5" columns="1">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top" width="0">
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+and, or
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+==, !=, >, >=, <, <=, in
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
++, - (binary)
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+*, /
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+- (unary), not
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+label{tbl:op_prec}
+\end_layout
+
+\end_inset
+
+Precedence of operators
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Cycles
+\end_layout
+
+\begin_layout Standard
+There are three types of loop constructs in SOL: the 
+\emph on
+while 
+\emph default
+(Listing 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{lst:while_eg}
+\end_layout
+
+\end_inset
+
+), the
+\emph on
+ for 
+\emph default
+(Listing 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{lst:for_eg}
+\end_layout
+
+\end_inset
+
+)
+\emph on
+ 
+\emph default
+and the 
+\emph on
+foreach 
+\emph default
+(Listing 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{lst:foreach_eg}
+\end_layout
+
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{lstlisting}[caption={Example of while loop},label={lst:while_eg}]
+\end_layout
+
+\begin_layout Plain Layout
+
+a, b, c: int;
+\end_layout
+
+\begin_layout Plain Layout
+
+...
+\end_layout
+
+\begin_layout Plain Layout
+
+while a >= b do
+\end_layout
+
+\begin_layout Plain Layout
+
+	a = a - c;
+\end_layout
+
+\begin_layout Plain Layout
+
+endwhile;
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{lstlisting}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{lstlisting}[caption={Example of for loop},label={lst:for_eg}]
+\end_layout
+
+\begin_layout Plain Layout
+
+i, k: int;
+\end_layout
+
+\begin_layout Plain Layout
+
+v: vector [ 100 ] of int;
+\end_layout
+
+\begin_layout Plain Layout
+
+...
+\end_layout
+
+\begin_layout Plain Layout
+
+for i = 1 to 100 do
+\end_layout
+
+\begin_layout Plain Layout
+
+	k = k + v[ i ];
+\end_layout
+
+\begin_layout Plain Layout
+
+endfor;
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{lstlisting}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{lstlisting}[caption={Example of foreach loop},label={lst:foreach_eg}]
+\end_layout
+
+\begin_layout Plain Layout
+
+i, k: int;
+\end_layout
+
+\begin_layout Plain Layout
+
+v: vector [ 100 ] of int;
+\end_layout
+
+\begin_layout Plain Layout
+
+...
+\end_layout
+
+\begin_layout Plain Layout
+
+foreach i in v do
+\end_layout
+
+\begin_layout Plain Layout
+
+	k = k + i;
+\end_layout
+
+\begin_layout Plain Layout
+
+endforeach;
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{lstlisting}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In the for loop, the counting variable (i, in the example) cannot be assigned
+ within the loop body.
+ The semantics of the while and for loops is the classical one, and the
+ foreach is, intuitively, a loop in which, at every iteration, the 
+\begin_inset Quotes eld
+\end_inset
+
+counting
+\begin_inset Quotes erd
+\end_inset
+
+ (it's not really counting) variable assumes the following value of the
+ vector (in the example, v).
+ It is a nice method of vector iteration.
+\end_layout
+
+\begin_layout Subsection
+Input/Output
+\end_layout
+
+\begin_layout Standard
+SOL feature two instructions to produce output (
+\emph on
+write 
+\emph default
+and 
+\emph on
+wr
+\emph default
+) and two to request input (
+\emph on
+read 
+\emph default
+and 
+\emph on
+rd
+\emph default
+).
+ The syntax of the four instructions is presented in Listing 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{lst:i_o_eg}
+\end_layout
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{lstlisting}[caption={Examples of I/O instructions},label={lst:i_o_eg}]
+\end_layout
+
+\begin_layout Plain Layout
+
+a, b, c: int;
+\end_layout
+
+\begin_layout Plain Layout
+
+filename: string;
+\end_layout
+
+\begin_layout Plain Layout
+
+...
+\end_layout
+
+\begin_layout Plain Layout
+
+write [ filename ] a;
+\end_layout
+
+\begin_layout Plain Layout
+
+b = wr [ filename ] a + c;
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+read [ filename ] a;
+\end_layout
+
+\begin_layout Plain Layout
+
+b = rd [ filename ] int;
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{lstlisting}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The 
+\emph on
+write
+\emph default
+ and 
+\emph on
+wr
+\emph default
+ instructions both require to specify the name of the file on which the
+ data has to be written in square brackets (not mandatory, if missing the
+ output is presented on the standard output, ie the monitor), followed by
+ an expression which result is the data to write.
+ The difference is that wr also assumes that value and, therefore, it can
+ be used as rhs (right hand side) of an assignment.
+\end_layout
+
+\begin_layout Standard
+The 
+\emph on
+read 
+\emph default
+and 
+\emph on
+rd
+\emph default
+ instructions are, instead, slightly different from each other.
+ Both require to specify the name of the file from which to read in square
+ brackets (again, not mandatory), but read then requires the name of the
+ variable in which the read data has to be saved, while rd requires the
+ type of the data read.
+ It then assumes the read value assuming that it is of the specified type.
+\end_layout
+
+\begin_layout Subsection
+Function call
+\end_layout
+
+\begin_layout Standard
+A function can be called simply by writing its name followed by a list of
+ values for the parameters enclosed in round brackets.
 \end_layout
 
 \begin_layout Section
@@ -625,7 +1584,7 @@ as an example of full program that can run with our SOL compiler and virtual
 
 \begin_layout Standard
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
