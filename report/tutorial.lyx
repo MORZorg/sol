@@ -62,7 +62,7 @@
 
 \begin_layout Chapter
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -78,7 +78,7 @@ SOL language introduction and examples
 
 \begin_layout Standard
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -120,9 +120,8 @@ main
 procedure in C, with the difference that, here, we don't need to call this
  function in a particular way).
  The function is defined in a precise manner, as in Listing 
-
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -137,9 +136,8 @@ ref{lst:hello_world}
 \end_layout
 
 \begin_layout Standard
-
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -186,7 +184,6 @@ end{lstlisting}
 \end_layout
 
 \begin_layout Standard
-
 In this first example we can notice that a function definition is essentially
  divided in two parts: a 
 \emph on
@@ -200,12 +197,54 @@ body
 \end_layout
 
 \begin_layout Standard
-
 This first example, obviously, does not comprise all the elements allowed
- in a function definition.
- We present another one, more complex and more comprehensive
-\lang english
-, in Listing 
+ in a function's header.
+ The purpose of the header is to define all the objects of the function's
+ local environment, that is, all the objects usable in the function's body.
+ These objects fall in five categories, and their definitions must be written
+ in the presented order:
+\end_layout
+
+\begin_layout Itemize
+The function's parameters.
+ These are defined in the round brackets after the function's name as a
+ list of variable definitions (as can be seen in Listing 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{lst:par_eg}
+\end_layout
+
+\end_inset
+
+).
+ A variable definition must be in the form 
+\emph on
+variable_name: type; 
+\emph default
+and any number of variable of the same type can be defined with a single
+ instruction by listing all the variables' names before the colon separated
+ by commas.
+ The types allowed in SOL are the simple types 
+\emph on
+int, real, bool, string, char
+\emph default
+ and the two complex ones 
+\emph on
+vector
+\emph default
+ and 
+\emph on
+struct
+\emph default
+, whose syntax is defined later.
+\end_layout
+
+\begin_layout Standard
 \begin_inset ERT
 status open
 
@@ -213,7 +252,114 @@ status open
 
 
 \backslash
-ref{lst:first_example}
+begin{lstlisting}[caption={Parameters},label={lst:par_eg}]
+\end_layout
+
+\begin_layout Plain Layout
+
+func program( par1, par2: int; par3: string ): int
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{lstlisting}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+A list of types.
+ The definition of a type has the very same purpose of the instruction 
+\emph on
+typedef
+\emph default
+ in C, and any type can be redefined with a custom name, even if this is
+ particularly useful only with complex types.
+ The syntax of a type definition is very similar to that of a variable definitio
+n, as can be seen in Listing 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{lst:type_eg}
+\end_layout
+
+\end_inset
+
+.
+ In the same example we can also see how a complex type is defined.
+ A vector must follow the syntax 
+\emph on
+vector[ size ] of element_type;
+\emph default
+ while for a struct one must write the keyword 
+\emph on
+struct 
+\emph default
+followed by round brackets in which a list of variables is contained.
+ The variables in the list are the flieds of the structure.
+ The types are completely orthogonal (one can define a vector of structs
+ containing vectors, for example).
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{lstlisting}[caption={Types},label={lst:type_eg}]
+\end_layout
+
+\begin_layout Plain Layout
+
+	type
+\end_layout
+
+\begin_layout Plain Layout
+
+		from_slides: vector[ 10 ] of struct( la: int: lala: vector[ 20 ] of vector[
+ 5 ] of real );
+\end_layout
+
+\begin_layout Plain Layout
+
+		T2: string;
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{lstlisting}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+A list of variables, similar to that in the definition of parameters, as
+ in Listing 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{lst:var_eg}
 \end_layout
 
 \end_inset
@@ -229,22 +375,7 @@ status open
 
 
 \backslash
-begin{lstlisting}[caption={First code example},label={lst:first_example}]
-\end_layout
-
-\begin_layout Plain Layout
-
-func function_name( param: int; ): int
-\end_layout
-
-\begin_layout Plain Layout
-
-	type
-\end_layout
-
-\begin_layout Plain Layout
-
-		T: vector[ 10 ] of string;
+begin{lstlisting}[caption={Variables},label={lst:var_eg}]
 \end_layout
 
 \begin_layout Plain Layout
@@ -259,85 +390,47 @@ func function_name( param: int; ): int
 
 \begin_layout Plain Layout
 
-		i, j: int;
+		i: int;
 \end_layout
 
 \begin_layout Plain Layout
 
-		x: bool;
+		x, y, z: real;
 \end_layout
 
 \begin_layout Plain Layout
 
-	const
+		s: string;
 \end_layout
 
 \begin_layout Plain Layout
 
-		name: string = "hello, world!";
+		b: bool;
 \end_layout
 
 \begin_layout Plain Layout
 
+		r: struct( a: char; b: string; );
 \end_layout
 
 \begin_layout Plain Layout
 
-	func sub_function(): int
+		v: vector [ 5 ] of int;
 \end_layout
 
 \begin_layout Plain Layout
 
-		var
+		w: vector [ 100 ] of struct( a: int; b: char; );
 \end_layout
 
 \begin_layout Plain Layout
 
-			s: string;
+		out_x: real;
 \end_layout
 
 \begin_layout Plain Layout
 
-	begin sub_function
-\end_layout
-
-\begin_layout Plain Layout
-
-		s = name;
-\end_layout
-
-\begin_layout Plain Layout
-
-		write s;
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-		return 0;
-\end_layout
-
-\begin_layout Plain Layout
-
-	end sub_function
-\end_layout
-
-\begin_layout Plain Layout
-
-begin function_name
-\end_layout
-
-\begin_layout Plain Layout
-
-	return 0;
-\end_layout
-
-\begin_layout Plain Layout
-
-end function_name
+		out_v: vector [ 10 ] of real; 
 \end_layout
 
 \begin_layout Plain Layout
@@ -352,49 +445,100 @@ end{lstlisting}
 
 \end_layout
 
-\begin_layout Standard
-Now we can have a better clue of what the function's header can contain.
- In particular, it contains the declaration of 
-\emph on
-types
-\emph default
-, 
-\emph on
-variables
-\emph default
-, 
-\emph on
-constants 
-\emph default
-and 
-\emph on
-functions
-\emph default
- in the local environment of the defined function.
- All these parts are facultative, as we can notice both from the example
- in Listing 
+\begin_layout Itemize
+A list of constants, whose definition is identical to that of variables
+ except for the fact that a value must be assigned to each constant at definitio
+n time (see Listing 
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
 
 \backslash
-ref{lst:hello_world}
+ref{lst:const_eg}
 \end_layout
 
 \end_inset
 
- and in the definition of the 
+.
+ Note that an assignment separated by the variable's definition follows
+ the same syntax but without the indication of the variable's type (that
+ is, something like 
 \emph on
-sub_function
+variable_name = value;
 \emph default
- function.
- The only mandatory part is, in fact, the body.
+).
 \end_layout
 
 \begin_layout Standard
-// TODO explanation of elementary and complex types sbra pwcock
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{lstlisting}[caption={Constants},label={lst:const_eg}]
+\end_layout
+
+\begin_layout Plain Layout
+
+	const
+\end_layout
+
+\begin_layout Plain Layout
+
+		MAX: int = 100;
+\end_layout
+
+\begin_layout Plain Layout
+
+		name: T2 = "alpha";
+\end_layout
+
+\begin_layout Plain Layout
+
+		PAIR: struct( a: int; b: char; ) = struct( 25, 'c' );
+\end_layout
+
+\begin_layout Plain Layout
+
+		VECT: vector [ 5 ] of real = vector( 2.0, 3.12, 4.67, 1.1, 23.0 );
+\end_layout
+
+\begin_layout Plain Layout
+
+		MAT: vector [ 2 ] of vector [ 5 ] of real = vector( VECT, vector( x, y,
+ z, 10.0, x+y+z ) ); 
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{lstlisting}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+A list of functions, defined exactly as the main one.
+ These functions will be visible inside the main function since they are
+ part of its environment.
+ They can, obviously, contain other functions' definitions, and these are
+ also visible by their parent function but not from their brothers and their
+ brothers' children.
+\end_layout
+
+\begin_layout Standard
+These are all the things that a function's header can contain.
+ Note that none of this parts is mandatory.
+ The only mandatory part is, in fact, the body (which can contain any instructio
+n except a definition).
 \end_layout
 
 \begin_layout Standard

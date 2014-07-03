@@ -86,8 +86,8 @@
 \lstdefinelanguage{SOL}
 {
   style=FormattedNumber,
-  keywords=[1]{begin,end,if,then,endif,elsif,else,while,do,endwhile,for,to,endfor,foreach,in,endforeach,return,read,write,and,or,not,struct,toint,toreal,rd,wr},
-  keywords=[2]{func,char,int,real,string,bool,vector,of,type,var,const},
+  keywords=[1]{begin,end,if,then,endif,elsif,else,while,do,endwhile,for,to,endfor,foreach,in,endforeach,return,read,write,and,or,not,toint,toreal,rd,wr},
+  keywords=[2]{func,char,int,real,string,bool,vector,struct,of,type,var,const},
   sensitive=true,
   morecomment=[l]{--},
   morestring=[b]",
@@ -257,7 +257,7 @@ begin{mainmatter}
 
 \lang english
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -307,7 +307,7 @@ filename "semantics.lyx"
 
 \lang english
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -355,7 +355,7 @@ filename "code_generation.lyx"
 
 \begin_layout Part
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 

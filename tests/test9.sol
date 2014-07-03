@@ -8,7 +8,12 @@ func main(): int
 	func strlen( s: str; ): int
 		var i: int;
 	begin strlen
+		write "ok";
+
 		for i = 0 to MAX_LEN-1 do
+			write i;
+			write s[i];
+
 			if s[ i ] == '\0' then
 				break;
 			endif;
