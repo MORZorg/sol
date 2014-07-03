@@ -12,11 +12,14 @@ func game_of_life() : int
   const
 		world_size: int = 15;
 		str_summary: string = "Welcome to ORZ's Conway's Game of Life!";
-		str_goodbye: string =
-			"Thanks for playing with ORZ's Conway's Game of Life!\n\n\tBye!";
-		str_saved: string = "Your data has been successfully saved in the following file:";
-		enter_filename: string = "Enter the filename of your world and if you'd like to load from a saved state.";
-		enter_generations: string = "Enter for how many generations would you like to watch your world go by.";
+		str_goodbye: string = "Thanks for playing with ORZ's Conway's Game of Life!
+													 \n\n\tBye!";
+		str_saved: string = "Your data has been successfully saved in the following 
+												 file:";
+		enter_filename: string = "Enter the filename of your world and if you'd 
+															like to load from a saved state.";
+		enter_generations: string = "Enter for how many generations would you like 
+																 to watch your world go by.";
 		enter_world: string = "Your world doesn't exist yet.\nEnter it now.";
 
   -- Rules:
