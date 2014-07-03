@@ -10,17 +10,12 @@
 int pc;
 
 int ap, op, ip;
-int t_op, t_ip;
 int asize, osize, isize;
-int t_osize, t_isize; 
 
 Adescr** astack;
 Odescr** ostack;
 byte* istack;
 map_t string_map;
-
-Odescr** t_ostack;
-byte* t_istack;
 
 /*
  * PRIVATE FUNCTION
@@ -101,6 +96,8 @@ void allocate_istack( int size )
 		istack = realloc( istack, ISTACK_UNIT * isize );
     }
 
+	// TODO Maybe initialisation isn't needed, could just do
+	// ip += size;
     while( size-- > 0 )
       istack[ ip++ ] = 0;
 
@@ -192,16 +189,14 @@ ByteArray pop_bytearray()
 	result.size = object->size;
 
 #ifdef DEBUG
-	fprintf( stderr, "******************%d\n", object->size );
+	fprintf( stderr, "Bytearray %d bytes big\n", object->size );
 #endif
 
-	int i = object->size - 1;
-	do
-	{
-		result.value[ i ] = top_istack();
-		deallocate_istack( sizeof( byte ) );
-	}
-	while( --i >= 0 );
+	int i;
+	for( i = 0; i < object->size; i++ )
+		result.value[ i ] = istack[ ip - object->size + i ];
+
+	deallocate_istack( result.size );
 	
 	// Must be last because it destroys the value referred by object
 	pop_ostack();
@@ -211,12 +206,10 @@ ByteArray pop_bytearray()
 
 void push_bytearray( byte* value, int size )
 {
+	allocate_istack( size );
 	int i;
 	for( i = 0; i < size; i++ )
-	{
-		allocate_istack( sizeof( byte ) );
-		istack[ ip - 1 ] = value[ i ];
-	}
+		istack[ ip - size + i ] = value[ i ];
 
 	Odescr* object = malloc( sizeof( Odescr ) );
 	object->mode = STA;
@@ -231,6 +224,10 @@ int pop_int()
 	int value = 0;
 
 	memcpy( &value, pop_bytearray().value, sizeof( value ) );
+
+#ifdef DEBUG
+	fprintf( stderr, "Int: %d\n", value );
+#endif
 
 	return value;
 }

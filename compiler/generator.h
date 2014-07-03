@@ -107,9 +107,8 @@ typedef struct code
 
 typedef struct 
 {
-	int size; // # of objects in the activation record of this function
-	int scope; // level containing the function declaration, used to calculate the chain in func_call
-	Stat* entry; // Function's entry point (pointer, because the real address will change when the whole code is concatenated)
+	Symbol* function;
+	Stat* entry;  // Function's entry point (pointer, because the real address will change when the whole code is concatenated)
 } FuncDesc;
 
 typedef struct
@@ -131,7 +130,7 @@ Code make_code_no_param( Operator );
 Code make_code_one_param( Operator, int );
 Code make_code_two_param( Operator, int, int );
 Code make_code_string_param( Operator, char* );
-Code make_push_pop( int, int, int );
+Code make_push_pop( int, int, int, int );
 Code make_ldc( char* );
 Code make_ldi( int );
 Code make_ldr( float );

@@ -721,14 +721,16 @@ int sol_neg()
 // Push the chain and element_number on the istack, in preparation of the call to GOTO, and instantiate a new activation record
 int sol_push( Value* args )
 {
-	int element_number = args[ 0 ].i_val;
-	int chain = args[ 1 ].i_val;
+	int formals_size = args[ 0 ].i_val;
+	int locals_size = args[ 1 ].i_val;
+	int chain = args[ 2 ].i_val;
 
-	enlarge_ostack( element_number );
+	enlarge_ostack( locals_size );
 
-	push_int( element_number );
+	push_int( formals_size );
+	push_int( locals_size );
 #ifdef DEBUG
-	fprintf( stderr, "SOL pushed el#: %d\n", element_number );
+	fprintf( stderr, "SOL pushed el#: %d, %d\n", formals_size, locals_size );
 #endif
 	push_int( chain );
 #ifdef DEBUG
@@ -743,20 +745,21 @@ int sol_goto( Value* args )
 {
 	int entry_point = args[ 0 ].i_val;
 	int chain = pop_int();
-	int element_number = pop_int();
+	int locals_size = pop_int();
+	int formals_size = pop_int();
 	Adescr* function_ar;
 
 #ifdef DEBUG
 	fprintf( stderr, "SOL goto chain: %d\n", chain );
-	fprintf( stderr, "SOL goto el#: %d\n", element_number );
+	fprintf( stderr, "SOL goto el#: %d, %d\n", formals_size, locals_size );
 #endif
 
 	// The number of elements is given, the start point for its objects is the
 	// top of the stack (the objects will be instantiated as part of the
 	// function call, not before)
 	function_ar = malloc( sizeof( Adescr ) );
-	function_ar->obj_number = element_number;
-	function_ar->first_object = op;
+	function_ar->obj_number = formals_size + locals_size;
+	function_ar->first_object = op - formals_size;
 	function_ar->raddr = pc + 1;
 	function_ar->alink = ap - 1;
 	while( chain-- > 0 )

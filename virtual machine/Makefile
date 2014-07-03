@@ -7,10 +7,10 @@ machine: main.c executor.o support_structures.o parser.o lexer.o dataIO.o tree_p
 	$(CC) -Os -g -o $@ $^ -DMACHINE `python3-config --cflags --ldflags`
 
 executor.o: executor.c executor.h support_structures.h dataIO.h tree_print.h
-	$(CC) -Os `python3-config --cflags` -g -c $<
+	$(CC) -Os `python3-config --cflags` -g -c $< -DDEBUG
 
 support_structures.o: support_structures.c support_structures.h def.h $(LIBS_DIR)/hashmap.h
-	$(CC) -Os -g -c $<
+	$(CC) -Os -g -c $< -DDEBUG
 
 tree_print.o: tree_print.c tree_print.h def.h
 	$(CC) -Os -g -c $<

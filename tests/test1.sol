@@ -68,6 +68,7 @@ begin prog
 	read [ "asd.sbra" ] z;
 	write [ "asdpino.sbra" ] t;
 	write if a > 3 then toreal( a * 1 ) elsif a > 2 then toreal( toint( 0.1 ) ) elsif a > 1 then toreal( 1 ) else toreal( a * 2 ) endif;
+    z = wr z;
 
 	return i;
 end prog
