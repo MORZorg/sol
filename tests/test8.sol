@@ -14,7 +14,7 @@ func main() : int
 		var result: pseudo_string;
 			i: int;
 	begin new_pseudo_string
-		for i = 0 to MAX_LEN do
+		for i = 0 to MAX_LEN - 1 do
 			result[ i ] = '\0';
 		endfor;
 		return result;
@@ -23,7 +23,7 @@ func main() : int
 	func strlen( str: pseudo_string; ) : int
 		var i: int;
 	begin strlen
-		for i = 0 to MAX_LEN do
+		for i = 0 to MAX_LEN - 1 do
 			if( str[ i ] == '\0' ) then
 				break;
 			endif;
@@ -36,7 +36,7 @@ func main() : int
 	begin strcat
 		if strlen( str1 ) + strlen( str2 ) <= MAX_LEN then
 			j = 0;
-			for i = strlen( str1 ) to strlen( str1 ) + strlen( str2 ) do
+			for i = strlen( str1 ) to strlen( str1 ) + strlen( str2 ) - 1 do
 				str1[ i ] = str2[ j ];
 				j = j + 1;
 			endfor;
@@ -49,7 +49,7 @@ func main() : int
 		var result: pseudo_string;
 			i: int;
 	begin strcpy
-		for i = 0 to strlen( str ) do
+		for i = 0 to strlen( str ) - 1 do
 			result[ i ] = str[ i ];
 		endfor;
 		return result;
@@ -82,7 +82,7 @@ func main() : int
 			current_base = strcpy( base );
 			next_step = new_pseudo_string();
 			-- Creating the new string to pass as argument
-			for i = 0 to strlen( to_process ) do
+			for i = 0 to strlen( to_process ) - 1 do
 				temp[ 0 ] = to_process[ i ];
 				if i != j then
 					next_step = strcat( next_step, temp );

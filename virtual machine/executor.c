@@ -823,8 +823,6 @@ int sol_fwr( Value* args )
 	ByteArray popped = pop_bytearray();
 	ByteArray expr = decrypt_bytearray( &popped, format );
 
-	fprintf( stderr, "FWR: format %s\tfile %s\texpr '%s' %lu long\n", format, filename, expr.value, expr.size );
-
 	fileOutput( filename, expr );
 
 	push_bytearray( expr.value, expr.size );
