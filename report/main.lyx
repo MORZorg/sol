@@ -99,6 +99,15 @@
   morestring=[b]",
 }
 
+% S-code language definition
+\lstdefinelanguage{OHANA}
+{
+  style=FormattedNumber,
+  keywords=[1]{NEW,NEWS,CAT,LOD,STO,LDA,FDA,EIL,SIL,IXA,IST,JMP,JMF,EQU,NEQ,CGT,CGE,CLT,CLE,IGT,IGE,ILT,ILE,RGT,RGE,RLT,RLE,SGT,SGE,SLT,SLE,IN,IPLUS,IMINUS,ITIMES,IDIV,RPLUS,RMINUS,RTIMES,RDIV,IUMI,RUMI,NEG,WR,FWR,RD,FRD,PUSH,GOTO,POP,TOINT,TOREAL,READ,FREAD,WRITE,FWRITE,FUNC,RETURN,LDI,LDC,LDR,LDS,HALT,SCODE},
+  sensitive=true,
+  morestring=[b]",
+}
+
 \lstdefinelanguage{Scode}
 {
   morekeywords={},

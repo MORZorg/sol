@@ -274,7 +274,7 @@ nonterminal
 
 \begin_layout Standard
 \begin_inset ERT
-status collapsed
+status open
 
 \begin_layout Plain Layout
 
@@ -439,14 +439,14 @@ ref{lst:scode_func_call}
 
 \begin_layout Standard
 \begin_inset ERT
-status collapsed
+status open
 
 \begin_layout Plain Layout
 
 
 \backslash
-begin{lstlisting}[language={},caption={S-code of a function call},label={lst:sco
-de_func_call}]
+begin{lstlisting}[language={OHANA},caption={S-code of a function call},label={ls
+t:scode_func_call}]
 \end_layout
 
 \begin_layout Plain Layout
