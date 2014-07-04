@@ -32,7 +32,7 @@
 % \usepackage{epsf}
 
 \renewcommand\lstlistingname{Code}
-\renewcommand\lstlistlistingname{List of Code chunks}
+\renewcommand\lstlistlistingname{List of Code}
 
 \floatstyle{ruled}
 \newfloat{code}{H}{loc}[chapter]
@@ -108,17 +108,11 @@
   morestring=[b]",
 }
 
-\lstdefinelanguage{Scode}
-{
-  morekeywords={},
-  sensitive=false
-}
-
 % Other
 \makeatletter
 \Hy@AtBeginDocument{%
-  \def\@pdfborder{0 0 1}% Overrides border definition set with colorlinks=true
-  \def\@pdfborderstyle{/S/U/W 1}% Overrides border style set with colorlinks=true
+ % \def\@pdfborder{0 0 1}% Overrides border definition set with colorlinks=true
+ % \def\@pdfborderstyle{/S/U/W 1}% Overrides border style set with colorlinks=true
                                 % Hyperlink border style will be underline of width 1pt
 }
 \makeatother

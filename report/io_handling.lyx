@@ -242,7 +242,7 @@ reference "fig:gui-ubu-menu"
 
 \begin_layout Standard
 \begin_inset Float figure
-placement h
+placement H
 wide false
 sideways false
 status collapsed
@@ -281,7 +281,7 @@ The main window of the GUI in OS X
 
 
 \begin_inset Float figure
-placement h
+placement H
 wide false
 sideways false
 status collapsed
@@ -327,7 +327,7 @@ The main window of the GUI in Ubuntu 14.04
 
 \begin_layout Standard
 \begin_inset Float figure
-placement h
+placement H
 wide false
 sideways false
 status collapsed
@@ -470,6 +470,7 @@ reference "fig:gui-ubu-out"
 
 \begin_layout Standard
 \begin_inset Float figure
+placement H
 wide false
 sideways false
 status collapsed
@@ -507,6 +508,7 @@ An example of an input dialog of the GUI on OS X
 
 
 \begin_inset Float figure
+placement H
 wide false
 sideways false
 status collapsed
@@ -547,6 +549,7 @@ An example of an input dialog of the GUI on Ubuntu 14.04
 
 \begin_layout Standard
 \begin_inset Float figure
+placement H
 wide false
 sideways false
 status collapsed
@@ -597,6 +600,7 @@ ref{lst:gol}
 
 
 \begin_inset Float figure
+placement H
 wide false
 sideways false
 status collapsed
@@ -679,10 +683,16 @@ VectorWidget
 \emph default
  reads the number of elements) and then call once more the translation method,
  to get the widgets relative to its children.
- The code of the translation function is shown in Algorithm 
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "alg:py-schema"
+ The code of the translation function is shown in Code 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{lst:py_schema}
+\end_layout
 
 \end_inset
 
@@ -690,20 +700,20 @@ reference "alg:py-schema"
 \end_layout
 
 \begin_layout Standard
-\begin_inset Float algorithm
-wide false
-sideways false
+\begin_inset ERT
 status collapsed
 
 \begin_layout Plain Layout
-\begin_inset listings
-lstparams "language=Python,numbers=left,tabsize=4"
-inline false
-status open
+
+
+\backslash
+begin{lstlisting}[caption={The method bla bla},label={lst:py_schema},language={P
+ython}]
+\end_layout
 
 \begin_layout Plain Layout
 
-    @staticmethod
+@staticmethod
 \end_layout
 
 \begin_layout Plain Layout
@@ -881,31 +891,14 @@ status open
 
 \begin_layout Plain Layout
 
-            return DataDialog.resolveSchema(schema, nesting, editable) 
-\end_layout
-
-\end_inset
-
-
-\begin_inset Caption
-
-\begin_layout Plain Layout
-\begin_inset CommandInset label
-LatexCommand label
-name "alg:py-schema"
-
-\end_inset
-
-The method used to translate the textual schema into the GUI widget
-\end_layout
-
-\end_inset
-
-
+            return DataDialog.resolveSchema(schema, nesting, editable)
 \end_layout
 
 \begin_layout Plain Layout
 
+
+\backslash
+end{lstlisting}
 \end_layout
 
 \end_inset
