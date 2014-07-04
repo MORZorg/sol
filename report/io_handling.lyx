@@ -24,6 +24,7 @@
 \output_sync 0
 \bibtex_command default
 \index_command default
+\float_placement h
 \paperfontsize default
 \spacing single
 \use_hyperref false
@@ -62,17 +63,100 @@
 
 \begin_layout Chapter
 \begin_inset ERT
-status collapsed
+status open
 
 \begin_layout Plain Layout
 
 
 \backslash
-label{chp:qt}
+label{chp:io}
 \end_layout
 
 \end_inset
 
+Input-Output handling
+\end_layout
+
+\begin_layout Section
+Interprocess communication
+\end_layout
+
+\begin_layout Standard
+The communication between the virtual machine end the input-output resources
+ is characterized by two kinds of data: a string containing a compact representa
+tion of the schema and an array of bytes containing the raw data to be passed
+ from one side to the other.
+\end_layout
+
+\begin_layout Standard
+The textual representation of the schema follows the simple EBNF rules shown
+ in 
+\begin_inset CommandInset ref
+LatexCommand eqref
+reference "eq:EBNF-schema"
+
+\end_inset
+
+ and can be easily created and parsed with a recursive switch function.
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+mathchardef
+\backslash
+mhyphen="2D
+\end_layout
+
+\end_inset
+
+
+\begin_inset Formula 
+\begin{eqnarray}
+format & \rightarrow & atomic\mhyphen format\,|\, struct\mhyphen format\,|\, vector\mhyphen format\nonumber \\
+atomic\mhyphen format & \rightarrow & \textbf{c}\,|\,\textbf{i}\,|\,\textbf{r}\,|\,\textbf{s}\,|\,\textbf{b}\nonumber \\
+struct\mhyphen format & \rightarrow & \textbf{(}attr\left\{ \textbf{,}attr\right\} \textbf{)}\label{eq:EBNF-schema}\\
+attr & \rightarrow & \textbf{id:}format\nonumber \\
+vector\mhyphen format & \rightarrow & \textbf{[num,}format\textbf{]}\nonumber 
+\end{eqnarray}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The raw data matches the representation used inside the virtual machine's
+ stack, with the only difference that the string pointers are replaced with
+ the real content of the string, terminator included.
+ Knowing the size of each element or, in the case of strings, having a known
+ terminator makes it easy to pack and unpack the data from this representation
+ to the needed one.
+\end_layout
+
+\begin_layout Section
+File system interface
+\end_layout
+
+\begin_layout Standard
+When reading from a file, the request contains just the filename and returns
+ the raw data, which is then parsed and translated into stack-acceptable
+ data.
+ If the file doesn't contain the expected data or doesn't exist, the virtual
+ machine stops and a segmentation fault error is given to the user.
+\end_layout
+
+\begin_layout Standard
+When writing to a file, the request contains the filename and the raw data
+ to write.
+\end_layout
+
+\begin_layout Section
 Graphical interface
 \end_layout
 
@@ -195,9 +279,6 @@ The main window of the GUI in OS X
 \end_inset
 
 
-\end_layout
-
-\begin_layout Standard
 \begin_inset Float figure
 wide false
 sideways false
@@ -240,10 +321,27 @@ The main window of the GUI in Ubuntu 14.04
 \end_inset
 
 
+\end_layout
+
+\begin_layout Standard
 \begin_inset Float figure
 wide false
 sideways false
-status collapsed
+status open
+
+\begin_layout Plain Layout
+\begin_inset Box Frameless
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+use_makebox 0
+width "45text%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
@@ -276,10 +374,22 @@ The File menu of the GUI on OS X
 \end_inset
 
 
-\begin_inset Float figure
-wide false
-sideways false
-status collapsed
+\begin_inset space \hfill{}
+\end_inset
+
+
+\begin_inset Box Frameless
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+use_makebox 0
+width "45text%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
@@ -311,14 +421,493 @@ The File menu of the GUI on Ubuntu 14.04
 
 \end_inset
 
-The second script is called directly from within the virtual machine and
- shows the user specialized dialogs representing the data's schema.
- If the intention was to show the user some data, the fields become read-only.
+
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
-// TODO Input, output, widgets, SimpleInterface's function's interfaces
- (?)
+The second script is called directly from within the virtual machine and
+ shows the user specialized dialogs representing the given data's schema.
+ If the intention was to show the user some data, the request contains also
+ the raw data and the fields become read-only.
+ Examples of the interface in these cases is shown in Figures 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:gui-osx-in"
+
+\end_inset
+
+ and 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:gui-ubu-in"
+
+\end_inset
+
+ for data input and 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:gui-osx-out"
+
+\end_inset
+
+ and 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:gui-ubu-out"
+
+\end_inset
+
+ for data output.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename images/gui_osx_in.png
+	lyxscale 10
+	width 100text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:gui-osx-in"
+
+\end_inset
+
+An example of an input dialog of the GUI on OS X
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename images/gui_ubu_in.png
+	lyxscale 10
+	width 100text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:gui-ubu-in"
+
+\end_inset
+
+An example of an input dialog of the GUI on Ubuntu 14.04
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename images/gui_osx_out.png
+	lyxscale 10
+	width 100text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:gui-osx-out"
+
+\end_inset
+
+An example (taken from the execution of Algorithm 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{lst:gol}
+\end_layout
+
+\end_inset
+
+) of an output dialog of the GUI on OS X
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename images/gui_ubu_out.png
+	lyxscale 10
+	width 100text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:gui-ubu-out"
+
+\end_inset
+
+An example (taken from the execution of Algorithm 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{lst:gol}
+\end_layout
+
+\end_inset
+
+) of an output dialog of the GUI on Ubuntu 14.04
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+These dialogs are constructed through a simple automatic composition of
+ widgets, done by the Python code.
+ The dialog widgets are in fact divided in a widget for every type available
+ in SOL plus a widget dedicated to the nesting of complex types.
+ This widget is used when the represented type has, in the schema, a nesting
+ level greater than 1 (e.g., a vector of vector of structs becomes, in the
+ dialog, a matrix of nested widgets, each of which describing the struct).
+ This allows a generally simple and understandable representation of every
+ type combination, although problems could arise in cases like three-dimensional
+ matrixes, which become a matrix of nested widgets when the programmer might
+ have meant to represent a vector of matrixes (hence a vector of nested
+ widgets).
+\end_layout
+
+\begin_layout Standard
+The composition of widgets is done easily thanks to the use of polymorphism
+ and a method designed to translate the textual representation of the schema
+ into the appropriate widgets.
+ The method reads the first symbol of the schema and returns the appropriate
+ instance of the class 
+\emph on
+DataWidget
+\emph default
+, which will eventually parse a part of the schema to construct itself (e.g.,
+ the 
+\emph on
+VectorWidget
+\emph default
+ reads the number of elements) and then call once more the translation method,
+ to get the widgets relative to its children.
+ The code of the translation function is shown in Algorithm 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "alg:py-schema"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float algorithm
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset listings
+lstparams "language=Python,numbers=left,tabsize=4"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+    @staticmethod
+\end_layout
+
+\begin_layout Plain Layout
+
+    def resolveSchema(schema, nesting=None, editable=True):
+\end_layout
+
+\begin_layout Plain Layout
+
+        """
+\end_layout
+
+\begin_layout Plain Layout
+
+        Transforms a string schema into a widget (or series of nested
+\end_layout
+
+\begin_layout Plain Layout
+
+        widgets)
+\end_layout
+
+\begin_layout Plain Layout
+
+        """
+\end_layout
+
+\begin_layout Plain Layout
+
+        if len(schema) == 0:
+\end_layout
+
+\begin_layout Plain Layout
+
+            raise IndexError()
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+        if nesting is None:
+\end_layout
+
+\begin_layout Plain Layout
+
+            nesting = {'s': 0, 'v': 0}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+        element = schema.popleft()
+\end_layout
+
+\begin_layout Plain Layout
+
+        if element == "i":
+\end_layout
+
+\begin_layout Plain Layout
+
+            return IntegerWidget().setEditable(editable)
+\end_layout
+
+\begin_layout Plain Layout
+
+        elif element == "r":
+\end_layout
+
+\begin_layout Plain Layout
+
+            return RealWidget().setEditable(editable)
+\end_layout
+
+\begin_layout Plain Layout
+
+        elif element == "c":
+\end_layout
+
+\begin_layout Plain Layout
+
+            return CharacterWidget().setEditable(editable)
+\end_layout
+
+\begin_layout Plain Layout
+
+        elif element == "s":
+\end_layout
+
+\begin_layout Plain Layout
+
+            return StringWidget().setEditable(editable)
+\end_layout
+
+\begin_layout Plain Layout
+
+        elif element == "b":
+\end_layout
+
+\begin_layout Plain Layout
+
+            return BooleanWidget().setEditable(editable)
+\end_layout
+
+\begin_layout Plain Layout
+
+        elif element == "[":
+\end_layout
+
+\begin_layout Plain Layout
+
+            if nesting['s'] > 1 or nesting['v'] > 1:
+\end_layout
+
+\begin_layout Plain Layout
+
+                schema.appendleft(element)
+\end_layout
+
+\begin_layout Plain Layout
+
+                return NestedWidget(schema, editable)
+\end_layout
+
+\begin_layout Plain Layout
+
+            else:
+\end_layout
+
+\begin_layout Plain Layout
+
+                return VectorWidget(schema, dict(nesting), editable)
+\end_layout
+
+\begin_layout Plain Layout
+
+        elif element == "(":
+\end_layout
+
+\begin_layout Plain Layout
+
+            if nesting['s'] > 1 or nesting['v'] > 1:
+\end_layout
+
+\begin_layout Plain Layout
+
+                schema.appendleft(element)
+\end_layout
+
+\begin_layout Plain Layout
+
+                return NestedWidget(schema, editable)
+\end_layout
+
+\begin_layout Plain Layout
+
+            else:
+\end_layout
+
+\begin_layout Plain Layout
+
+                return StructWidget(schema, dict(nesting), editable)
+\end_layout
+
+\begin_layout Plain Layout
+
+        else:
+\end_layout
+
+\begin_layout Plain Layout
+
+            return DataDialog.resolveSchema(schema, nesting, editable) 
+\end_layout
+
+\end_inset
+
+
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "alg:py-schema"
+
+\end_inset
+
+The method used to translate the textual schema into the GUI widget
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \end_body

@@ -50,7 +50,8 @@ class DataDialog(QtWidgets.QDialog):
     @staticmethod
     def resolveSchema(schema, nesting=None, editable=True):
         """
-        Transforms a string schema into a widget (or series of nested widgets)
+        Transforms a string schema into a widget (or series of nested
+        widgets)
         """
         if len(schema) == 0:
             raise IndexError()
@@ -87,8 +88,8 @@ class DataDialog(QtWidgets.QDialog):
     @staticmethod
     def decryptString(stringDeque, terminator):
         """
-        Reads a string from a deque of characters, until the terminator (single
-        value or list of values) is found.
+        Reads a string from a deque of characters, until the terminator
+        (single value or list of values) is found.
         """
         if not stringDeque:
             return ""
@@ -111,8 +112,8 @@ class DataDialog(QtWidgets.QDialog):
     @staticmethod
     def decryptBytes(stringDeque, terminator):
         """
-        Reads a string from a deque of byte characters, until the terminator
-        (single value or list of values) is found.
+        Reads a string from a deque of byte characters, until the
+        terminator (single value or list of values) is found.
         """
         if not stringDeque:
             return b""
@@ -134,7 +135,8 @@ class DataDialog(QtWidgets.QDialog):
 
     def show(self, data=None):
         """
-        Shows the dialog, eventually filling its widgets with the given data.
+        Shows the dialog, eventually filling its widgets with the given
+        data.
         """
         if data is not None:
             self.ui.widgetSchema.setData(data)
@@ -142,7 +144,8 @@ class DataDialog(QtWidgets.QDialog):
 
     def retrieveData(self):
         """
-        Retrieves the data from the dialog, called when pressing the OK button.
+        Retrieves the data from the dialog, called when pressing the OK
+        button.
         """
         self.data = self.ui.widgetSchema.getData()
 
