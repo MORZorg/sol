@@ -83,8 +83,8 @@ yysem
 \emph default
  (this time written entirely by us, as there's no language for generating
  a semantical analyzer automatically) in which we look through the whole
- Abstract Syntax Tree, generated before, and check if there are any error
- types between nodes, looking for semantical errors.
+ Abstract Syntax Tree, generated before, and check if there are any type
+ errors between nodes, looking for semantical errors.
  To support itself in this operation, the analyzer produces a Symbol Table
  containing all the elements in the code, each of which will be associated
  with a detailed description of its position in the code, a unique identifier
@@ -95,15 +95,12 @@ yysem
 Please note that, even if this structure is called Symbol Table as the one
  produced during the lexical analysis, it is something entirely different,
  as in the lexical analyzer we have simply created an hashmap containing
- lexemes values of strings and identifiers, so there couldn't be any repetition
+ lexeme values of strings and identifiers, so there couldn't be any repetition
  of the same lexeme.
- [magari è già stato descritto durante l'analizi lessicale, quindi si può
- togliere da qui]
 \end_layout
 
 \begin_layout Standard
-The Symbol Table is based on the following auto-esplicative C structures
- (Code 
+The Symbol Table is based on the following C structures (Code 
 \begin_inset ERT
 status collapsed
 
@@ -303,13 +300,13 @@ end{lstlisting}
 \end_layout
 
 \begin_layout Standard
-Every symbol, depending on its type, has to be enumerated so it could be
- uniquely found when executing the code.
+Every symbol, depending on its type, has to be enumerated so it can be uniquely
+ found when executing the code.
  We will differentiate between two possible enumerations: the first one
  is global, associated to every function defined in the code, and the second
  one is relative to the scope of every function, so we could define, for
  example, variables with same name, but each one belonging to different
- function scopes.
+ function scope.
 \end_layout
 
 \begin_layout Standard
@@ -323,14 +320,15 @@ Most of the semantic checks are related to the type schema compatibility
  between nodes in the same expression, so the first critical point is to
  create the correct schema of every node, in this way we will just have
  to check the equality of these schemas.
- Every time a function, a variable or a parameter, a constant and a type
- definition is found in the code, the Symbol Table is updated with its schema,
- so it will be more simply to access in the future and we don't have to
- recalculate its schema every time we found it.
+ Every time a function, a variable, a parameter, a constant or a type definition
+ is found in the code, the Symbol Table is updated with its schema, so it
+ will be easier to access in the future and we don't have to recalculate
+ its schema every time we find it.
 \end_layout
 
 \begin_layout Standard
-Here we show an example of a Symbol Table (Code 
+Here we show an example of a Symbol Table as it is printed by the compiler's
+ debug (Code 
 \begin_inset ERT
 status collapsed
 
@@ -508,13 +506,13 @@ end{lstlisting}
 \begin_layout Standard
 The type checking has also to be done in expressions where there aren't
  only variables with a known schema: in this case we have to infere the
- schema of the not known part and check if it is equal to the known part,
- or also check if two unknown schemas are compatible each other.
+ schema of the unknown part and check if it is equal to the known part,
+ or also check if two unknown schemas are compatible with each other.
 \end_layout
 
 \begin_layout Standard
 To create a schema we used a recursive approach, descending through the
- node until its leaves, which have to be one of the possible 
+ tree until its leaves, which have to be one of the possible 
 \emph on
 Atomic Domain
 \emph default
@@ -522,7 +520,7 @@ Atomic Domain
 \end_layout
 
 \begin_layout Standard
-A really useful function that we decided to implement is the 
+A really useful function that we decided to implement is 
 \emph on
 infere_lhs_schema
 \emph default
@@ -551,7 +549,7 @@ vector
 \emph on
 structures
 \emph default
- cases is here reported (Code 
+ cases is reported in Code 
 \begin_inset ERT
 status collapsed
 
@@ -564,19 +562,23 @@ ref{lst:infere_lhs_code}
 
 \end_inset
 
-):
+.
 \end_layout
 
 \begin_layout Standard
 \begin_inset ERT
-status collapsed
+status open
 
 \begin_layout Plain Layout
 
 
 \backslash
-begin{lstlisting}[caption={Symbol Table example},label={lst:infere_lhs_code},lan
-guage={C}]
+begin{lstlisting}[caption={infere
+\backslash
+_lhs
+\backslash
+_schema function for indexing and fielding operands},label={lst:infere_lhs_code}
+,language={C}]
 \end_layout
 
 \begin_layout Plain Layout
@@ -803,19 +805,19 @@ end{lstlisting}
 \end_layout
 
 \begin_layout Standard
-As we could see in this piece of code, we are checking the integrity of
- types, checking that the inferred schema is compatible with the case in
- which we are and, if this will not happen, we stop the analysis throwing
- a semantical error, using the 
+As we can see in this piece of code, we are checking the integrity of types,
+ checking that the infered schema is compatible with the case in which we
+ are and, if this does not happen, we stop the analysis throwing a semantical
+ error, using the 
 \emph on
 yysemerror
 \emph default
- function, which tries to explain the error that is occurred.
- We could also see that a 
+ function, which tries to explain the error that has occurred.
+ We can also see that a 
 \emph on
 simplify_expression
 \emph default
- function is called whenever is possible, trying to simplify some a a priori
+ function is called whenever is possible, trying to simplify some a priori
  computational parts, such as mathematical and logical operations with known
  values.
 \end_layout
@@ -838,16 +840,16 @@ Boolean
 \emph on
 in
 \emph default
- statement requires could only be applied to a 
+ statement can only be applied to a 
 \emph on
 vector;
 \end_layout
 
 \begin_layout Itemize
-\begin_inset Formula $<,\ \leq,\ >,\ \geq\ $
+\begin_inset Formula $<,\ \leq,\ >,\ \geq$
 \end_inset
 
- could be applied only on 
+ can be applied only on 
 \emph on
 char
 \emph default
@@ -895,7 +897,7 @@ integers;
 \end_layout
 
 \begin_layout Itemize
-assignment work only with 
+assignments work only with 
 \emph on
 parameters
 \emph default
@@ -913,12 +915,12 @@ for
 \end_layout
 
 \begin_layout Standard
-Our implementation of this last check is a little tricky, (we mean, yo dawg)
- because we temporary changed the type of the iterative variable to a 
+Our implementation of this last check is a little tricky, because we temporarily
+ change the nature of the iterative variable to a 
 \emph on
 constant
 \emph default
-, so per definition, it's not possible to change its value.
+, so by definition, it's not possible to change its value.
 \end_layout
 
 \end_body

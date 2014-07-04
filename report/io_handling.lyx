@@ -63,7 +63,7 @@
 
 \begin_layout Chapter
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -82,7 +82,7 @@ Interprocess communication
 \end_layout
 
 \begin_layout Standard
-The communication between the virtual machine end the input-output resources
+The communication between the virtual machine and the input-output resources
  is characterized by two kinds of data: a string containing a compact representa
 tion of the schema and an array of bytes containing the raw data to be passed
  from one side to the other.
@@ -102,7 +102,7 @@ reference "eq:EBNF-schema"
 
 \begin_layout Standard
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -133,7 +133,21 @@ vector\mhyphen format & \rightarrow & \textbf{[num,}format\textbf{]}\nonumber
 \begin_layout Standard
 The raw data matches the representation used inside the virtual machine's
  stack, with the only difference that the string pointers are replaced with
- the real content of the string, terminator included.
+ the real content of the string, terminator (
+\emph on
+
+\begin_inset Quotes eld
+\end_inset
+
+
+\backslash
+0
+\emph default
+
+\begin_inset Quotes erd
+\end_inset
+
+) included.
  Knowing the size of each element or, in the case of strings, having a known
  terminator makes it easy to pack and unpack the data from this representation
  to the needed one.
@@ -157,6 +171,18 @@ When writing to a file, the request contains the filename and the raw data
 \end_layout
 
 \begin_layout Section
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+label{sect:gui}
+\end_layout
+
+\end_inset
+
 Graphical interface
 \end_layout
 
@@ -204,7 +230,8 @@ solGUI.py
 solGUI
 \emph default
  always redirects the called executable's textual output to a text-box.
- The window appearing at the call of solGUI is shown in Figures 
+ The window appearing when opening the program solGUI is shown in Figures
+ 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "fig:gui-osx-main"
@@ -287,10 +314,6 @@ sideways false
 status collapsed
 
 \begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
 \begin_inset Graphics
 	filename images/gui_ubu_main.png
 	lyxscale 10
@@ -308,7 +331,7 @@ name "fig:gui-ubu-main"
 
 \end_inset
 
-The main window of the GUI in Ubuntu 14.04
+The main window of the GUI in Ubuntu Gnome 14.04
 \end_layout
 
 \end_inset
@@ -414,7 +437,7 @@ name "fig:gui-ubu-menu"
 
 \end_inset
 
-The File menu of the GUI on Ubuntu 14.04
+The File menu of the GUI on Ubuntu Gnome 14.04
 \end_layout
 
 \end_inset
@@ -534,7 +557,7 @@ name "fig:gui-ubu-in"
 
 \end_inset
 
-An example of an input dialog of the GUI on Ubuntu 14.04
+An example of an input dialog of the GUI on Ubuntu Gnome 14.04
 \end_layout
 
 \end_inset
@@ -577,7 +600,7 @@ name "fig:gui-osx-out"
 
 An example (taken from the execution of Code 
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -628,7 +651,7 @@ name "fig:gui-ubu-out"
 
 An example (taken from the execution of Code 
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -639,7 +662,7 @@ ref{lst:gol}
 
 \end_inset
 
-) of an output dialog of the GUI on Ubuntu 14.04
+) of an output dialog of the GUI on Ubuntu Gnome 14.04
 \end_layout
 
 \end_inset
@@ -685,7 +708,7 @@ VectorWidget
  to get the widgets relative to its children.
  The code of the translation function is shown in Code 
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -701,7 +724,7 @@ ref{lst:py_schema}
 
 \begin_layout Standard
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 

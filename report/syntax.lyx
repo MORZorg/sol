@@ -116,7 +116,7 @@ The precedence of operators is resolved automatically by defining four levels
 
 \begin_layout Standard
 \begin_inset ERT
-status collapsed
+status open
 
 \begin_layout Plain Layout
 
@@ -1120,14 +1120,7 @@ bf then}}}
 \backslash
 _list
 \backslash
-
-\backslash
-
-\end_layout
-
-\begin_layout Plain Layout
-
-elsif
+,elsif
 \backslash
 _stat
 \backslash
@@ -1135,19 +1128,11 @@ _list
 \backslash
 _opt
 \backslash
-,
+,else
 \backslash
-rightarrow
+_stat
 \backslash
-
-\backslash
-,
-\backslash
-text{
-\backslash
-textnormal{{
-\backslash
-bf else}}}
+_opt
 \backslash
 ,|
 \backslash
@@ -1174,7 +1159,13 @@ _opt
 \backslash
 rightarrow
 \backslash
-,else
+,
+\backslash
+text{
+\backslash
+textnormal{{
+\backslash
+bf else}}}
 \backslash
 ,stat
 \backslash

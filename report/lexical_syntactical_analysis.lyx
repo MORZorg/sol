@@ -122,7 +122,7 @@ ref{chp:sem}
 , which aims at determining if the written statements (which are correct
  thanks to the previous analyses) make sense (e.g., performing the sum of
  an integer and a string makes no sense, therefore it is not semantically
- correct), relying on the data structure produced by the previous analysis;
+ correct), relying on the data structure produced by the previous analyses;
 \end_layout
 
 \begin_layout Itemize
@@ -140,8 +140,8 @@ ref{chp:gen}
 \end_inset
 
 , which, given that the code is both well-written and semantically correct,
- translates it in a lower-level and standard code, easier to execute directly
- (and executed by the virtual machine, of which we will talk in Part 
+ translates it in a lower-level code, easier to execute directly (and executed
+ by the virtual machine, of which we will talk in Part 
 \begin_inset ERT
 status collapsed
 
@@ -220,7 +220,7 @@ symbol table
 \emph on
 yylex 
 \emph default
-function stops and produces an error calling the 
+function stops and produces an error by calling the 
 \emph on
 yyerror
 \emph default
@@ -268,7 +268,7 @@ Lex
 
 \begin_layout Standard
 The definition of lexemes for the SOL language is, for our compiler, the
- one presented in 
+ one presented in Code 
 \begin_inset ERT
 status collapsed
 
@@ -1005,7 +1005,7 @@ concrete tree
 abstract tree
 \emph default
  that cuts off some nodes without loss of information but with great gain
- in space occupation an visiting time (e.g., the expressions are defined in
+ in space occupation a visiting time (e.g., the expressions are defined in
  4 levels to maintain the correct precedence when analyzing the code; these
  levels are of no use after the code has been recognized in the correct
  order, therefore in the resulting abstract tree just the most specific
@@ -1177,7 +1177,7 @@ shift
 reduce
 \emph default
 , simplifies a part of the stack according to the given BNF rules and executes
- the relative instructions
+ the relative instructions.
 \end_layout
 
 \begin_layout Standard

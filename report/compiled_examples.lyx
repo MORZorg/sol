@@ -153,7 +153,20 @@ ref{lst:perm_sol}
 
 \end_inset
 
+ and S-Code 
+\begin_inset ERT
+status open
 
+\begin_layout Plain Layout
+
+
+\backslash
+ref{lst:perm_ohana}
+\end_layout
+
+\end_inset
+
+.
 \end_layout
 
 \begin_layout Standard
@@ -166,23 +179,6 @@ status open
 \backslash
 lstinputlisting[caption={SOL code of Permutations},label={lst:perm_sol},language
 ={SOL}]{./examples/permutations.sol}
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-S-Code 
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-
-\backslash
-ref{lst:perm_ohana}
 \end_layout
 
 \end_inset

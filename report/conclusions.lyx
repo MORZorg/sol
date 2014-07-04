@@ -65,18 +65,34 @@ Conclusions
 \end_layout
 
 \begin_layout Standard
-It works very well because we have done things like they have to be done.
- Nespresso, Whatelse?
+The compiler and virtual machine follow strictly the specifications given
+ by professor Gianfranco Lamperti along with the whole definition of SOL.
+ For further details on the specification, please refer to those documents.
 \end_layout
 
 \begin_layout Standard
-We would like to thank ?(M|G)Vim, Google
+The whole code and documentation can be found on the git repository at 
+\begin_inset Flex URL
+status open
+
+\begin_layout Plain Layout
+
+https://github.com/MORZorg/sol
+\end_layout
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+We would like to thank (M|G)?Vim, Google
 \begin_inset Formula $+$
 \end_inset
 
- Hangouts, Blizzard and Valve, our computers (not every computer at all,
- but..), obviously Tecnomaster for making this project start just in time
- (with only 30 days of delay).
+ Hangouts, Github, Blizzard, Valve and our computers (not every computer
+ at all, but..) for the aid provided in the process of realizing what was
+ described in this document.
 \end_layout
 
 \end_body

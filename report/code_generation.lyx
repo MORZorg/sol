@@ -117,12 +117,12 @@ The code generation translates the SOL code in S-code code, a very low level
 \begin_layout Standard
 Everything is done on three global stacks
 \begin_inset Foot
-status open
+status collapsed
 
 \begin_layout Plain Layout
 More details on the stacks are provided in Chapter 
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -177,7 +177,7 @@ Every instruction has from zero to three operands and operates implicitly
 IPLUS 
 \emph default
 and it has no operands: it takes the last two values present on the stack,
- sum them and put the result back on the stack.
+ sums them and puts the result back on the stack.
  Obviously, as a standard procedure when using stacks, every value used
  is also consumed.
 \end_layout
@@ -239,24 +239,7 @@ generate_code
 \emph on
 Code
 \emph default
- (a structure pointing to a list of pointers to another structure 
-\emph on
-Stat
-\emph default
-, which in turn contains the actual instructions, see Code 
-\begin_inset ERT
-status collapsed
-
-\begin_layout Plain Layout
-
-
-\backslash
-ref{lst:code_stat}
-\end_layout
-
-\end_inset
-
- for the structures definition) in different ways depending on the type.
+ in different ways depending on the type.
  If the type of the node is 
 \emph on
 unqualified nonterminal
@@ -274,7 +257,7 @@ nonterminal
 
 \begin_layout Standard
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -361,7 +344,11 @@ The
 generate_code 
 \emph default
 function returns the code which is concatenated following the order of recursion
- and, in the end, yygen gets the full code.
+ and, in the end, 
+\emph on
+yygen
+\emph default
+ gets the full code.
 \end_layout
 
 \begin_layout Standard
@@ -394,7 +381,7 @@ ohana
 \emph on
 sol 
 \emph default
-extension, because sol..solo..han..han solo..ohana :D) using a function called 
+extension, because sol..solo..han solo..ohana) using a function called 
 \emph on
 output_code
 \emph default
@@ -439,7 +426,7 @@ ref{lst:scode_func_call}
 
 \begin_layout Standard
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -456,12 +443,12 @@ PUSH	<number of formal parameters>
 
 \begin_layout Plain Layout
 
-		<number of local parameters>
+			<number of local parameters>
 \end_layout
 
 \begin_layout Plain Layout
 
-		<distance between the call environment and the definition one>
+			<distance between the call environment and the definition one>
 \end_layout
 
 \begin_layout Plain Layout
@@ -490,7 +477,7 @@ end{lstlisting}
 Assuming that a function will only be called after it is defined, we decided
  to build a hashmap in which every function will put informations about
  itself at the time of its definition.
- This informations are the nesting of the environment in which it is defined
+ These information are the nesting of the environment in which it is defined
  and a reference to the 
 \emph on
 Stat
@@ -504,7 +491,7 @@ Stat
 for
 \emph default
  cycles, for example, are part of the function's environment but are not
- defined in the header)[toglierei tutta la ()].
+ defined in the header).
  The hashmap uses the function's oid as key.
 \end_layout
 
@@ -551,26 +538,26 @@ While executing some examples, we have found that the
 istack
 \emph default
  wasn't empty at the end of the execution, but it still contains a lot of
- instances.
+ instance.
  We also noticed that this problem is code-dependent, in particular depending
  on the fact that the code that we are executing contains or not any sort
  of cycle.
- Looking at the generated code we have found that, every time a cycle were
+ Looking at the generated code we have found that, every time a cycle was
  in an example, a lot of instances were allocated in the 
 \emph on
 istack
 \emph default
  due to the fact that the temporary variables were allocated every time
  a cycle was used.
- The problem will get stronger when the examples contained some nested cycles.
+ The problem got stronger when the examples contained some nested cycles.
 \end_layout
 
 \begin_layout Standard
 Our solution for this issue was to separate the execution from the variable
  instantiation code, saving those two parts separately and then appending
- the code for the variable instantiation after the the function variable
- instantiation, so every variable, temporary or not, defined in the whole
- function will be allocated only once.
+ the code for the variable instantiation after the function variable instantiati
+on, so every variable, temporary or not, defined in the whole function will
+ be allocated only once.
 \end_layout
 
 \end_body

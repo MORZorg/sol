@@ -103,7 +103,7 @@ The project here presented aims at the realization of a full Compiler and
  and presents a pleasant and usable graphical environment for the input
  and output of data.
  An explanation of how this interface works and how it can be used to compile
- and execute a SOL file is presented in Chapter 
+ and execute a SOL file is presented in Section 
 \begin_inset ERT
 status collapsed
 
@@ -111,7 +111,7 @@ status collapsed
 
 
 \backslash
-ref{chp:io}
+ref{sect:gui}
 \end_layout
 
 \end_inset
@@ -1288,6 +1288,10 @@ ref{lst:foreach_eg}
 \end_inset
 
 ).
+\begin_inset Newpage clearpage
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -1445,8 +1449,11 @@ end{lstlisting}
 \end_layout
 
 \begin_layout Standard
-In the for loop, the counting variable (i, in the example) cannot be assigned
- within the loop body.
+In the for loop, the counting variable (
+\emph on
+i
+\emph default
+, in the example) cannot be assigned within the loop body.
  The semantics of the while and for loops is the classical one, and the
  foreach is, intuitively, a loop in which, at every iteration, the 
 \begin_inset Quotes eld
@@ -1466,7 +1473,7 @@ Input/Output
 \end_layout
 
 \begin_layout Standard
-SOL feature two instructions to produce output (
+SOL features two instructions to produce output (
 \emph on
 write 
 \emph default
@@ -1578,7 +1585,7 @@ wr
 \emph on
 wr
 \emph default
- also assumes that value and, therefore, it can be used as rhs (right hand
+ also assumes that value and, therefore, it can be used as rhs (righthand
  side) of an assignment.
 \end_layout
 
@@ -1612,7 +1619,7 @@ Function call
 
 \begin_layout Standard
 A function can be called simply by writing its name followed by a list of
- values for the parameters enclosed in round brackets, but it always have
+ values for the parameters enclosed in round brackets, but it always has
  to be used as an operand of an expression.
 \end_layout
 

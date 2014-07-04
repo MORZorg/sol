@@ -206,9 +206,13 @@ Odescr
 \emph on
 byte
 \emph default
-s (which are simply chars, redefined for clarity with a 
+s (which are simply 
 \emph on
-#define
+char
+\emph default
+s, redefined for clarity with a preprocessor 
+\emph on
+define
 \emph default
 ).
  The implementation as vectors allows for a simpler handling of the allocation,
@@ -217,7 +221,7 @@ s (which are simply chars, redefined for clarity with a
 \end_layout
 
 \begin_layout Standard
-All the instances are recorded as arrays of bytes.
+All the instances are stored as arrays of bytes.
 \end_layout
 
 \begin_layout Standard
@@ -225,7 +229,7 @@ The stacks, their base element's structures and a number of methods to interact
  with them are all defined in a file separated from the one defining the
  execution methods, called 
 \emph on
-support_structures.h
+support_structures
 \emph default
 .
  Each stack has the method 
@@ -275,15 +279,15 @@ and
  deallocate_istack
 \emph default
 .
- The different in the approach is useful because, while the first two stacks
- are normally required to allocate/deallocate one element at a time, it
- is almost always the case that the 
+ The differentiation in the approach is useful because, while the first
+ two stacks are normally required to allocate/deallocate one element at
+ a time, it is almost always the case that the 
 \emph on
 istack
 \emph default
- needs to allocate multiple elements (eg if I want to put an integer on
- the stack, I will need four bytes or more, therefore I will have to allocate
- four elements).
+ needs to allocate multiple elements (e.g.
+ if an integer has to be put on the stack, it will occupy four or more bytes,
+ therefore four or more elements need to be allocated).
 \end_layout
 
 \begin_layout Standard
@@ -524,8 +528,15 @@ istack
 
 \begin_layout Standard
 It's obvious that the stack mode will be preferred in the case of complex
- objects (structs and vectors), while the embedded mode is normally used
- for simple objects.
+ objects (
+\emph on
+struct
+\emph default
+s and 
+\emph on
+vector
+\emph default
+s), while the embedded mode is normally used for simple objects.
  All the 
 \begin_inset Quotes eld
 \end_inset
@@ -550,7 +561,8 @@ mask
  stacks.
  These methods take care of splitting the values into bytes in the right
  way during the push and putting them back togheter at the moment of pop.
- These methods also create objects on the 
+ These methods also manage the creation and destruction of objects on the
+ 
 \emph on
 ostack
 \emph default
@@ -563,8 +575,27 @@ reference the temporary values put on the
 istack
 \emph default
 \SpecialChar \@.
- There is one of them for every elementary type of SOL (int, real, string,
- char, booleans are treated as chars) and they rely on the methods 
+ There is one of them for every elementary type of SOL (
+\emph on
+int
+\emph default
+, 
+\emph on
+real
+\emph default
+, 
+\emph on
+string
+\emph default
+ and 
+\emph on
+char
+\emph default
+, 
+\emph on
+booleans
+\emph default
+ are treated as chars) and they rely on the methods 
 \emph on
 push_bytearray
 \emph default
@@ -1110,7 +1141,7 @@ PUSH
 enlarge_ostack
 \emph default
  to allocate enough space on the stack to accomodate all the objects in
- the function's local environment, avoiding the need for a realloc at every
+ the function's local environment, avoiding the need to reallocate at every
  object push when the function's header code is executed (that code will
  contain a 
 \emph on
@@ -1125,8 +1156,8 @@ NEWS
 \emph on
 ostack
 \emph default
-, and this causes the stack to be reallocated by the size one element if
- it is full; the enlargement performed by 
+, and this causes the stack to be enlarged by one element if it is full;
+ the enlargement performed by 
 \emph on
 PUSH 
 \emph default
