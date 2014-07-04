@@ -198,7 +198,7 @@ solGUI.py
 , simplifies the user's interaction with both the compiler and the virtual
  machine, allowing to open a file, compile it (if the opened file is a SOL
  source file) and execute it (if the opened file is an S-Code file or a
- SOL source file which has been compiled with the GUI); while performing
+ SOL source file which has been compiled through the GUI); while performing
  these actions, 
 \emph on
 solGUI
@@ -242,6 +242,7 @@ reference "fig:gui-ubu-menu"
 
 \begin_layout Standard
 \begin_inset Float figure
+placement h
 wide false
 sideways false
 status collapsed
@@ -280,6 +281,7 @@ The main window of the GUI in OS X
 
 
 \begin_inset Float figure
+placement h
 wide false
 sideways false
 status collapsed
@@ -325,9 +327,10 @@ The main window of the GUI in Ubuntu 14.04
 
 \begin_layout Standard
 \begin_inset Float figure
+placement h
 wide false
 sideways false
-status open
+status collapsed
 
 \begin_layout Plain Layout
 \begin_inset Box Frameless
@@ -341,7 +344,7 @@ width "45text%"
 special "none"
 height "1in"
 height_special "totalheight"
-status open
+status collapsed
 
 \begin_layout Plain Layout
 \begin_inset Graphics
@@ -389,7 +392,7 @@ width "45text%"
 special "none"
 height "1in"
 height_special "totalheight"
-status open
+status collapsed
 
 \begin_layout Plain Layout
 \begin_inset Graphics
@@ -908,6 +911,58 @@ The method used to translate the textual schema into the GUI widget
 \end_inset
 
 
+\end_layout
+
+\begin_layout Standard
+As it can be noticed by the shown dialog examples, the only way to give
+ hints to the user about the structure of the data is through the labels
+ of the used struct.
+ This creates a usability issue and the only solution we have found is,
+ for the 
+\emph on
+WRITE
+\emph default
+ operator, to encapsulate the data with a struct and add string constants
+ to illustrate the data and, for 
+\emph on
+READ
+\emph default
+, 
+\emph on
+RD
+\emph default
+ and 
+\emph on
+WR
+\emph default
+
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+The solution adopted with the 
+\emph on
+WRITE
+\emph default
+ operator can't be adopted with 
+\emph on
+WR
+\emph default
+ since 
+\emph on
+WR
+\emph default
+ also returns the shown data.
+ This would mean that the descriptive string would be included in the result.
+\end_layout
+
+\end_inset
+
+ operators, to precede the command with a 
+\emph on
+WRITE
+\emph default
+ of a string presenting the data.
 \end_layout
 
 \end_body
