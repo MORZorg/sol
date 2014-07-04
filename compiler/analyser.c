@@ -260,7 +260,7 @@ void analyse_decl_list( Node* node, int* oid, ClassSymbol clazz, Boolean has_ass
  */
 int associate_formals_parameters( Node* node, Symbol* element )
 {
-	// Cycling on the locenv of element knowing that its elements are only the formal paramenters
+	// Cycling on the locenv of element knowing that its elements are only the formal parameters
 	Node* brothers = node->child;
 	Node* current_node;
 	Symbol* pointer;

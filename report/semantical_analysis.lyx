@@ -77,13 +77,14 @@ Semantical analysis
 \end_layout
 
 \begin_layout Standard
-Starting from the tree, the 
+The main function of this part is 
 \emph on
-yysem 
+yysem
 \emph default
-function (this time written entirely by us, as there's no language for generatin
-g a semantical analyzer automatically) analyzes the whole code in search
- for semantical errors.
+ (this time written entirely by us, as there's no language for generating
+ a semantical analyzer automatically) in which we look through the whole
+ Abstract Syntax Tree, generated before, and check if there are any error
+ types between nodes, looking for semantical errors.
  To support itself in this operation, the analyzer produces a Symbol Table
  containing all the elements in the code, each of which will be associated
  with a detailed description of its position in the code, a unique identifier
@@ -196,7 +197,17 @@ typedef struct symtab
 
 \begin_layout Plain Layout
 
+	// Name of the Symbol
+\end_layout
+
+\begin_layout Plain Layout
+
 	char* name;
+\end_layout
+
+\begin_layout Plain Layout
+
+	// Unique identifier in this scope
 \end_layout
 
 \begin_layout Plain Layout
@@ -206,7 +217,17 @@ typedef struct symtab
 
 \begin_layout Plain Layout
 
+	// Class of the Symbol
+\end_layout
+
+\begin_layout Plain Layout
+
 	ClassSymbol clazz;
+\end_layout
+
+\begin_layout Plain Layout
+
+	// Pointer to the schema of this Symbol
 \end_layout
 
 \begin_layout Plain Layout
@@ -216,7 +237,17 @@ typedef struct symtab
 
 \begin_layout Plain Layout
 
+	// Environment/scope in which this Symbol is defined
+\end_layout
+
+\begin_layout Plain Layout
+
 	map_t locenv;
+\end_layout
+
+\begin_layout Plain Layout
+
+	// Scope deepness of the Symbol definition
 \end_layout
 
 \begin_layout Plain Layout
@@ -226,12 +257,27 @@ typedef struct symtab
 
 \begin_layout Plain Layout
 
+	// Number of oids' defined in this scope
+\end_layout
+
+\begin_layout Plain Layout
+
 	int last_oid;
 \end_layout
 
 \begin_layout Plain Layout
 
+	// Number of formal parameters (used only with functions)
+\end_layout
+
+\begin_layout Plain Layout
+
 	int formals_size;
+\end_layout
+
+\begin_layout Plain Layout
+
+	// Pointer to the formal parameters (only with functions)
 \end_layout
 
 \begin_layout Plain Layout
@@ -257,22 +303,13 @@ end{lstlisting}
 \end_layout
 
 \begin_layout Standard
-The main function of this part is 
-\emph on
-yysem
-\emph default
- in which we look through the Abstract Syntax Tree, generated before, and
- check if there are any types error between nodes.
-\end_layout
-
-\begin_layout Standard
 Every symbol, depending on its type, has to be enumerated so it could be
  uniquely found when executing the code.
- We will keep track of two possible enumerations: the first one is global,
- associated to every function defined in the code, and the second one is
- relative to the scope of every function, so we could define, for example,
- variables with same name, but each one belonging to different function
- scopes.
+ We will differentiate between two possible enumerations: the first one
+ is global, associated to every function defined in the code, and the second
+ one is relative to the scope of every function, so we could define, for
+ example, variables with same name, but each one belonging to different
+ function scopes.
 \end_layout
 
 \begin_layout Standard
@@ -284,8 +321,8 @@ To make the relative enumeration possible and to check the visibility of
 \begin_layout Standard
 Most of the semantic checks are related to the type schema compatibility
  between nodes in the same expression, so the first critical point is to
- create the correct schema of every node, in this way after we will just
- have to check the equality of these schemas.
+ create the correct schema of every node, in this way we will just have
+ to check the equality of these schemas.
  Every time a function, a variable or a parameter, a constant and a type
  definition is found in the code, the Symbol Table is updated with its schema,
  so it will be more simply to access in the future and we don't have to
@@ -293,10 +330,7 @@ Most of the semantic checks are related to the type schema compatibility
 \end_layout
 
 \begin_layout Standard
-Here we show an example of a Symbol Table
- (Listing 
-\lang english
-
+Here we show an example of a Symbol Table (Listing 
 \begin_inset ERT
 status open
 
@@ -475,12 +509,12 @@ end{lstlisting}
 The type checking has also to be done in expressions where there aren't
  only variables with a known schema: in this case we have to infere the
  schema of the not known part and check if it is equal to the known part,
- or also check if two unknown schema are compatible each other.
+ or also check if two unknown schemas are compatible each other.
 \end_layout
 
 \begin_layout Standard
 To create a schema we used a recursive approach, descending through the
- node until its leaves, which have to be 
+ node until its leaves, which have to be one of the possible 
 \emph on
 Atomic Domain
 \emph default
@@ -517,7 +551,7 @@ vector
 \emph on
 structures
 \emph default
- cases is here reported 
+ cases is here reported (Listing 
 \begin_inset ERT
 status open
 
@@ -530,7 +564,7 @@ ref{lst:infere_lhs_code}
 
 \end_inset
 
-
+):
 \end_layout
 
 \begin_layout Standard
@@ -541,8 +575,8 @@ status open
 
 
 \backslash
-begin{lstlisting}[caption={Symbol Table example},label={lst:symbol_table_example
-},language={C}]
+begin{lstlisting}[caption={Symbol Table example},label={lst:infere_lhs_code},lan
+guage={C}]
 \end_layout
 
 \begin_layout Plain Layout
@@ -766,6 +800,125 @@ end{lstlisting}
 \end_inset
 
 
+\end_layout
+
+\begin_layout Standard
+As we could see in this piece of code, we are checking the integrity of
+ types, checking that the inferred schema is compatible with the case in
+ which we are and, if this will not happen, we stop the analysis throwing
+ a semantical error, using the 
+\emph on
+yysemerror
+\emph default
+ function, which tries to explain the error that is occurred.
+ We could also see that a 
+\emph on
+simplify_expression
+\emph default
+ function is called whenever is possible, trying to simplify some a a priori
+ computational parts, such as mathematical and logical operations with known
+ values.
+\end_layout
+
+\begin_layout Standard
+I'm going to list now some relevant type checks that a user should know
+ to correctly use SOL language:
+\end_layout
+
+\begin_layout Itemize
+relational expressions work only with 
+\emph on
+Boolean
+\emph default
+ types;
+\end_layout
+
+\begin_layout Itemize
+
+\emph on
+in
+\emph default
+ statement requires could only be applied to a 
+\emph on
+vector;
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Formula $<,\ \leq,\ >,\ \geq\ $
+\end_inset
+
+ could be applied only on 
+\emph on
+char
+\emph default
+, 
+\emph on
+int
+\emph default
+, 
+\emph on
+real
+\emph default
+ and 
+\emph on
+string
+\emph default
+ types, not to composition nor structured types;
+\end_layout
+
+\begin_layout Itemize
+mathematical expressions work only with numbers, both 
+\emph on
+integers
+\emph default
+ and 
+\emph on
+reals;
+\end_layout
+
+\begin_layout Itemize
+
+\emph on
+toint
+\emph default
+ and 
+\emph on
+toreal
+\emph default
+ statements work only on their opposite types, correspondingly 
+\emph on
+reals
+\emph default
+ and 
+\emph on
+integers;
+\end_layout
+
+\begin_layout Itemize
+assignment work only with 
+\emph on
+parameters
+\emph default
+ or 
+\emph on
+variables;
+\end_layout
+
+\begin_layout Itemize
+the iterative variable of the 
+\emph on
+for
+\emph default
+ loop cannot be re-assigned inside the cycle itself.
+\end_layout
+
+\begin_layout Standard
+Our implementation of this last check is a little tricky, (we mean, yo dawg)
+ because we temporary changed the type of the iterative variable to a 
+\emph on
+constant
+\emph default
+, so per definition, it's not possible to change its value.
 \end_layout
 
 \end_body
