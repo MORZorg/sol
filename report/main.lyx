@@ -28,6 +28,9 @@
 % \usepackage{pxfonts}
 % \usepackage{epsf}
 
+\renewcommand\lstlistingname{Code}
+\renewcommand\lstlistlistingname{List of Code chunks}
+
 \floatstyle{ruled}
 \newfloat{code}{H}{loc}[chapter]
 \floatname{code}{Code}

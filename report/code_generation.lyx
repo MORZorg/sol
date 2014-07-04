@@ -219,10 +219,6 @@ STO
 .
 \end_layout
 
-\begin_layout Standard
-// TODO other?
-\end_layout
-
 \begin_layout Section
 The yygen function
 \end_layout
@@ -247,7 +243,7 @@ Code
 \emph on
 Stat
 \emph default
-, which in turn contains the actual instructions, see Listing 
+, which in turn contains the actual instructions, see Code 
 \begin_inset ERT
 status collapsed
 
@@ -370,7 +366,7 @@ function returns the code which is concatenated following the order of recursion
 
 \begin_layout Standard
 The code is represented, as can be deduced by the structure definition in
- Listing 
+ Code 
 \begin_inset ERT
 status collapsed
 
@@ -398,24 +394,32 @@ ohana
 \emph on
 sol 
 \emph default
-extension, because sol..han..han solo..ohana :D) using a function called 
+extension, because sol..solo..han..han solo..ohana :D) using a function called 
 \emph on
 output_code
 \emph default
 .
 \end_layout
 
-\begin_layout Standard
-// TODO add other difficult problems w/ solution
+\begin_layout Subsection
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+label{sect:func_call_code}
 \end_layout
 
-\begin_layout Subsection
+\end_inset
+
 Function problem
 \end_layout
 
 \begin_layout Standard
 The generation of the code for function declarations and calls caused some
- problems because the call (which is translated as in Listing 
+ problems because the call (which is translated as in Code 
 \begin_inset ERT
 status collapsed
 
@@ -435,7 +439,7 @@ ref{lst:scode_func_call}
 
 \begin_layout Standard
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 

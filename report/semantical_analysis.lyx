@@ -62,7 +62,7 @@
 
 \begin_layout Chapter
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -103,9 +103,9 @@ Please note that, even if this structure is called Symbol Table as the one
 
 \begin_layout Standard
 The Symbol Table is based on the following auto-esplicative C structures
- (Listing 
+ (Code 
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -121,7 +121,7 @@ ref{lst:symbol_table_struct}
 
 \begin_layout Standard
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -330,9 +330,9 @@ Most of the semantic checks are related to the type schema compatibility
 \end_layout
 
 \begin_layout Standard
-Here we show an example of a Symbol Table (Listing 
+Here we show an example of a Symbol Table (Code 
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -348,7 +348,7 @@ ref{lst:symbol_table_example}
 
 \begin_layout Standard
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -551,9 +551,9 @@ vector
 \emph on
 structures
 \emph default
- cases is here reported (Listing 
+ cases is here reported (Code 
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -569,7 +569,7 @@ ref{lst:infere_lhs_code}
 
 \begin_layout Standard
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 

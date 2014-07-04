@@ -395,7 +395,7 @@ end{lstlisting}
 \end_layout
 
 \begin_layout Standard
-The rules associated to each lexeme must be in the form presented in Listing
+The rules associated to each lexeme must be in the form presented in Code
  
 \begin_inset ERT
 status collapsed
@@ -445,7 +445,7 @@ end{lstlisting}
 
 \begin_layout Standard
 For the fixed lexemes (keywords and other simple stuff), the rules are usually
- as simple the ones in in Listing 
+ as simple the ones in in Code 
 \begin_inset ERT
 status collapsed
 
@@ -480,7 +480,7 @@ Value,
 \emph default
 a union that can contain any type of value accepted by SOL (integer, real,
  string,...).
- The rules for the complex lexemes are all presented in Listing 
+ The rules for the complex lexemes are all presented in Code 
 \begin_inset ERT
 status collapsed
 
@@ -767,7 +767,7 @@ The syntax tree is realized using the
 \emph on
 Node
 \emph default
- structure, presented in Listing 
+ structure, presented in Code 
 \begin_inset ERT
 status collapsed
 
@@ -1070,7 +1070,7 @@ A translation rule must create a
 Node
 \emph default
  and populate it with the appropriate informations.
- The structure of a translation rule is the one presented in Listing 
+ The structure of a translation rule is the one presented in Code 
 \begin_inset ERT
 status collapsed
 
@@ -1204,7 +1204,7 @@ root
 \end_inset
 
 , like the other rules.
- In Listing 
+ In Code 
 \begin_inset ERT
 status collapsed
 
