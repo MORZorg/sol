@@ -61,83 +61,68 @@
 \begin_body
 
 \begin_layout Chapter
-\begin_inset ERT
-status open
+Conclusions
+\end_layout
+
+\begin_layout Standard
+The compiler and virtual machine follow strictly the specifications given
+ by professor Gianfranco Lamperti along with the whole definition of SOL.
+ For further details on the specification, please refer to those documents
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+The documents are available on the academic website of professor Lamperti
+ and in the git repository containing this whole project, at the url 
+\begin_inset Flex URL
+status collapsed
 
 \begin_layout Plain Layout
 
-
-\backslash
-label{chp:opsem}
+https://github.com/MORZorg/sol/tree/master/specification
 \end_layout
 
 \end_inset
 
-SOL language semantics specification
-\end_layout
-
-\begin_layout Standard
-This chapter presents the semantics of every statement of the SOL language
- in an operational way.
- The language used to describe the semantics is C.
-\end_layout
-
-\begin_layout Standard
-// TODO explain everything in spec.pdf
-\end_layout
-
-\begin_layout Standard
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-
-\backslash
-begin{lstlisting}[caption={Definitions and assignments},label={lst:def_ass}]
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-
-\backslash
-end{lstlisting}
+.
 \end_layout
 
 \end_inset
 
-
+.
 \end_layout
 
 \begin_layout Standard
-\begin_inset ERT
-status open
+The whole code (along with this report) can be found on the git repository
+ at 
+\begin_inset Flex URL
+status collapsed
 
 \begin_layout Plain Layout
 
-
-\backslash
-begin{lstlisting}[caption={},label={lst:}]
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-
-\backslash
-end{lstlisting}
+https://github.com/MORZorg/sol
 \end_layout
 
 \end_inset
 
+.
+\end_layout
 
+\begin_layout Standard
+We would like to thank 
+\emph on
+Vim
+\emph default
+, 
+\emph on
+Google+ Hangouts
+\emph default
+, 
+\emph on
+Github
+\emph default
+, and our computers for the aid provided in the process of realizing what
+ was described in this document.
 \end_layout
 
 \end_body
