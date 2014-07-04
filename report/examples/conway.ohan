@@ -1,0 +1,271 @@
+SCODE 270
+PUSH 0 11 -1
+GOTO 4
+POP
+HALT
+FUNC 1
+NEWS 229
+NEWS 9
+NEW 4
+NEW 4
+NEW 8
+NEW 8
+NEW 8
+NEW 8
+NEW 8
+NEW 8
+LDI 15
+STO 0 4
+LDS "Welcome to ORZ's Conway's Game of Life!"
+STO 0 5
+LDS "Thanks for playing with ORZ's Conway's Game of Life!\n\n\tBye!"
+STO 0 6
+LDS "Your data has been successfully saved in the following file:"
+STO 0 7
+LDS "Enter the filename of your world and if you'd like to load from a saved state."
+STO 0 8
+LDS "Enter for how many generations would you like to watch your world go by."
+STO 0 9
+LDS "Your world doesn't exist yet.\nEnter it now."
+STO 0 10
+NEW 4
+LOD 0 5
+WRITE "s"
+LOD 0 8
+WRITE "s"
+READ 0 2 "(filename:s,load:b)"
+LDA 0 2
+FDA 8
+EIL 1
+JMF 5
+LDA 0 2
+EIL 8
+FREAD 0 1 "(generation:i,world:[15,[15,b]])"
+JMP 7
+LOD 0 10
+WRITE "s"
+LDA 0 1
+FDA 4
+RD "[15,[15,b]]"
+IST
+LOD 0 9
+WRITE "s"
+READ 0 3 "i"
+LOD 0 3
+STO 0 11
+LDI 0
+STO 0 3
+LOD 0 3
+LOD 0 11
+ILE
+JMF 23
+LDA 0 1
+FDA 4
+LDA 0 1
+FDA 4
+EIL 225
+PUSH 1 15 0
+GOTO 96
+POP
+IST
+LDA 0 1
+LDA 0 1
+EIL 4
+LDI 1
+IPLUS
+IST
+LOD 0 1
+WRITE "(generation:i,world:[15,[15,b]])"
+LOD 0 3
+LDI 1
+IPLUS
+STO 0 3
+JMP -25
+LOD 0 1
+LDA 0 2
+EIL 8
+FWRITE "(generation:i,world:[15,[15,b]])"
+LOD 0 6
+LOD 0 7
+LDA 0 2
+EIL 8
+CAT 2 16
+CAT 2 24
+WRITE "(:s,:(:s,:s))"
+LDI 0
+RETURN
+FUNC 2
+NEW 4
+NEW 4
+NEW 4
+NEW 4
+NEW 4
+NEWS 225
+NEWS 12
+LDI -1
+LDI 0
+LDI 1
+CAT 3 12
+STO 0 8
+NEW 4
+NEW 4
+NEWS 12
+NEW 4
+NEW 4
+NEWS 12
+NEW 4
+NEW 4
+LOD 1 4
+STO 0 9
+LDI 0
+STO 0 2
+LOD 0 2
+LOD 0 9
+ILE
+JMF 145
+LOD 1 4
+STO 0 10
+LDI 0
+STO 0 3
+LOD 0 3
+LOD 0 10
+ILE
+JMF 132
+LDI 0
+STO 0 6
+LOD 0 8
+STO 0 11
+LDI 2
+STO 0 13
+LDI 0
+STO 0 12
+LOD 0 12
+LOD 0 13
+ILE
+JMF 89
+LDA 0 11
+LOD 0 12
+IXA 4
+EIL 4
+STO 0 4
+LOD 0 8
+STO 0 14
+LDI 2
+STO 0 16
+LDI 0
+STO 0 15
+LOD 0 15
+LOD 0 16
+ILE
+JMF 69
+LDA 0 14
+LOD 0 15
+IXA 4
+EIL 4
+STO 0 5
+LOD 0 4
+LDI 0
+NEQ
+JMF 3
+LDC '1'
+JMP 4
+LOD 0 5
+LDI 0
+NEQ
+JMF 49
+LOD 0 2
+LOD 0 4
+IPLUS
+LDI 0
+IGE
+JMF 7
+LOD 0 2
+LOD 0 4
+IPLUS
+LOD 1 4
+ILT
+JMP 2
+LDC '0'
+JMF 7
+LOD 0 3
+LOD 0 5
+IPLUS
+LDI 0
+IGE
+JMP 2
+LDC '0'
+JMF 7
+LOD 0 3
+LOD 0 5
+IPLUS
+LOD 1 4
+ILT
+JMP 2
+LDC '0'
+JMF 18
+LDA 0 1
+LOD 0 2
+LOD 0 4
+IPLUS
+IXA 15
+LOD 0 3
+LOD 0 5
+IPLUS
+IXA 1
+EIL 1
+JMF 6
+LOD 0 6
+LDI 1
+IPLUS
+STO 0 6
+JMP 1
+JMP 1
+JMP 1
+LOD 0 15
+LDI 1
+IPLUS
+STO 0 15
+JMP -71
+LOD 0 12
+LDI 1
+IPLUS
+STO 0 12
+JMP -91
+LDA 0 7
+LOD 0 2
+IXA 15
+LOD 0 3
+IXA 1
+LDA 0 1
+LOD 0 2
+IXA 15
+LOD 0 3
+IXA 1
+EIL 1
+JMF 11
+LOD 0 6
+LDI 2
+EQU
+JMF 3
+LDC '1'
+JMP 4
+LOD 0 6
+LDI 3
+EQU
+JMP 4
+LOD 0 6
+LDI 3
+EQU
+IST
+LOD 0 3
+LDI 1
+IPLUS
+STO 0 3
+JMP -134
+LOD 0 2
+LDI 1
+IPLUS
+STO 0 2
+JMP -147
+LOD 0 7
+RETURN

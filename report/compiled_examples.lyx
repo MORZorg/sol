@@ -72,7 +72,7 @@ Examples of programs with compiled S-code
 
 \begin_layout Standard
 Here we report some program example written in SOL, along with their compiled
- S-code code.
+ S-code code, created while implementing the whole project.
 \end_layout
 
 \begin_layout Section
@@ -80,7 +80,11 @@ Hello, World!
 \end_layout
 
 \begin_layout Standard
-
+The 
+\emph on
+.sol
+\emph default
+ code could be seen in the tutorial section (Code 
 \begin_inset ERT
 status open
 
@@ -88,7 +92,170 @@ status open
 
 
 \backslash
-lstinputlisting{../tests/helloworld.ohana}
+ref{lst:hello_world}
+\end_layout
+
+\end_inset
+
+), instead here we report it S-code (Code 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{lst:hello_ohana}
+\end_layout
+
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+lstinputlisting[caption={Hello world S code},label={lst:hello_ohana},language={O
+HANA}]{./examples/helloworld.ohan}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Permutations
+\end_layout
+
+\begin_layout Standard
+This example calculates the permutations of a given set of characters, which
+ are inserted by the user, in both recursive and iterative modes.
+\end_layout
+
+\begin_layout Standard
+SOL code 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{lst:perm_sol}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+lstinputlisting[caption={SOL code of Permutations},label={lst:perm_sol},language
+={SOL}]{./examples/permutations.sol}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+S Code 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{lst:perm_ohana}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+lstinputlisting[caption={S code of Permutations},label={lst:perm_ohana},language
+={OHANA}]{./examples/permutations.ohan}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+ORZ's Conway's Game of Life
+\end_layout
+
+\begin_layout Standard
+The 
+\emph on
+.sol
+\emph default
+ code could be seen in the tutorial section (Code 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{lst:gol}
+\end_layout
+
+\end_inset
+
+).
+ Here we report its S code (Code 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{lst:gol_ohana}
+\end_layout
+
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+lstinputlisting[caption={S code of ORZ's Conway's Game of Life},label={lst:gol_o
+hana},language={OHANA}]{./examples/conway.ohan}
 \end_layout
 
 \end_inset
