@@ -575,7 +575,7 @@ name "fig:gui-osx-out"
 
 \end_inset
 
-An example (taken from the execution of Algorithm 
+An example (taken from the execution of Code 
 \begin_inset ERT
 status open
 
@@ -626,7 +626,7 @@ name "fig:gui-ubu-out"
 
 \end_inset
 
-An example (taken from the execution of Algorithm 
+An example (taken from the execution of Code 
 \begin_inset ERT
 status open
 
@@ -701,19 +701,19 @@ ref{lst:py_schema}
 
 \begin_layout Standard
 \begin_inset ERT
-status collapsed
+status open
 
 \begin_layout Plain Layout
 
 
 \backslash
-begin{lstlisting}[caption={The method bla bla},label={lst:py_schema},language={P
-ython}]
+begin{lstlisting}[caption={The method used to translate the textual schema
+ into the GUI widget},label={lst:py_schema},language={Python}]
 \end_layout
 
 \begin_layout Plain Layout
 
-@staticmethod
+    @staticmethod
 \end_layout
 
 \begin_layout Plain Layout
