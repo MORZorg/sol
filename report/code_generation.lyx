@@ -110,8 +110,8 @@ S-code specification
 \end_layout
 
 \begin_layout Standard
-The code generation translates the SOL code in S-code code.
- S-code is a very low level language not dissimilar from Assembly.
+The code generation translates the SOL code in S-code code, a very low level
+ language not dissimilar from Assembly.
 \end_layout
 
 \begin_layout Standard
@@ -165,21 +165,21 @@ stack.
 
 \begin_layout Standard
 Temporary values, such as partial results of an expression, are put on the
- instance stack and referred to throught a temporary object on the object
+ instance stack and referred to through a temporary object on the object
  stack.
 \end_layout
 
 \begin_layout Standard
-Every instruction has zero to three operands and operates implicitly on
- the last values present on the stack (generally the last one or two).
+Every instruction has from zero to three operands and operates implicitly
+ on the last values present on the stack (generally the last one or two).
  For example, the instruction to perform a sum of integers is called 
 \emph on
 IPLUS 
 \emph default
-and it has no operands.
- What it does is take the last two values present on the stack, sum them
- and put the result back on the stack.
- Obviously, every value used is also consumed.
+and it has no operands: it takes the last two values present on the stack,
+ sum them and put the result back on the stack.
+ Obviously, as a standard procedure when using stacks, every value used
+ is also consumed.
 \end_layout
 
 \begin_layout Standard
@@ -233,11 +233,11 @@ When the
 yygen 
 \emph default
 function is called, it automatically retrieves the root of the Syntax Tree
- and passes it to 
+ and passes it to the 
 \emph on
 generate_code
 \emph default
-.
+ function.
  This function consists of a big switch of the node's type and, for every
  type, it generates an instance of 
 \emph on
@@ -269,8 +269,11 @@ unqualified nonterminal
 \emph on
 n_val 
 \emph default
-(that is, the node's value determining the exact type of nonterminal represented
-).
+(that is, the node's value determining the exact type of 
+\emph on
+nonterminal
+\emph default
+ represented).
 \end_layout
 
 \begin_layout Standard
@@ -382,7 +385,7 @@ ref{lst:code_stat}
 
 , as a list of S-code statements, each of which is represented with its
  address (number of line), operator, an array of arguments (with a maximum
- number of arguments 3) and a pointer to the next instruction.
+ number of 3 arguments) and a pointer to the next instruction.
 \end_layout
 
 \begin_layout Standard
@@ -391,9 +394,13 @@ At the end of the code generation, the instructions are printed to a file
 \emph on
 ohana
 \emph default
- (because sol..han..han solo..ohana :D) using a function called 
+ (name funnily derived from the 
 \emph on
-code_print
+sol 
+\emph default
+extension, because sol..han..han solo..ohana :D) using a function called 
+\emph on
+output_code
 \emph default
 .
 \end_layout
@@ -408,7 +415,7 @@ Function problem
 
 \begin_layout Standard
 The generation of the code for function declarations and calls caused some
- problem because the call (which is translated as in Listing 
+ problems because the call (which is translated as in Listing 
 \begin_inset ERT
 status collapsed
 
@@ -421,14 +428,14 @@ ref{lst:scode_func_call}
 
 \end_inset
 
-) needs informations that can only be given after the complete code generation
- for a function call is done, but a function is allowed to call itself,
- for example, so the two generations collide.
+) needs informations that can only be given after its code generation is
+ done, but knowing that, for example, a function is allowed to call itself,
+ the two code generations collide.
 \end_layout
 
 \begin_layout Standard
 \begin_inset ERT
-status collapsed
+status open
 
 \begin_layout Plain Layout
 
@@ -440,8 +447,17 @@ de_func_call}]
 
 \begin_layout Plain Layout
 
-PUSH <number of objects in the function's environment> <distance between
- the call environment and the definition one>
+PUSH	<number of formal parameters>
+\end_layout
+
+\begin_layout Plain Layout
+
+		<number of local parameters>
+\end_layout
+
+\begin_layout Plain Layout
+
+		<distance between the call environment and the definition one>
 \end_layout
 
 \begin_layout Plain Layout
@@ -484,7 +500,7 @@ Stat
 for
 \emph default
  cycles, for example, are part of the function's environment but are not
- defined in the header).
+ defined in the header)[toglierei tutta la ()].
  The hashmap uses the function's oid as key.
 \end_layout
 
@@ -519,6 +535,38 @@ When the whole code has been generated, we process the entries in the call
  Therefore, for every entry in the stack we can retrieve the corresponding
  function descriptor (thanks to the oid) and substitute the first arguments
  of PUSH and GOTO with the right values.
+\end_layout
+
+\begin_layout Subsection
+Instantiation of temporary variables
+\end_layout
+
+\begin_layout Standard
+While executing some examples, we have found that the 
+\emph on
+istack
+\emph default
+ wasn't empty at the end of the execution, but it still contains a lot of
+ instances.
+ We also noticed that this problem is code-dependent, in particular depending
+ on the fact that the code that we are executing contains or not any sort
+ of cycle.
+ Looking at the generated code we have found that, every time a cycle were
+ in an example, a lot of instances were allocated in the 
+\emph on
+istack
+\emph default
+ due to the fact that the temporary variables were allocated every time
+ a cycle was used.
+ The problem will get stronger when the examples contained some nested cycles.
+\end_layout
+
+\begin_layout Standard
+Our solution for this issue was to separate the execution from the variable
+ instantiation code, saving those two parts separately and then appending
+ the code for the variable instantiation after the the function variable
+ instantiation, so every variable, temporary or not, defined in the whole
+ function will be allocated only once.
 \end_layout
 
 \end_body
