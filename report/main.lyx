@@ -15,6 +15,9 @@
 % Just for multi-line comments
 \usepackage{verbatim}
 
+% Appendix
+\usepackage[toc, page]{appendix}
+
 % Enum lists stuff
 \usepackage{enumerate}
 
@@ -192,19 +195,6 @@ figs-within-sections
 \begin_body
 
 \begin_layout Standard
-\begin_inset ERT
-status collapsed
-
-\begin_layout Plain Layout
-
-
-\backslash
-begin{frontmatter}
-\end_layout
-
-\end_inset
-
-
 \begin_inset CommandInset include
 LatexCommand include
 filename "frontpage.lyx"
@@ -218,38 +208,6 @@ filename "frontpage.lyx"
 \begin_inset CommandInset include
 LatexCommand include
 filename "index.lyx"
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset ERT
-status collapsed
-
-\begin_layout Plain Layout
-
-
-\backslash
-end{frontmatter}
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset ERT
-status collapsed
-
-\begin_layout Plain Layout
-
-
-\backslash
-begin{mainmatter}
-\end_layout
 
 \end_inset
 
@@ -382,7 +340,7 @@ filename "io_handling.lyx"
 
 \end_layout
 
-\begin_layout Standard
+\begin_layout Part
 \begin_inset ERT
 status collapsed
 
@@ -390,28 +348,12 @@ status collapsed
 
 
 \backslash
-end{mainmatter}
+label{prt:end}
 \end_layout
 
 \end_inset
 
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset ERT
-status collapsed
-
-\begin_layout Plain Layout
-
-
-\backslash
-begin{backmatter}
-\end_layout
-
-\end_inset
-
-
+Conclusions and examples
 \end_layout
 
 \begin_layout Standard
@@ -425,15 +367,12 @@ filename "conclusions.lyx"
 \end_layout
 
 \begin_layout Standard
-\begin_inset ERT
-status collapsed
+\start_of_appendix
 
-\begin_layout Plain Layout
-
-
-\backslash
-end{backmatter}
-\end_layout
+\lang italian
+\begin_inset CommandInset include
+LatexCommand include
+filename "compiled_examples.lyx"
 
 \end_inset
 

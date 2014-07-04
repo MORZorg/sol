@@ -629,7 +629,7 @@ Access to a field of a structure is done with a dot, while indexing a vector
  is done by enclosing the index in square brackets.
  Both operations are exemplified in Code 
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -646,7 +646,7 @@ ref{lst:ixa_fda}
 
 \begin_layout Standard
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 

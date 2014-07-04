@@ -87,7 +87,7 @@ The
 \emph default
  code could be seen in the tutorial part (Code 
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -186,7 +186,7 @@ This example calculates the permutations of a given set of characters, which
 \begin_layout Standard
 SOL code 
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -1219,7 +1219,7 @@ end{lstlisting}
 \begin_layout Standard
 S code 
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -4606,7 +4606,7 @@ The
 \emph default
  code could be seen in the tutorial part (Code 
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -4620,7 +4620,7 @@ ref{lst:gol}
 ).
  Here we report its S-Code (Code 
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 

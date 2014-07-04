@@ -1,0 +1,10 @@
+SCODE 9
+PUSH 0 0 -1
+GOTO 4
+POP
+HALT
+FUNC 1
+LDS "Hello world!"
+WRITE "s"
+LDI 0
+RETURN
