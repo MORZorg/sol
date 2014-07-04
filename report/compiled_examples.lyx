@@ -121,7 +121,7 @@ status open
 
 
 \backslash
-lstinputlisting[caption={Hello world S code},label={lst:hello_ohana},language={O
+lstinputlisting[caption={Hello world S-code},label={lst:hello_ohana},language={O
 HANA}]{./examples/helloworld.ohan}
 \end_layout
 
@@ -174,7 +174,7 @@ lstinputlisting[caption={SOL code of Permutations},label={lst:perm_sol},language
 \end_layout
 
 \begin_layout Standard
-S Code 
+S-Code 
 \begin_inset ERT
 status open
 
@@ -198,7 +198,7 @@ status open
 
 
 \backslash
-lstinputlisting[caption={S code of Permutations},label={lst:perm_ohana},language
+lstinputlisting[caption={S-code of Permutations},label={lst:perm_ohana},language
 ={OHANA}]{./examples/permutations.ohan}
 \end_layout
 
@@ -230,7 +230,7 @@ ref{lst:gol}
 \end_inset
 
 ).
- Here we report its S code (Code 
+ Here we report its S-code (Code 
 \begin_inset ERT
 status open
 
@@ -254,7 +254,7 @@ status open
 
 
 \backslash
-lstinputlisting[caption={S code of ORZ's Conway's Game of Life},label={lst:gol_o
+lstinputlisting[caption={S-code of ORZ's Conway's Game of Life},label={lst:gol_o
 hana},language={OHANA}]{./examples/conway.ohan}
 \end_layout
 

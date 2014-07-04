@@ -117,18 +117,18 @@ The code generation translates the SOL code in S-code code, a very low level
 \begin_layout Standard
 Everything is done on three global stacks
 \begin_inset Foot
-status collapsed
+status open
 
 \begin_layout Plain Layout
 More details on the stacks are provided in Chapter 
 \begin_inset ERT
-status collapsed
+status open
 
 \begin_layout Plain Layout
 
 
 \backslash
-ref{lst:scode}
+ref{chp:scode}
 \end_layout
 
 \end_inset
