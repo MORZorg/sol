@@ -77,32 +77,248 @@ Graphical interface
 \end_layout
 
 \begin_layout Standard
-The virtual machine has a beautiful graphical interface realized with the
- Qt5 graphical environment.
+The virtual machine uses a graphical interface realized with the Qt5 graphical
+ environment for the interaction of the program with the user (that is,
+ the commands 
+\emph on
+READ
+\emph default
+, 
+\emph on
+WRITE
+\emph default
+, 
+\emph on
+RD
+\emph default
+ and 
+\emph on
+WR
+\emph default
+ make calls to the GUI).
 \end_layout
 
 \begin_layout Standard
-All the graphical part is realized entirely in Python 3.4 using the Qt5 designer
- editor, and integrated in a full Python program called 
+All the graphical part is realized and managed in Python3 using the 
+\emph on
+ui
+\emph default
+ files created by the Qt5 Designer editor and is divided in two sub-scripts.
+\end_layout
+
+\begin_layout Standard
+The first script, 
 \emph on
 solGUI.py
 \emph default
+, simplifies the user's interaction with both the compiler and the virtual
+ machine, allowing to open a file, compile it (if the opened file is a SOL
+ source file) and execute it (if the opened file is an S-Code file or a
+ SOL source file which has been compiled with the GUI); while performing
+ these actions, 
+\emph on
+solGUI
+\emph default
+ always redirects the called executable's textual output to a text-box.
+ The window appearing at the call of solGUI is shown in Figures 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:gui-osx-main"
+
+\end_inset
+
+ and 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:gui-ubu-main"
+
+\end_inset
+
+; since in OS X and many recent operative systems the menu bar has its own
+ dedicated space on the top of the screen, a particular of the 
+\emph on
+File
+\emph default
+ menu is shown in Figures 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:gui-osx-menu"
+
+\end_inset
+
+ and 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:gui-ubu-menu"
+
+\end_inset
+
 .
- The interaction between the interface and the virtual machine is in both
- directions.
 \end_layout
 
 \begin_layout Standard
-By calling solGUI.py a window will appear in which the user can input a SOL
- source file, compile it and execute the resulting S-code file (or directly
- input the S-code file).
- During the execution, in correspondance of every user input or user output,
- the virtual machine will query Python to open a window with which the user
- can input the required data or visualize the output.
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename images/gui_osx_main.png
+	lyxscale 10
+	width 100text%
+
+\end_inset
+
+
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:gui-osx-main"
+
+\end_inset
+
+The main window of the GUI in OS X
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
-// TODO expand
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename images/gui_ubu_main.png
+	lyxscale 10
+	width 100text%
+
+\end_inset
+
+
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:gui-ubu-main"
+
+\end_inset
+
+The main window of the GUI in Ubuntu 14.04
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename images/gui_osx_menu.png
+	lyxscale 10
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:gui-osx-menu"
+
+\end_inset
+
+The File menu of the GUI on OS X
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename images/gui_ubu_menu.png
+	lyxscale 10
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:gui-ubu-menu"
+
+\end_inset
+
+The File menu of the GUI on Ubuntu 14.04
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+The second script is called directly from within the virtual machine and
+ shows the user specialized dialogs representing the data's schema.
+ If the intention was to show the user some data, the fields become read-only.
+\end_layout
+
+\begin_layout Standard
+// TODO Input, output, widgets, SimpleInterface's function's interfaces
+ (?)
 \end_layout
 
 \end_body

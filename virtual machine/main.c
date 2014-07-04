@@ -151,6 +151,7 @@ char* change_file_extension( char* filename, char* old_ext, char* new_ext )
 
 char* formatted_command( char* command )
 {
+	char* formatted;
 	// Looking for spaces and substituting with '\ '
 	char* iterator = command;
 	int spaces = 0;
@@ -162,7 +163,7 @@ char* formatted_command( char* command )
 	}
 
 	// Creating the new file name
-	char* formatted = malloc( sizeof( char ) * ( strlen( command ) + spaces + 1 ) );
+	formatted = malloc( sizeof( char ) * ( strlen( command ) + spaces + 1 ) );
 	iterator = formatted;
 
 	while( *(command) != '\0' )

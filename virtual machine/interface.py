@@ -37,6 +37,8 @@ class DataDialog(QtWidgets.QDialog):
 
         self.ui.buttonBox.accepted.connect(self.retrieveData)
 
+        self.setWindowTitle("SOL {}".format("Input" if editable else "Output"))
+
         #  Remove, Create, Replace
         self.ui.gridLayout.removeWidget(self.ui.widgetSchema)
         self.ui.widgetSchema.close()
