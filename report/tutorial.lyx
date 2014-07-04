@@ -102,6 +102,21 @@ The project here presented aims at the realization of a full Compiler and
  a source or compiled SOL file and execute it (eventually after compilation)
  and presents a pleasant and usable graphical environment for the input
  and output of data.
+ An explanation of how this interface works and how it can be used to compile
+ and execute a SOL file is presented in Chapter 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{chp:io}
+\end_layout
+
+\end_inset
+
+.
 \end_layout
 
 \begin_layout Standard
