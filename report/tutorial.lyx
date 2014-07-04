@@ -853,7 +853,7 @@ statement
 \emph on
  
 \emph default
-than allows different lists of statements to be executed when different
+that allows different lists of statements to be executed when different
  conditions apply.
 \end_layout
 
@@ -1537,8 +1537,12 @@ wr
  data has to be written in square brackets (not mandatory, if missing the
  output is presented on the standard output, ie the monitor), followed by
  an expression which result is the data to write.
- The difference is that wr also assumes that value and, therefore, it can
- be used as rhs (right hand side) of an assignment.
+ The difference is that 
+\emph on
+wr
+\emph default
+ also assumes that value and, therefore, it can be used as rhs (right hand
+ side) of an assignment.
 \end_layout
 
 \begin_layout Standard
@@ -1556,6 +1560,7 @@ rd
  variable in which the read data has to be saved, while rd requires the
  type of the data read.
  It then assumes the read value assuming that it is of the specified type.
+ (WAT?)
 \end_layout
 
 \begin_layout Subsection
@@ -1564,7 +1569,8 @@ Function call
 
 \begin_layout Standard
 A function can be called simply by writing its name followed by a list of
- values for the parameters enclosed in round brackets.
+ values for the parameters enclosed in round brackets, but it always have
+ to be used as an operand of an expression.
 \end_layout
 
 \begin_layout Section
