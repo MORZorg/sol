@@ -7,7 +7,7 @@ from subprocess import Popen, PIPE
 from PyQt5 import QtCore, QtWidgets, uic
 
 from interface import SimpleInterface
-from settings import DEBUG
+from settings import DEBUG, LOCAL_DIR
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -23,9 +23,9 @@ class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
         QtWidgets.QMainWindow.__init__(self)
         if DEBUG:
-            self.ui = uic.loadUi("MainWindow_dbg.ui", self)
+            self.ui = uic.loadUi("{}/MainWindow_dbg.ui".format(LOCAL_DIR), self)
         else:
-            self.ui = uic.loadUi("MainWindow.ui", self)
+            self.ui = uic.loadUi("{}/MainWindow.ui".format(LOCAL_DIR), self)
 
         self.ui.actionOpen.triggered.connect(self.open)
         self.ui.actionCompile.triggered.connect(self.compile)
