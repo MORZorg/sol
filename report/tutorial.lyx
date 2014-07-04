@@ -629,7 +629,7 @@ Access to a field of a structure is done with a dot, while indexing a vector
  is done by enclosing the index in square brackets.
  Both operations are exemplified in Code 
 \begin_inset ERT
-status collapsed
+status open
 
 \begin_layout Plain Layout
 
@@ -646,7 +646,7 @@ ref{lst:ixa_fda}
 
 \begin_layout Standard
 \begin_inset ERT
-status collapsed
+status open
 
 \begin_layout Plain Layout
 
@@ -658,7 +658,7 @@ begin{lstlisting}[caption={Examples of indexing and fielding},label={lst:ixa_fda
 
 \begin_layout Plain Layout
 
-i: int;
+i, j: int;
 \end_layout
 
 \begin_layout Plain Layout
@@ -673,7 +673,7 @@ t: vector [ 5 ] of int;
 
 \begin_layout Plain Layout
 
-s: struct( a: int; b: struct( c: string ) );
+s: struct( a: int; b: struct( c: string; ); );
 \end_layout
 
 \begin_layout Plain Layout
@@ -723,7 +723,7 @@ t = v[3];
 
 \begin_layout Plain Layout
 
-i = v[0][1];
+j = v[0][1];
 \end_layout
 
 \begin_layout Plain Layout
