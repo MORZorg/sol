@@ -62,7 +62,7 @@
 
 \begin_layout Chapter
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -115,8 +115,62 @@ The code generation translates the SOL code in S-code code.
 \end_layout
 
 \begin_layout Standard
-Everything is done on a global stack.
- Every instruction has zero to three operands and operates implicitly on
+Everything is done on three global stacks
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+More details on the stacks are provided in Chapter 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{lst:scode}
+\end_layout
+
+\end_inset
+
+.
+\end_layout
+
+\end_inset
+
+: the 
+\emph on
+activation 
+\emph default
+stack, the 
+\emph on
+object
+\emph default
+ stack and the 
+\emph on
+instance 
+\emph default
+stack.
+ The activation stack contains the function's activation records, describing
+ a function's local environment, and an activation record is added on the
+ stack at the moment of a function's call.
+ An activation record contains a reference to the starting point of that
+ function's objects on the object stack.
+ The object stack contains object descriptors, each of which describing
+ a single object with its size and value, or a reference to the position
+ of the value on the instance stack if that's the memorization mode of the
+ object.
+ The instance stack contains instances of the objects.
+\end_layout
+
+\begin_layout Standard
+Temporary values, such as partial results of an expression, are put on the
+ instance stack and referred to throught a temporary object on the object
+ stack.
+\end_layout
+
+\begin_layout Standard
+Every instruction has zero to three operands and operates implicitly on
  the last values present on the stack (generally the last one or two).
  For example, the instruction to perform a sum of integers is called 
 \emph on
@@ -129,20 +183,44 @@ and it has no operands.
 \end_layout
 
 \begin_layout Standard
-Being so easy, it is not difficult to generate the appropriate sequence
- of instructions for every instruction available in SOL.
-\end_layout
-
-\begin_layout Standard
-// TODO include S-code generation or write 
+Note that the object stack contains an environment associated to every called
+ function, and this environment can be divided in two parts: one 
 \begin_inset Quotes eld
 \end_inset
 
-see Lamperti's stuff
+permanent
 \begin_inset Quotes erd
 \end_inset
 
-?
+ containing the objects defined in the function's header, and one 
+\begin_inset Quotes eld
+\end_inset
+
+temporary
+\begin_inset Quotes erd
+\end_inset
+
+ containing the objects used by the S-code instructions.
+ The instructions that need to use the value of an object in the permanent
+ part (such as an expression involving variables) make use of the instruction
+ 
+\emph on
+LOD
+\emph default
+ to copy that variable's value on top of the stack (or a composition of
+ multiple instructions to refer to a struct's field or a position in a vector)
+ and, then, use the copied temporary value instead of the permanent one.
+ In the same way, an assignment is performed by calculating the assigned
+ value on the top of the stack and, then, copying it in the permanent part
+ with the instruction 
+\emph on
+STO
+\emph default
+.
+\end_layout
+
+\begin_layout Standard
+// TODO other?
 \end_layout
 
 \begin_layout Section
@@ -171,7 +249,7 @@ Stat
 \emph default
 , which in turn contains the actual instructions, see Listing 
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -197,7 +275,7 @@ n_val
 
 \begin_layout Standard
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -291,7 +369,7 @@ function returns the code which is concatenated following the order of recursion
 The code is represented, as can be deduced by the structure definition in
  Listing 
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -332,7 +410,7 @@ Function problem
 The generation of the code for function declarations and calls caused some
  problem because the call (which is translated as in Listing 
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -350,7 +428,7 @@ ref{lst:scode_func_call}
 
 \begin_layout Standard
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 

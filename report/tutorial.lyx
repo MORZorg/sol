@@ -658,6 +658,21 @@ begin{lstlisting}[caption={Examples of indexing and fielding},label={lst:ixa_fda
 
 \begin_layout Plain Layout
 
+i: int;
+\end_layout
+
+\begin_layout Plain Layout
+
+l: string;
+\end_layout
+
+\begin_layout Plain Layout
+
+t: vector [ 5 ] of int;
+\end_layout
+
+\begin_layout Plain Layout
+
 s: struct( a: int; b: struct( c: string ) );
 \end_layout
 
@@ -678,7 +693,7 @@ v: vector [ 10 ] of vector [ 5 ] of int;
 
 \begin_layout Plain Layout
 
-s.a;
+i = s.a;
 \end_layout
 
 \begin_layout Plain Layout
@@ -688,7 +703,7 @@ s.a;
 
 \begin_layout Plain Layout
 
-s.b.c;
+l = s.b.c;
 \end_layout
 
 \begin_layout Plain Layout
@@ -698,7 +713,7 @@ s.b.c;
 
 \begin_layout Plain Layout
 
-v[3];
+t = v[3];
 \end_layout
 
 \begin_layout Plain Layout
@@ -708,7 +723,7 @@ v[3];
 
 \begin_layout Plain Layout
 
-v[0][1];
+i = v[0][1];
 \end_layout
 
 \begin_layout Plain Layout
@@ -721,6 +736,13 @@ end{lstlisting}
 \end_inset
 
 
+\end_layout
+
+\begin_layout Standard
+Also note that, as in the presented example, every indexing and fielding
+ must be used as an operator of an expression, and an expression cannot
+ be written as a standalone instruction (it can be used as rhs of an assignment,
+ in another expression, as value passed to a parameter, etc).
 \end_layout
 
 \begin_layout Subsection
@@ -1556,11 +1578,17 @@ rd
 \emph default
  instructions are, instead, slightly different from each other.
  Both require to specify the name of the file from which to read in square
- brackets (again, not mandatory), but read then requires the name of the
- variable in which the read data has to be saved, while rd requires the
- type of the data read.
- It then assumes the read value assuming that it is of the specified type.
- (WAT?)
+ brackets (again, not mandatory), but 
+\emph on
+read
+\emph default
+ then requires the name of the variable in which the read data has to be
+ saved, while 
+\emph on
+rd
+\emph default
+ requires the type of the data read.
+ It then returns the read value assuming that it is of the specified type.
 \end_layout
 
 \begin_layout Subsection

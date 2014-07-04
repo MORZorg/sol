@@ -94,8 +94,10 @@ EBNF
 \emph default
  because we use 
 \emph on
+\noun on
 Yacc
 \emph default
+\noun default
  to implement the parser, and 
 \emph on
 BNF
