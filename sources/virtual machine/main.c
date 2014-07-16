@@ -193,10 +193,12 @@ char* formatted_command( char* command )
 
 void print_help()
 {
-	fprintf( stdout, "usage: solvm [-h] [[-i] input_file]\n" );
+	fprintf( stdout, "usage: solvm [-h] [[-i] input_file] [-n]\n" );
+	fprintf( stdout, "       solvm [--help] [[--input] input_file] [--nogui]\n" );
 	fprintf( stdout, "  If no input file is specified, the input will be `stdin`.\n" );
 	fprintf( stdout, "  If the input file's extension is \".sol\", the file will be compiled before\n" );
 	fprintf( stdout, "  being executed.\n" );
+    fprintf( stdout, "  The --nogui flag disables the GUI output (No Qt5 is needed this way).\n" );
 }
 
 
