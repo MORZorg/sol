@@ -48,10 +48,7 @@ ByteArray userInput(char* schema)
 	ByteArray result;
 
 	if( !gui_initialized )
-	{
-		initialize_gui();
-		gui_initialized = GUI_SELF_INIT;
-	}
+		shellInput(schema);
 
 	gui_function = PyObject_GetAttrString(gui_instance,
 										  PYTHON_REQUEST_INPUT_NAME);
@@ -64,9 +61,6 @@ ByteArray userInput(char* schema)
 	PyBytes_AsStringAndSize(PyTuple_GetItem(gui_result, 1),
 							&result.value, &result.size);
 	Py_DECREF(gui_result);
-
-	if( gui_initialized == GUI_SELF_INIT )
-		finalize_gui();
 
 	// TODO It could be possible to find a way to propagate the error and
 	// manage it (eg: stop the VM nicely).
@@ -86,10 +80,7 @@ void userOutput(char* schema, ByteArray data)
 	long result;
 
 	if( !gui_initialized )
-	{
-		initialize_gui();
-		gui_initialized = GUI_SELF_INIT;
-	}
+		shellOutput(schema, data);
 
 	gui_function = PyObject_GetAttrString(gui_instance,
 										  PYTHON_REQUEST_OUTPUT_NAME);
@@ -104,11 +95,22 @@ void userOutput(char* schema, ByteArray data)
 	result = PyLong_AsLong(gui_result);
 	Py_DECREF(gui_result);
 
-	if( gui_initialized == GUI_SELF_INIT )
-		finalize_gui();
-
 	if (result == 0)
 		exit(1);
+}
+
+ByteArray shellInput(char* schema)
+{
+	// TODO?
+	printf("User input without GUI not yet implemented!\n");
+	exit(1);
+}
+
+void shellOutput(char* schema, ByteArray data)
+{
+	// TODO
+	printf("User output without GUI not yet implemented!\n");
+	exit(1);
 }
 
 ByteArray fileInput(char* filename)

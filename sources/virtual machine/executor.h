@@ -18,7 +18,7 @@
 
 #define STA_NOT_ALLOCATED -1
 
-int yyvm( void );
+int yyvm( int );
 int execute( Stat );
 
 // Execution of S-code instructions

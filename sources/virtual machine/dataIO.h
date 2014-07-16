@@ -48,6 +48,23 @@ ByteArray userInput(char*);
 void userOutput(char*, ByteArray);
 
 /**
+ * @brief Asks the user for data.
+ *
+ * @param char* The schema of the data to ask.
+ *
+ * @return The read data.
+ */
+ByteArray shellInput(char*);
+
+/**
+ * @brief Shows the user some data.
+ *
+ * @param char* The schema of the data to show.
+ * @param char* The data to show.
+ */
+void shellOutput(char*, ByteArray);
+
+/**
  * @brief Reads data to a file.
  *
  * @param char* The name of the file to read from.

@@ -9,10 +9,11 @@
 
 extern Stat* program;
 
-int yyvm( void )
+int yyvm( int use_gui )
 {
 	int result;
-	initialize_gui();
+    if (use_gui)
+      initialize_gui();
 	initialize_stacks();
 
 	while( program[pc].op != SOL_HALT )
@@ -31,7 +32,8 @@ int yyvm( void )
 	}
 
 	finalize_stacks();
-	finalize_gui();
+    if (use_gui)
+      finalize_gui();
 
 	return MEM_OK;
 }

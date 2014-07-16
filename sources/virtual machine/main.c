@@ -44,6 +44,7 @@ int main( int argc, char** argv )
 	FILE* console_output = stdout;
 	int result;
 	int i = 0;
+	int use_gui = 1;
 
 	while( ++i < argc )
 	{
@@ -59,6 +60,10 @@ int main( int argc, char** argv )
 				{
 					print_help();
 					return 0;
+				}
+				else if( !strcmp( argv[ i ], "nogui" ) )
+				{
+					use_gui = 0;
 				}
 				else
 					if( !strcmp( argv[ i ], "input" ) )
@@ -76,6 +81,10 @@ int main( int argc, char** argv )
 					case 'i':
 						extended_command = "--input";
 						break;
+
+                    case 'n':
+                        extended_command = "--nogui";
+                        break;
 
 					default:
 						fprintf( console_output, ERROR_UNDEFINED_FLAG );
@@ -122,7 +131,7 @@ int main( int argc, char** argv )
 		fprintf( stdout, "I have %d code lines to do!\n", program_size );
 #endif
 
-		if( ( result = yyvm() ) == 0 )
+		if( ( result = yyvm( use_gui ) ) == 0 )
 			fprintf( stdout, "Executed all S-Code ノ┬─┬ノ ︵ ( \\o°o)\\\n" );
 	}
 
